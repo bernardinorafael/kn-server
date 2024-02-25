@@ -49,17 +49,11 @@ func (s UserController) Save(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"success": "ok"})
+	c.JSON(http.StatusCreated, gin.H{"status": "ok"})
 }
 
 func (s UserController) GetByID(c *gin.Context) {
 	id := c.Param("id")
-
-	if id == "" {
-		slog.Error("ID param not found")
-		httperror.NewBadRequestError(c, "ID param not found")
-		return
-	}
 
 	user, err := s.service.GetByID(id)
 	if err != nil {
@@ -76,8 +70,37 @@ func (s UserController) GetByID(c *gin.Context) {
 }
 
 func (s UserController) Update(c *gin.Context) {
-	// TODO implement me
-	panic("implement me")
+	id := c.Param("id")
+	req := dto.UpdateUser{}
+
+	if c.Request.Body == http.NoBody {
+		slog.Error("body is required")
+		httperror.NewBadRequestError(c, "body is required")
+		return
+	}
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		slog.Error("failed to decode body")
+		httperror.NewBadRequestError(c, "failed to decode body")
+		return
+	}
+
+	err = s.service.Update(&req, id)
+	if err != nil {
+		slog.Error("error to update user", err)
+		if err.Error() == "user not found" {
+			httperror.NewNotFoundError(c, "user not found")
+			return
+		}
+		if err.Error() == "user already exists" {
+			httperror.NewConflictError(c, "e-mail already taken")
+		}
+		httperror.NewBadRequestError(c, "error to get user")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 func (s UserController) Delete(c *gin.Context) {
@@ -100,12 +123,13 @@ func (s UserController) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": "ok"})
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 func (s UserController) GetAll(c *gin.Context) {
 	users, err := s.service.GetAll()
 	if err != nil {
+		slog.Error("error to get all users", err)
 		httperror.NewBadRequestError(c, "error to get all users")
 		return
 	}

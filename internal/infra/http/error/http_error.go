@@ -20,7 +20,6 @@ type HttpResponseError struct {
 }
 
 func NewBadRequestError(c *gin.Context, msg string) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusBadRequest, HttpResponseError{
 		Message: msg,
 		Err:     "BAD_REQUEST",
@@ -29,7 +28,6 @@ func NewBadRequestError(c *gin.Context, msg string) {
 }
 
 func NewUnauthorizedRequestError(c *gin.Context, msg string) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusUnauthorized, HttpResponseError{
 		Message: msg,
 		Err:     "UNAUTHORIZED",
@@ -38,7 +36,6 @@ func NewUnauthorizedRequestError(c *gin.Context, msg string) {
 }
 
 func NewBadRequestValidationError(c *gin.Context, msg string, fields []Fields) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusBadRequest, HttpResponseError{
 		Message: msg,
 		Err:     "bad_request_validation",
@@ -48,7 +45,6 @@ func NewBadRequestValidationError(c *gin.Context, msg string, fields []Fields) {
 }
 
 func NewInternalServerError(c *gin.Context, msg string) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusInternalServerError, HttpResponseError{
 		Message: msg,
 		Err:     "internal_server_error",
@@ -57,7 +53,6 @@ func NewInternalServerError(c *gin.Context, msg string) {
 }
 
 func NewNotFoundError(c *gin.Context, msg string) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusNotFound, HttpResponseError{
 		Message: msg,
 		Err:     "not_found",
@@ -66,10 +61,17 @@ func NewNotFoundError(c *gin.Context, msg string) {
 }
 
 func NewForbiddenError(c *gin.Context, msg string) {
-	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusForbidden, HttpResponseError{
 		Message: msg,
 		Err:     "forbidden",
 		Code:    http.StatusForbidden,
+	})
+}
+
+func NewConflictError(c *gin.Context, msg string) {
+	c.JSON(http.StatusConflict, HttpResponseError{
+		Message: msg,
+		Err:     "conflict",
+		Code:    http.StatusConflict,
 	})
 }

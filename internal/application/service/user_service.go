@@ -99,7 +99,7 @@ func (s *UserService) Update(u *dto.UpdateUser, id string) error {
 			return err
 		}
 		if user != nil {
-			slog.Error("e-mail already taken")
+			slog.Error("user already exists")
 			return errors.New("e-mail already taken")
 		}
 	}
