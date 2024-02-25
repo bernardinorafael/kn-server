@@ -35,7 +35,7 @@ func main() {
 
 	controllers.NewUserController(r, userService)
 
-	if err := r.Run(env.Env.Port); err != nil {
+	if err := r.Run("0.0.0.0:" + env.Env.Port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
