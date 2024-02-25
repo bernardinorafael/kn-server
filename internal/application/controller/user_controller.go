@@ -104,8 +104,13 @@ func (s UserController) Delete(c *gin.Context) {
 }
 
 func (s UserController) GetAll(c *gin.Context) {
-	// TODO implement me
-	panic("implement me")
+	users, err := s.service.GetAll()
+	if err != nil {
+		httperror.NewBadRequestError(c, "error to get all users")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
 func (s UserController) UpdatePassword(c *gin.Context) {
