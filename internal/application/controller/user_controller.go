@@ -138,6 +138,32 @@ func (s UserController) GetAll(c *gin.Context) {
 }
 
 func (s UserController) UpdatePassword(c *gin.Context) {
-	// TODO implement me
-	panic("implement me")
+	id := c.Param("id")
+	req := dto.UpdatePassword{}
+
+	if c.Request.Body == http.NoBody {
+		slog.Error("body is required")
+		httperror.NewBadRequestError(c, "body is required")
+		return
+	}
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		slog.Error("failed to decode body")
+		httperror.NewBadRequestError(c, "failed to decode body")
+		return
+	}
+
+	err = s.service.UpdatePassword(&req, id)
+	if err != nil {
+		slog.Error("error to update password", err)
+		if err.Error() == "user not found" {
+			httperror.NewNotFoundError(c, "user not found")
+			return
+		}
+		httperror.NewBadRequestError(c, "error to get user")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
