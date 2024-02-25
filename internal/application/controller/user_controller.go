@@ -53,8 +53,26 @@ func (s UserController) Save(c *gin.Context) {
 }
 
 func (s UserController) GetByID(c *gin.Context) {
-	// TODO implement me
-	panic("implement me")
+	id := c.Param("id")
+
+	if id == "" {
+		slog.Error("ID param not found")
+		httperror.NewBadRequestError(c, "ID param not found")
+		return
+	}
+
+	user, err := s.service.GetByID(id)
+	if err != nil {
+		slog.Error("error to get user", err)
+		if err.Error() == "user not found" {
+			httperror.NewNotFoundError(c, "user not found")
+			return
+		}
+		httperror.NewBadRequestError(c, "error to get user")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
 func (s UserController) Update(c *gin.Context) {

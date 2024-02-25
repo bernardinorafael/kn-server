@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID `json:"id"`
+	ID         string    `json:"id"`
 	Name       string    `json:"name"`
 	Username   string    `json:"username" gorm:"unique"`
 	Email      string    `json:"email" gorm:"unique"`
@@ -20,7 +20,7 @@ type User struct {
 
 func NewUser(name, username, email, personalId, password string) *User {
 	return &User{
-		ID:         uuid.New(),
+		ID:         uuid.New().String(),
 		Name:       name,
 		Username:   username,
 		Password:   password,

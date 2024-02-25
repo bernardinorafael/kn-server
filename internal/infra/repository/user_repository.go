@@ -3,7 +3,6 @@ package repository
 import (
 	"github.com/bernardinorafael/gozinho/internal/application/interfaces"
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +22,7 @@ func (r *UserRepository) GetByEmail(email string) (*entity.User, error) {
 	return nil, nil
 }
 
-func (r *UserRepository) GetByID(id uuid.UUID) (*entity.User, error) {
+func (r *UserRepository) GetByID(id string) (*entity.User, error) {
 	return nil, nil
 }
 
@@ -35,10 +34,10 @@ func (r *UserRepository) GetAll() ([]*entity.User, error) {
 	return nil, nil
 }
 
-func (r *UserRepository) Delete(id uuid.UUID) error {
+func (r *UserRepository) Delete(id string) error {
 	return nil
 }
 
-func (r *UserRepository) UpdatePassword(password string, id uuid.UUID) error {
+func (r *UserRepository) UpdatePassword(password string, id string) error {
 	return nil
 }

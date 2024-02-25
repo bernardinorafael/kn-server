@@ -39,7 +39,7 @@ func (s *UserService) Save(u *dto.CreateUser) error {
 	}
 
 	user := entity.User{
-		ID:         uuid.New(),
+		ID:         uuid.New().String(),
 		Name:       u.Name,
 		Username:   u.Username,
 		Email:      u.Email,
@@ -57,7 +57,7 @@ func (s *UserService) Save(u *dto.CreateUser) error {
 	return nil
 }
 
-func (s *UserService) GetByID(id uuid.UUID) (*response.UserResponse, error) {
+func (s *UserService) GetByID(id string) (*response.UserResponse, error) {
 	_user, err := s.repository.GetByID(id)
 	if err != nil {
 		slog.Error("error to find user by ID", err)
@@ -81,7 +81,7 @@ func (s *UserService) GetByID(id uuid.UUID) (*response.UserResponse, error) {
 	return &user, nil
 }
 
-func (s *UserService) Update(u *dto.UpdateUser, id uuid.UUID) error {
+func (s *UserService) Update(u *dto.UpdateUser, id string) error {
 	user, err := s.repository.GetByID(id)
 	if err != nil {
 		slog.Error("error to find user by ID", err)
@@ -118,7 +118,7 @@ func (s *UserService) Update(u *dto.UpdateUser, id uuid.UUID) error {
 	return nil
 }
 
-func (s *UserService) Delete(id uuid.UUID) error {
+func (s *UserService) Delete(id string) error {
 	user, err := s.repository.GetByID(id)
 	if err != nil {
 		slog.Error("error finding user by ID", user)
@@ -161,7 +161,7 @@ func (s *UserService) GetAll() (*response.AllUsersResponse, error) {
 	return &users, nil
 }
 
-func (s *UserService) UpdatePassword(u *dto.UpdatePassword, id uuid.UUID) error {
+func (s *UserService) UpdatePassword(u *dto.UpdatePassword, id string) error {
 	_user, err := s.repository.GetByID(id)
 	if err != nil {
 		slog.Error("error do find user by ID", err)
