@@ -49,7 +49,7 @@ func (s UserController) Save(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"success": "true"})
+	c.JSON(http.StatusCreated, gin.H{"success": "ok"})
 }
 
 func (s UserController) GetByID(c *gin.Context) {
@@ -81,8 +81,26 @@ func (s UserController) Update(c *gin.Context) {
 }
 
 func (s UserController) Delete(c *gin.Context) {
-	// TODO implement me
-	panic("implement me")
+	id := c.Param("id")
+
+	if id == "" {
+		slog.Error("ID param not found")
+		httperror.NewBadRequestError(c, "ID param not found")
+		return
+	}
+
+	err := s.service.Delete(id)
+	if err != nil {
+		slog.Error("error to get user", err)
+		if err.Error() == "user not found" {
+			httperror.NewNotFoundError(c, "user not found")
+			return
+		}
+		httperror.NewBadRequestError(c, "error to get user")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": "ok"})
 }
 
 func (s UserController) GetAll(c *gin.Context) {
