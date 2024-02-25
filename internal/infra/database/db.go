@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	config "github.com/bernardinorafael/gozinho/config/env"
-	"github.com/bernardinorafael/gozinho/internal/domain/entities"
+	"github.com/bernardinorafael/gozinho/internal/domain/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,7 +18,7 @@ func Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&entities.User{})
+	err = db.AutoMigrate(&entity.User{})
 	if err != nil {
 		slog.Error("Error generate migrations", err)
 		return nil, err

@@ -6,10 +6,10 @@ import (
 
 	"github.com/bernardinorafael/gozinho/config/env"
 	"github.com/bernardinorafael/gozinho/config/logger"
-	"github.com/bernardinorafael/gozinho/internal/application/controllers"
-	"github.com/bernardinorafael/gozinho/internal/application/services"
+	"github.com/bernardinorafael/gozinho/internal/application/controller"
+	"github.com/bernardinorafael/gozinho/internal/application/service"
 	"github.com/bernardinorafael/gozinho/internal/infra/database"
-	"github.com/bernardinorafael/gozinho/internal/infra/repositories"
+	"github.com/bernardinorafael/gozinho/internal/infra/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,12 +28,12 @@ func main() {
 		return
 	}
 
-	userRepository := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepository)
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepository)
 
 	r := gin.Default()
 
-	controllers.NewUserController(r, userService)
+	controller.NewUserController(r, userService)
 
 	if err := r.Run("0.0.0.0:" + env.Env.Port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

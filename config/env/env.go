@@ -5,10 +5,11 @@ import "github.com/spf13/viper"
 var Env *Config
 
 type Config struct {
-	Mode string `mapstructure:"ENVIRONMENT"`
-	Port string `mapstructure:"PORT"`
-
-	DSN string `mapstructure:"DB_POSTGRE_DSN"`
+	Port         string `mapstructure:"PORT"`
+	Mode         string `mapstructure:"ENVIRONMENT"`
+	DSN          string `mapstructure:"DB_POSTGRE_DSN"`
+	JwtSecret    string `mapstructure:"JWT_SECRET"`
+	JwtExpiresIn int    `mapstructure:"JWT_EXPIRES"`
 }
 
 func LoadConfig() (*Config, error) {
