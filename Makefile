@@ -5,7 +5,7 @@ include .env
 APP_NAME=kn.co
 
 run:
-	@go run main.go
+	@go run ./cmd/main.go
 build:
 	@go build -o $(APP_NAME) main.go
 test:
