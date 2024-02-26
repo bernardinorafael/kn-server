@@ -4,18 +4,18 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bernardinorafael/gozinho/internal/application/contract"
 	"github.com/bernardinorafael/gozinho/internal/application/dto"
-	"github.com/bernardinorafael/gozinho/internal/application/interfaces"
 	"github.com/bernardinorafael/gozinho/internal/infra/http/error"
 	"github.com/gin-gonic/gin"
 )
 
-type UserController struct {
-	service interfaces.UserService
+type userController struct {
+	svc contract.UserService
 }
 
-func NewUserController(r *gin.Engine, service interfaces.UserService) *UserController {
-	c := &UserController{service}
+func NewUserController(r *gin.Engine, svc contract.UserService) *userController {
+	c := &userController{svc}
 
 	r.POST("/user", c.Save)
 	r.GET("/user/:id", c.GetByID)
@@ -27,8 +27,8 @@ func NewUserController(r *gin.Engine, service interfaces.UserService) *UserContr
 	return c
 }
 
-func (s UserController) Save(c *gin.Context) {
-	req := dto.CreateUser{}
+func (s userController) Save(c *gin.Context) {
+	req := dto.UserInput{}
 
 	if c.Request.Body == http.NoBody {
 		slog.Error("body is required")
@@ -43,7 +43,7 @@ func (s UserController) Save(c *gin.Context) {
 		return
 	}
 
-	err = s.service.Save(&req)
+	err = s.svc.Save(&req)
 	if err != nil {
 		if err.Error() == "email already taken" {
 			httperror.NewConflictError(c, err.Error())
@@ -56,10 +56,10 @@ func (s UserController) Save(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"status": "ok"})
 }
 
-func (s UserController) GetByID(c *gin.Context) {
+func (s userController) GetByID(c *gin.Context) {
 	id := c.Param("id")
 
-	user, err := s.service.GetByID(id)
+	user, err := s.svc.GetByID(id)
 	if err != nil {
 		slog.Error("error to get user", err, slog.String("pkg", "controller"))
 		httperror.NewNotFoundError(c, "user not found")
@@ -69,7 +69,7 @@ func (s UserController) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-func (s UserController) Update(c *gin.Context) {
+func (s userController) Update(c *gin.Context) {
 	id := c.Param("id")
 	req := dto.UpdateUser{}
 
@@ -86,7 +86,7 @@ func (s UserController) Update(c *gin.Context) {
 		return
 	}
 
-	err = s.service.Update(&req, id)
+	err = s.svc.Update(&req, id)
 	if err != nil {
 		slog.Error("error to update user", err)
 		if err.Error() == "user not found" {
@@ -103,7 +103,7 @@ func (s UserController) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-func (s UserController) Delete(c *gin.Context) {
+func (s userController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
 	if id == "" {
@@ -112,7 +112,7 @@ func (s UserController) Delete(c *gin.Context) {
 		return
 	}
 
-	err := s.service.Delete(id)
+	err := s.svc.Delete(id)
 	if err != nil {
 		slog.Error("error to get user", err)
 		if err.Error() == "user not found" {
@@ -126,8 +126,8 @@ func (s UserController) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-func (s UserController) GetAll(c *gin.Context) {
-	users, err := s.service.GetAll()
+func (s userController) GetAll(c *gin.Context) {
+	users, err := s.svc.GetAll()
 	if err != nil {
 		slog.Error("error to get all users", err)
 		httperror.NewBadRequestError(c, "error to get all users")
@@ -137,7 +137,7 @@ func (s UserController) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func (s UserController) UpdatePassword(c *gin.Context) {
+func (s userController) UpdatePassword(c *gin.Context) {
 	id := c.Param("id")
 	req := dto.UpdatePassword{}
 
@@ -154,7 +154,7 @@ func (s UserController) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	err = s.service.UpdatePassword(&req, id)
+	err = s.svc.UpdatePassword(&req, id)
 	if err != nil {
 		slog.Error("error to update password", err, slog.String("pkg", "controller"))
 		httperror.NewConflictError(c, "error on update password")

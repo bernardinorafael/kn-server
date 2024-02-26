@@ -1,4 +1,4 @@
-package interfaces
+package contract
 
 import (
 	"github.com/bernardinorafael/gozinho/internal/application/dto"
@@ -6,7 +6,7 @@ import (
 )
 
 type UserService interface {
-	Save(u *dto.CreateUser) error
+	Save(u *dto.UserInput) error
 	GetByID(id string) (*response.UserResponse, error)
 	Update(u *dto.UpdateUser, id string) error
 	Delete(id string) error

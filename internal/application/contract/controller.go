@@ -1,4 +1,4 @@
-package interfaces
+package contract
 
 import (
 	"github.com/gin-gonic/gin"

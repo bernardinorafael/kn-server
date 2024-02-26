@@ -35,6 +35,9 @@ func main() {
 
 	controller.NewUserController(r, userService)
 
+	// TODO: handler proxies
+	_ = r.SetTrustedProxies(nil)
+
 	if err := r.Run("0.0.0.0:" + env.Env.Port); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}

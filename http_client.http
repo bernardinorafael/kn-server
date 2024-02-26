@@ -1,21 +1,18 @@
 ### Update Password
-PUT http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
+PUT http://localhost:8080/user/6fd5d1af-5ecb-4b61-b21e-1310f56e978c
 Content-Type: application/json
 
 {
-    "password": "2468101",
-    "previous_password": "246810"
+    "password": "123456",
+    "previous_password": "agora_essa_nova_senha"
 }
 
 ### Update User
-PATCH http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
+PATCH http://localhost:8080/user/6fd5d1af-5ecb-4b61-b21e-1310f56e978c
 Content-Type: application/json
 
 {
-    "name": "rafael bernardino",
-    "username": "username_test",
-    "email": "test@gmail.com",
-    "personal_id": "10987856789"
+    "name": "claudionir ferreira"
 }
 
 ### Creating User
@@ -23,10 +20,10 @@ POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "name": "maristela florentina",
-    "username": "maristela_f",
-    "email": "maristela@hotmail.com",
-    "personal_id": "10878909888",
+    "name": "claudionir pedro bernardino",
+    "username": "clau_pedro",
+    "email": "pia_ber@hotmail.com",
+    "personal_id": "09876799091",
     "password": "12345678"
 }
 

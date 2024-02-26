@@ -1,21 +1,21 @@
 package repository
 
 import (
-	"github.com/bernardinorafael/gozinho/internal/application/interfaces"
+	"github.com/bernardinorafael/gozinho/internal/application/contract"
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) interfaces.UserRepository {
-	return &UserRepository{db}
+func NewUserRepository(db *gorm.DB) contract.UserRepository {
+	return &userRepository{db}
 }
 
-func (r *UserRepository) Save(u *entity.User) error {
+func (r *userRepository) Save(u *entity.User) error {
 	user := entity.User{
 		ID:         uuid.New().String(),
 		Name:       u.Name,
@@ -33,7 +33,7 @@ func (r *UserRepository) Save(u *entity.User) error {
 	return nil
 }
 
-func (r *UserRepository) GetByEmail(email string) (*entity.User, error) {
+func (r *userRepository) GetByEmail(email string) (*entity.User, error) {
 	var user = entity.User{}
 
 	err := r.db.Where("email = ?", email).First(&user).Error
@@ -44,7 +44,7 @@ func (r *UserRepository) GetByEmail(email string) (*entity.User, error) {
 	return &user, err
 }
 
-func (r *UserRepository) GetByID(id string) (*entity.User, error) {
+func (r *userRepository) GetByID(id string) (*entity.User, error) {
 	var user = entity.User{ID: id}
 
 	if err := r.db.First(&user).Error; err != nil {
@@ -54,7 +54,7 @@ func (r *UserRepository) GetByID(id string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Update(u *entity.User) error {
+func (r *userRepository) Update(u *entity.User) error {
 	var user = entity.User{ID: u.ID}
 
 	if err := r.db.First(&user).Error; err != nil {
@@ -78,7 +78,7 @@ func (r *UserRepository) Update(u *entity.User) error {
 	return nil
 }
 
-func (r *UserRepository) GetAll() ([]entity.User, error) {
+func (r *userRepository) GetAll() ([]entity.User, error) {
 	var users []entity.User
 
 	if err := r.db.Find(&users).Error; err != nil {
@@ -88,7 +88,7 @@ func (r *UserRepository) GetAll() ([]entity.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) Delete(id string) error {
+func (r *userRepository) Delete(id string) error {
 	var user = entity.User{ID: id}
 
 	if err := r.db.First(&user).Error; err != nil {
@@ -102,7 +102,7 @@ func (r *UserRepository) Delete(id string) error {
 	return nil
 }
 
-func (r *UserRepository) UpdatePassword(password string, id string) error {
+func (r *userRepository) UpdatePassword(password string, id string) error {
 	var user = entity.User{ID: id}
 
 	if err := r.db.First(&user).Error; err != nil {

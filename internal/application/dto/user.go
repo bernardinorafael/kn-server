@@ -1,6 +1,6 @@
 package dto
 
-type CreateUser struct {
+type UserInput struct {
 	Name       string `json:"name" validate:"required,min=3,max=30"`
 	Username   string `json:"username" validate:"required,min=3,max=14"`
 	Email      string `json:"email" validate:"required,email"`

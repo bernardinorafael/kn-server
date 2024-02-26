@@ -1,4 +1,4 @@
-package interfaces
+package contract
 
 import (
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
