@@ -10,6 +10,6 @@ type UserRepository interface {
 	GetByID(id string) (*entity.User, error)
 	Update(u *entity.User) error
 	Delete(id string) error
-	GetAll() ([]*entity.User, error)
+	GetAll() ([]entity.User, error)
 	UpdatePassword(password string, id string) error
 }
