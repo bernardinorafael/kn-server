@@ -1,47 +1,44 @@
-POST http://localhost:8080/user
-Content-Type: application/json
-
-{}
-
-###
 ### Update Password
-PUT http://localhost:8080/user/3c68e499-6c8d-4794-b034-f578f77ea3c6
+PUT http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
 Content-Type: application/json
 
 {
-    "password": "123000",
-    "previous_password": "123456"
+    "password": "2468101",
+    "previous_password": "246810"
 }
 
 ### Update User
-PATCH http://localhost:8080/user/66e91f16-5fe1-4334-b823-4b8153ae0af6
+PATCH http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
 Content-Type: application/json
 
 {
     "name": "rafael bernardino",
-    "username": "josemaria",
-    "email": "joselito@gmail.com",
-    "personal_id": "10323443904"
+    "username": "username_test",
+    "email": "test@gmail.com",
+    "personal_id": "10987856789"
 }
-
-### Get User By ID
-GET http://localhost:8080/user/66e91f16-5fe1-4334-b823-4b8153ae0af6
-Accept: application/json
-
-### Get Many Users
-GET http://localhost:8080/users
-Content-Type: application/json
 
 ### Creating User
 POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "name": "maria estela da silva",
-    "username": "estela_silva",
-    "email": "estela@hotmail.com",
-    "personal_id": "30345445906",
-    "password": "123456"
+    "name": "maristela florentina",
+    "username": "maristela_f",
+    "email": "maristela@hotmail.com",
+    "personal_id": "10878909888",
+    "password": "12345678"
 }
 
-###
+### Get User By ID
+GET http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
+Accept: application/json
+
+### Get Many Users
+GET http://localhost:8080/users
+Content-Type: application/json
+
+### Delete User
+DELETE http://localhost:8080/user/66e91f16-5fe1-4334-b823-4b8153ae0af6
+Content-Type: application/json
+

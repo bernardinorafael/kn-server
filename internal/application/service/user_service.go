@@ -23,16 +23,10 @@ func NewUserService(repository interfaces.UserRepository) *UserService {
 }
 
 func (s *UserService) Save(u *dto.CreateUser) error {
-	_user, err := s.repository.GetByEmail(u.Email)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			slog.Error("error to find user by email", err)
-			return err
-		}
-	}
-	if _user == nil {
-		slog.Error("user already taken", slog.String("pkg", "service"))
-		return errors.New("user already taken")
+	_, err := s.repository.GetByEmail(u.Email)
+	if err == nil {
+		slog.Error("email already taken")
+		return errors.New("email already taken")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
@@ -63,12 +57,8 @@ func (s *UserService) Save(u *dto.CreateUser) error {
 func (s *UserService) GetByID(id string) (*response.UserResponse, error) {
 	_user, err := s.repository.GetByID(id)
 	if err != nil {
-		slog.Error("error to find user by ID", err)
+		slog.Error("user not found", err, slog.String("pkg", "service"))
 		return nil, err
-	}
-	if _user == nil {
-		slog.Error("user not found")
-		return nil, errors.New("user not found")
 	}
 
 	user := response.UserResponse{
@@ -171,12 +161,8 @@ func (s *UserService) GetAll() (*response.AllUsersResponse, error) {
 func (s *UserService) UpdatePassword(u *dto.UpdatePassword, id string) error {
 	_user, err := s.repository.GetByID(id)
 	if err != nil {
-		slog.Error("error do find user by ID", err)
+		slog.Error("error do find user by ID", err, slog.String("pkg", "service"))
 		return err
-	}
-	if _user == nil {
-		slog.Error("user not found")
-		return errors.New("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(_user.Password), []byte(u.PreviousPassword))
@@ -185,20 +171,14 @@ func (s *UserService) UpdatePassword(u *dto.UpdatePassword, id string) error {
 		return errors.New("invalid previous password")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(_user.Password), []byte(u.PreviousPassword))
-	if err == nil {
-		slog.Error("new password is equal to previous password")
-		return errors.New("new password is equal to previous password")
-	}
-
 	encrypted, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if err != nil {
-		slog.Error("error to encrypt password", err)
+		slog.Error("error to encrypt password", err, slog.String("pkg", "service"))
 		return err
 	}
 
 	if err := s.repository.UpdatePassword(string(encrypted), id); err != nil {
-		slog.Error("failed to update password", err)
+		slog.Error("failed to update password", err, slog.String("pkg", "service"))
 		return err
 	}
 

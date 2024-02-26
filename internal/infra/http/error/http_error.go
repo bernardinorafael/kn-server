@@ -16,7 +16,7 @@ type HttpResponseError struct {
 	Message string   `json:"message"`
 	Err     string   `json:"error"`
 	Code    int      `json:"code"`
-	Fields  []Fields `json:"fields"`
+	Fields  []Fields `json:"fields,omitempty"`
 }
 
 func NewBadRequestError(c *gin.Context, msg string) {

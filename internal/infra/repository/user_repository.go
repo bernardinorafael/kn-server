@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-
 	"github.com/bernardinorafael/gozinho/internal/application/interfaces"
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
 	"github.com/google/uuid"
@@ -38,8 +36,8 @@ func (r *UserRepository) Save(u *entity.User) error {
 func (r *UserRepository) GetByEmail(email string) (*entity.User, error) {
 	var user = entity.User{}
 
-	err := r.db.Find(&user, "email = ?", email).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
 		return nil, err
 	}
 

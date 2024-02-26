@@ -45,6 +45,10 @@ func (s UserController) Save(c *gin.Context) {
 
 	err = s.service.Save(&req)
 	if err != nil {
+		if err.Error() == "email already taken" {
+			httperror.NewConflictError(c, err.Error())
+			return
+		}
 		httperror.NewBadRequestError(c, "error creating user")
 		return
 	}
@@ -57,12 +61,8 @@ func (s UserController) GetByID(c *gin.Context) {
 
 	user, err := s.service.GetByID(id)
 	if err != nil {
-		slog.Error("error to get user", err)
-		if err.Error() == "user not found" {
-			httperror.NewNotFoundError(c, "user not found")
-			return
-		}
-		httperror.NewBadRequestError(c, "error to get user")
+		slog.Error("error to get user", err, slog.String("pkg", "controller"))
+		httperror.NewNotFoundError(c, "user not found")
 		return
 	}
 
@@ -142,27 +142,24 @@ func (s UserController) UpdatePassword(c *gin.Context) {
 	req := dto.UpdatePassword{}
 
 	if c.Request.Body == http.NoBody {
-		slog.Error("body is required")
+		slog.Error("body is required", slog.String("pkg", "controller"))
 		httperror.NewBadRequestError(c, "body is required")
 		return
 	}
 
 	err := c.ShouldBind(&req)
 	if err != nil {
-		slog.Error("failed to decode body")
+		slog.Error("failed to decode body", slog.String("pkg", "controller"))
 		httperror.NewBadRequestError(c, "failed to decode body")
 		return
 	}
 
 	err = s.service.UpdatePassword(&req, id)
 	if err != nil {
-		slog.Error("error to update password", err)
-		if err.Error() == "user not found" {
-			httperror.NewNotFoundError(c, "user not found")
-			return
-		}
-		httperror.NewBadRequestError(c, "error to update password")
+		slog.Error("error to update password", err, slog.String("pkg", "controller"))
+		httperror.NewConflictError(c, "error on update password")
 		return
+
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
