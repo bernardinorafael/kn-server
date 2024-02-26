@@ -47,9 +47,9 @@ func (r *UserRepository) GetByEmail(email string) (*entity.User, error) {
 }
 
 func (r *UserRepository) GetByID(id string) (*entity.User, error) {
-	var user = entity.User{}
+	var user = entity.User{ID: id}
 
-	if err := r.db.First(&user, id).Error; err != nil {
+	if err := r.db.First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -57,9 +57,9 @@ func (r *UserRepository) GetByID(id string) (*entity.User, error) {
 }
 
 func (r *UserRepository) Update(u *entity.User) error {
-	var user = entity.User{}
+	var user = entity.User{ID: u.ID}
 
-	if err := r.db.First(&user, u.ID).Error; err != nil {
+	if err := r.db.First(&user).Error; err != nil {
 		return err
 	}
 
@@ -91,9 +91,9 @@ func (r *UserRepository) GetAll() ([]entity.User, error) {
 }
 
 func (r *UserRepository) Delete(id string) error {
-	var user = entity.User{}
+	var user = entity.User{ID: id}
 
-	if err := r.db.First(&user, id).Error; err != nil {
+	if err := r.db.First(&user).Error; err != nil {
 		return err
 	}
 
@@ -105,9 +105,9 @@ func (r *UserRepository) Delete(id string) error {
 }
 
 func (r *UserRepository) UpdatePassword(password string, id string) error {
-	var user = entity.User{}
+	var user = entity.User{ID: id}
 
-	if err := r.db.First(&user, id).Error; err != nil {
+	if err := r.db.First(&user).Error; err != nil {
 		return err
 	}
 

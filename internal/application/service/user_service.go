@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"errors"
 	"log/slog"
 	"time"
@@ -24,11 +25,13 @@ func NewUserService(repository interfaces.UserRepository) *UserService {
 func (s *UserService) Save(u *dto.CreateUser) error {
 	_user, err := s.repository.GetByEmail(u.Email)
 	if err != nil {
-		slog.Error("error to find user by email", err)
-		return err
+		if !errors.Is(err, sql.ErrNoRows) {
+			slog.Error("error to find user by email", err)
+			return err
+		}
 	}
-	if _user != nil {
-		slog.Error("user already taken")
+	if _user == nil {
+		slog.Error("user already taken", slog.String("pkg", "service"))
 		return errors.New("user already taken")
 	}
 
@@ -43,8 +46,8 @@ func (s *UserService) Save(u *dto.CreateUser) error {
 		Name:       u.Name,
 		Username:   u.Username,
 		Email:      u.Email,
-		PersonalID: u.PersonalID,
 		Password:   string(hash),
+		PersonalID: u.PersonalID,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
@@ -84,8 +87,10 @@ func (s *UserService) GetByID(id string) (*response.UserResponse, error) {
 func (s *UserService) Update(u *dto.UpdateUser, id string) error {
 	user, err := s.repository.GetByID(id)
 	if err != nil {
-		slog.Error("error to find user by ID", err)
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			slog.Error("error to find user by ID", err)
+			return err
+		}
 	}
 	if user == nil {
 		slog.Error("user not found")
@@ -95,10 +100,12 @@ func (s *UserService) Update(u *dto.UpdateUser, id string) error {
 	if u.Email != "" {
 		user, err := s.repository.GetByEmail(u.Email)
 		if err != nil {
-			slog.Error("error to find user by e-mail")
-			return err
+			if !errors.Is(err, sql.ErrNoRows) {
+				slog.Error("error to find user by e-mail")
+				return err
+			}
 		}
-		if user != nil {
+		if user == nil {
 			slog.Error("user already exists")
 			return errors.New("e-mail already taken")
 		}
@@ -174,7 +181,7 @@ func (s *UserService) UpdatePassword(u *dto.UpdatePassword, id string) error {
 
 	err = bcrypt.CompareHashAndPassword([]byte(_user.Password), []byte(u.PreviousPassword))
 	if err != nil {
-		slog.Error("invalid previous password")
+		slog.Error("invalid previous password", slog.String("pkg", "service"))
 		return errors.New("invalid previous password")
 	}
 

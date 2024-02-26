@@ -21,7 +21,7 @@ func NewUserController(r *gin.Engine, service interfaces.UserService) *UserContr
 	r.GET("/user/:id", c.GetByID)
 	r.PATCH("/user/:id", c.Update)
 	r.DELETE("/user/:id", c.Delete)
-	r.GET("/user", c.GetAll)
+	r.GET("/users", c.GetAll)
 	r.PUT("/user/:id", c.UpdatePassword)
 
 	return c
@@ -134,7 +134,7 @@ func (s UserController) GetAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"users": users})
+	c.JSON(http.StatusOK, users)
 }
 
 func (s UserController) UpdatePassword(c *gin.Context) {
@@ -161,7 +161,7 @@ func (s UserController) UpdatePassword(c *gin.Context) {
 			httperror.NewNotFoundError(c, "user not found")
 			return
 		}
-		httperror.NewBadRequestError(c, "error to get user")
+		httperror.NewBadRequestError(c, "error to update password")
 		return
 	}
 
