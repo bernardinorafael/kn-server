@@ -5,7 +5,7 @@
 *.dylib
 
 #ide
-.idea
+.idea/
 
 # Test Binary
 *.test
