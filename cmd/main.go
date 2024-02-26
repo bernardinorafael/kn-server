@@ -18,13 +18,13 @@ func main() {
 
 	_, err := env.LoadConfig()
 	if err != nil {
-		slog.Error("Failed to load env!", err, slog.String("package", "main"))
+		slog.Error("failed to load env", err)
 		return
 	}
 
 	db, err := database.Connect()
 	if err != nil {
-		slog.Error("Failed to connect database!", err)
+		slog.Error("failed to connect database", err)
 		return
 	}
 
@@ -36,6 +36,6 @@ func main() {
 	controller.NewUserController(r, userService)
 
 	if err := r.Run("0.0.0.0:" + env.Env.Port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }
