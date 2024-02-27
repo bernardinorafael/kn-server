@@ -30,7 +30,7 @@ func NewBadRequestError(c *gin.Context, msg string) {
 func NewUnauthorizedRequestError(c *gin.Context, msg string) {
 	c.JSON(http.StatusUnauthorized, HttpResponseError{
 		Message: msg,
-		Err:     "UNAUTHORIZED",
+		Err:     "unauthorized",
 		Code:    http.StatusUnauthorized,
 	})
 }

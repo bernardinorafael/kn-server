@@ -1,9 +1,9 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"errors"
-	"log/slog"
 	"time"
 
 	"github.com/bernardinorafael/gozinho/internal/application/contract"
@@ -24,17 +24,20 @@ func newAccountService(svc *service) contract.AccountService {
 	}
 }
 
-func (s *accountService) Save(u *dto.UserInput) error {
-	_, err := s.svc.ar.GetByEmail(u.Email)
+func (a *accountService) Save(ctx context.Context, u *dto.UserInput) error {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	_, err := a.svc.ar.GetByEmail(u.Email)
 	if err == nil {
-		slog.Error("email already taken")
-		return errors.New("email already taken")
+		a.svc.l.Error(ctx, "email already taken")
+		return nil
 	}
 
 	password, err := crypto.HashPassword(u.Password)
 	if err != nil {
-		slog.Error("failed to encrypt password", err)
-		return errors.New("failed to encrypt password")
+		a.svc.l.Errorf(ctx, "error hashing password: %v", err.Error())
+		return err
 	}
 
 	user := entity.Account{
@@ -48,18 +51,21 @@ func (s *accountService) Save(u *dto.UserInput) error {
 		UpdatedAt:  time.Now(),
 	}
 
-	if err := s.svc.ar.Save(&user); err != nil {
-		slog.Error("error to create user", err)
+	if err := a.svc.ar.Save(&user); err != nil {
+		a.svc.l.Errorf(ctx, "error creating user: %s", err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (s *accountService) GetByID(id string) (*response.UserResponse, error) {
-	_user, err := s.svc.ar.GetByID(id)
+func (a *accountService) GetByID(ctx context.Context, id string) (*response.UserResponse, error) {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	_user, err := a.svc.ar.GetByID(id)
 	if err != nil {
-		slog.Error("user not found", err, slog.String("pkg", "service"))
+		a.svc.l.Errorf(ctx, "error to find user: %s", err.Error())
 		return nil, err
 	}
 
@@ -76,30 +82,25 @@ func (s *accountService) GetByID(id string) (*response.UserResponse, error) {
 	return &user, nil
 }
 
-func (s *accountService) Update(u *dto.UpdateUser, id string) error {
-	user, err := s.svc.ar.GetByID(id)
+func (a *accountService) Update(ctx context.Context, u *dto.UpdateUser, id string) error {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	_, err := a.svc.ar.GetByID(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			slog.Error("error to find user by ID", err)
+			a.svc.l.Errorf(ctx, "error to find user by ID: %s", err.Error())
 			return err
 		}
 	}
-	if user == nil {
-		slog.Error("user not found")
-		return errors.New("user not found")
-	}
 
 	if u.Email != "" {
-		user, err := s.svc.ar.GetByEmail(u.Email)
+		_, err := a.svc.ar.GetByEmail(u.Email)
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				slog.Error("error to find user by e-mail")
+				a.svc.l.Errorf(ctx, "unable to find user by email: %s", err.Error())
 				return err
 			}
-		}
-		if user == nil {
-			slog.Error("user already exists")
-			return errors.New("e-mail already taken")
 		}
 	}
 
@@ -109,37 +110,39 @@ func (s *accountService) Update(u *dto.UpdateUser, id string) error {
 		Email:    u.Email,
 	}
 
-	if err := s.svc.ar.Update(&updated); err != nil {
-		slog.Error("error to update user", err)
+	if err := a.svc.ar.Update(&updated); err != nil {
+		a.svc.l.Errorf(ctx, "error update user: %s", err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (s *accountService) Delete(id string) error {
-	user, err := s.svc.ar.GetByID(id)
+func (a *accountService) Delete(ctx context.Context, id string) error {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	_, err := a.svc.ar.GetByID(id)
 	if err != nil {
-		slog.Error("error finding user by ID", user)
+		a.svc.l.Errorf(ctx, "error find user by ID: %s", err.Error())
 		return err
 	}
-	if user == nil {
-		slog.Error("user not found")
-		return errors.New("user not found")
-	}
 
-	if err := s.svc.ar.Delete(id); err != nil {
-		slog.Error("error to delete user", err)
+	if err := a.svc.ar.Delete(id); err != nil {
+		a.svc.l.Errorf(ctx, "error deleting user: %s", err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (s *accountService) GetAll() (*response.AllUsersResponse, error) {
-	_users, err := s.svc.ar.GetAll()
+func (a *accountService) GetAll(ctx context.Context) (*response.AllUsersResponse, error) {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	_users, err := a.svc.ar.GetAll()
 	if err != nil {
-		slog.Error("error to find many users", err)
+		a.svc.l.Errorf(ctx, "error find users: %s", err.Error())
 		return nil, err
 	}
 
@@ -160,27 +163,30 @@ func (s *accountService) GetAll() (*response.AllUsersResponse, error) {
 	return &users, nil
 }
 
-func (s *accountService) UpdatePassword(u *dto.UpdatePassword, id string) error {
-	user, err := s.svc.ar.GetByID(id)
+func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePassword, id string) error {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	user, err := a.svc.ar.GetByID(id)
 	if err != nil {
-		slog.Error("error do find user by ID", err, slog.String("pkg", "service"))
+		a.svc.l.Errorf(ctx, "error find user by ID: %s", err.Error())
 		return err
 	}
 
 	err = crypto.CheckPassword(user.Password, u.PreviousPassword)
 	if err != nil {
-		slog.Error("invalid previous password", slog.String("pkg", "service"))
-		return errors.New("invalid previous password")
+		a.svc.l.Errorf(ctx, "invalid password: %s", err.Error())
+		return err
 	}
 
 	password, err := crypto.HashPassword(u.Password)
 	if err != nil {
-		slog.Error("error to encrypt password", err, slog.String("pkg", "service"))
+		a.svc.l.Errorf(ctx, "error hashing password: %s", err.Error())
 		return err
 	}
 
-	if err := s.svc.ar.UpdatePassword(password, id); err != nil {
-		slog.Error("failed to update password", err, slog.String("pkg", "service"))
+	if err := a.svc.ar.UpdatePassword(password, id); err != nil {
+		a.svc.l.Errorf(ctx, "error updating password: %s", err.Error())
 		return err
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/bernardinorafael/gozinho/internal/application/contract"
 	"github.com/bernardinorafael/gozinho/internal/application/dto"
 	resterror "github.com/bernardinorafael/gozinho/internal/infra/rest/error"
+	"github.com/bernardinorafael/gozinho/internal/infra/rest/restutil"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,13 +16,13 @@ var handler *Handler
 var once sync.Once
 
 type Handler struct {
-	accountService contract.AccountService
+	svc contract.AccountService
 }
 
-func NewHandler(accountService contract.AccountService) *Handler {
+func NewHandler(svc contract.AccountService) *Handler {
 	once.Do(func() {
 		handler = &Handler{
-			accountService: accountService,
+			svc: svc,
 		}
 	})
 
@@ -29,22 +30,21 @@ func NewHandler(accountService contract.AccountService) *Handler {
 }
 
 func (s Handler) Save(c *gin.Context) {
-	input := dto.UserInput{}
+	ctx := restutil.GetContext(c)
 
+	input := dto.UserInput{}
 	if c.Request.Body == http.NoBody {
-		slog.Error("body is required")
 		resterror.NewBadRequestError(c, "body is required")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		slog.Error("failed to decode body")
 		resterror.NewBadRequestError(c, "failed to decode body")
 		return
 	}
 
-	err = s.accountService.Save(&input)
+	err = s.svc.Save(ctx, &input)
 	if err != nil {
 		if err.Error() == "email already taken" {
 			resterror.NewConflictError(c, err.Error())
@@ -58,11 +58,11 @@ func (s Handler) Save(c *gin.Context) {
 }
 
 func (s Handler) GetByID(c *gin.Context) {
-	id := c.Param("id")
+	ctx := restutil.GetContext(c)
 
-	user, err := s.accountService.GetByID(id)
+	id := c.Param("id")
+	user, err := s.svc.GetByID(ctx, id)
 	if err != nil {
-		slog.Error("error to get user", err)
 		resterror.NewNotFoundError(c, "user not found")
 		return
 	}
@@ -71,23 +71,23 @@ func (s Handler) GetByID(c *gin.Context) {
 }
 
 func (s Handler) Update(c *gin.Context) {
+	ctx := restutil.GetContext(c)
+
 	id := c.Param("id")
 	input := dto.UpdateUser{}
 
 	if c.Request.Body == http.NoBody {
-		slog.Error("body is required")
 		resterror.NewBadRequestError(c, "body is required")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		slog.Error("failed to decode body")
 		resterror.NewBadRequestError(c, "failed to decode body")
 		return
 	}
 
-	err = s.accountService.Update(&input, id)
+	err = s.svc.Update(ctx, &input, id)
 	if err != nil {
 		slog.Error("error to update user", err)
 		if err.Error() == "user not found" {
@@ -105,17 +105,16 @@ func (s Handler) Update(c *gin.Context) {
 }
 
 func (s Handler) Delete(c *gin.Context) {
-	id := c.Param("id")
+	ctx := restutil.GetContext(c)
 
+	id := c.Param("id")
 	if id == "" {
-		slog.Error("ID param not found")
 		resterror.NewBadRequestError(c, "ID param not found")
 		return
 	}
 
-	err := s.accountService.Delete(id)
+	err := s.svc.Delete(ctx, id)
 	if err != nil {
-		slog.Error("error to get user", err)
 		if err.Error() == "user not found" {
 			resterror.NewNotFoundError(c, "user not found")
 			return
@@ -128,9 +127,10 @@ func (s Handler) Delete(c *gin.Context) {
 }
 
 func (s Handler) GetAll(c *gin.Context) {
-	users, err := s.accountService.GetAll()
+	ctx := restutil.GetContext(c)
+
+	users, err := s.svc.GetAll(ctx)
 	if err != nil {
-		slog.Error("error to get all users", err)
 		resterror.NewBadRequestError(c, "error to get all users")
 		return
 	}
@@ -139,25 +139,24 @@ func (s Handler) GetAll(c *gin.Context) {
 }
 
 func (s Handler) UpdatePassword(c *gin.Context) {
+	ctx := restutil.GetContext(c)
+
 	id := c.Param("id")
 	input := dto.UpdatePassword{}
 
 	if c.Request.Body == http.NoBody {
-		slog.Error("body is required", slog.String("pkg", "controller"))
 		resterror.NewBadRequestError(c, "body is required")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		slog.Error("failed to decode body", slog.String("pkg", "controller"))
 		resterror.NewBadRequestError(c, "failed to decode body")
 		return
 	}
 
-	err = s.accountService.UpdatePassword(&input, id)
+	err = s.svc.UpdatePassword(ctx, &input, id)
 	if err != nil {
-		slog.Error("error to update password", err, slog.String("pkg", "controller"))
 		resterror.NewConflictError(c, "error on update password")
 		return
 	}

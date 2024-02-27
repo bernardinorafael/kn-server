@@ -48,7 +48,6 @@ func newLogJSONFormatter(w io.Writer, params LogParams) *logJSONFormatter {
 func (f *logJSONFormatter) Handle(c context.Context, r slog.Record) error {
 
 	fnName, fileName, fileLine := f.getRuntimeData()
-
 	level := f.getLevel(r.Level)
 
 	buf := strings.Builder{}
