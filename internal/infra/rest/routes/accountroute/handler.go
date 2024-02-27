@@ -34,13 +34,13 @@ func (s Handler) Save(c *gin.Context) {
 
 	input := dto.UserInput{}
 	if c.Request.Body == http.NoBody {
-		resterror.NewBadRequestError(c, "body is required")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		resterror.NewBadRequestError(c, "failed to decode body")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
@@ -77,13 +77,13 @@ func (s Handler) Update(c *gin.Context) {
 	input := dto.UpdateUser{}
 
 	if c.Request.Body == http.NoBody {
-		resterror.NewBadRequestError(c, "body is required")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		resterror.NewBadRequestError(c, "failed to decode body")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
@@ -95,7 +95,7 @@ func (s Handler) Update(c *gin.Context) {
 			return
 		}
 		if err.Error() == "user already exists" {
-			resterror.NewConflictError(c, "e-mail already taken")
+			resterror.NewConflictError(c, "email already taken")
 		}
 		resterror.NewBadRequestError(c, "error to get user")
 		return
@@ -145,13 +145,13 @@ func (s Handler) UpdatePassword(c *gin.Context) {
 	input := dto.UpdatePassword{}
 
 	if c.Request.Body == http.NoBody {
-		resterror.NewBadRequestError(c, "body is required")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
 	err := c.ShouldBind(&input)
 	if err != nil {
-		resterror.NewBadRequestError(c, "failed to decode body")
+		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 

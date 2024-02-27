@@ -28,13 +28,17 @@ func (a *accountService) Save(ctx context.Context, u *dto.UserInput) error {
 	a.svc.l.Info(ctx, "process started")
 	defer a.svc.l.Info(ctx, "process finished")
 
-	_, err := a.svc.ar.GetByEmail(u.Email)
-	if err == nil {
+	exists, err := a.svc.ar.GetByEmail(u.Email)
+	if err != nil {
+		a.svc.l.Errorf(ctx, "error finding user by email: %s", err.Error())
+		return err
+	}
+	if exists != nil {
 		a.svc.l.Error(ctx, "email already taken")
-		return nil
+		return errors.New("email already taken")
 	}
 
-	password, err := crypto.HashPassword(u.Password)
+	password, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
 		a.svc.l.Errorf(ctx, "error hashing password: %v", err.Error())
 		return err
@@ -179,7 +183,7 @@ func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePasswo
 		return err
 	}
 
-	password, err := crypto.HashPassword(u.Password)
+	password, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
 		a.svc.l.Errorf(ctx, "error hashing password: %s", err.Error())
 		return err
