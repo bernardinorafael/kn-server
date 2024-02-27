@@ -1,9 +1,13 @@
 package service
 
-import "github.com/bernardinorafael/gozinho/internal/application/contract"
+import (
+	"github.com/bernardinorafael/gozinho/internal/application/contract"
+	utillog "github.com/bernardinorafael/gozinho/util/log"
+)
 
 type service struct {
 	ar contract.AccountRepository
+	l  utillog.Logger
 }
 
 type Services struct {
@@ -26,5 +30,11 @@ func New(opts ...Options) (*Services, error) {
 func GetAccountRepository(ar contract.AccountRepository) Options {
 	return func(service *service) {
 		service.ar = ar
+	}
+}
+
+func GetLogger(l utillog.Logger) Options {
+	return func(service *service) {
+		service.l = l
 	}
 }

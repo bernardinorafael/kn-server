@@ -1,18 +1,23 @@
-package env
+package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
-var Env *Config
+var Env *EnvFile
 
-type Config struct {
+type EnvFile struct {
 	Port         string `mapstructure:"PORT"`
 	Mode         string `mapstructure:"ENVIRONMENT"`
 	DSN          string `mapstructure:"DB_POSTGRE_DSN"`
 	JwtSecret    string `mapstructure:"JWT_SECRET"`
 	JwtExpiresIn int    `mapstructure:"JWT_EXPIRES"`
+	Name         string `mapstructure:"NAME"`
+	Debug        bool   `mapstructure:"DEBUG"`
+	LogToFile    string `mapstructure:"LOG_TO_FILE"`
 }
 
-func LoadConfig() (*Config, error) {
+func GetConfigEnv() (*EnvFile, error) {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
@@ -25,7 +30,6 @@ func LoadConfig() (*Config, error) {
 
 	err = viper.Unmarshal(&Env)
 	if err != nil {
-
 		return nil, err
 	}
 

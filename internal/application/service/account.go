@@ -37,7 +37,7 @@ func (s *accountService) Save(u *dto.UserInput) error {
 		return errors.New("failed to encrypt password")
 	}
 
-	user := entity.User{
+	user := entity.Account{
 		ID:         uuid.New().String(),
 		Name:       u.Name,
 		Username:   u.Username,
@@ -103,7 +103,7 @@ func (s *accountService) Update(u *dto.UpdateUser, id string) error {
 		}
 	}
 
-	updated := entity.User{
+	updated := entity.Account{
 		Name:     u.Name,
 		Username: u.Username,
 		Email:    u.Email,

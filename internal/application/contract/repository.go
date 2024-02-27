@@ -5,11 +5,11 @@ import (
 )
 
 type AccountRepository interface {
-	Save(u *entity.User) error
-	GetByEmail(email string) (*entity.User, error)
-	GetByID(id string) (*entity.User, error)
-	Update(u *entity.User) error
+	Save(u *entity.Account) error
+	GetByEmail(email string) (*entity.Account, error)
+	GetByID(id string) (*entity.Account, error)
+	Update(u *entity.Account) error
 	Delete(id string) error
-	GetAll() ([]entity.User, error)
+	GetAll() ([]entity.Account, error)
 	UpdatePassword(password string, id string) error
 }

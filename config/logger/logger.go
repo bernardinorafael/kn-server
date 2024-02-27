@@ -1,11 +1,23 @@
 package logger
 
 import (
-	"log/slog"
-	"os"
+	"context"
+
+	"github.com/bernardinorafael/gozinho/config"
+	utillog "github.com/bernardinorafael/gozinho/util/log"
 )
 
-func InitLogger() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
+func New(cfg *config.EnvFile) utillog.Logger {
+	params := utillog.LogParams{
+		DebugLevel:      cfg.Debug,
+		AppName:         cfg.Name,
+		AttrFromContext: AttrFromContext,
+	}
+
+	return utillog.New(params)
+}
+
+func AttrFromContext(ctx context.Context) []any {
+	var args []any
+	return args
 }

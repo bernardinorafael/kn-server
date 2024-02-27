@@ -28,7 +28,7 @@ Content-Type: application/json
 }
 
 ### Get User By ID
-GET http://localhost:8080/user/5a98c11e-0290-4dfd-88c1-8e95c17190cd
+GET http://localhost:8080/user/378e5c58-89f0-457f-8a8c-9e2e1d07453c
 Accept: application/json
 
 ### Get Many Users

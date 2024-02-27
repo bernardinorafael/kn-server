@@ -62,7 +62,7 @@ func (s Handler) GetByID(c *gin.Context) {
 
 	user, err := s.accountService.GetByID(id)
 	if err != nil {
-		slog.Error("error to get user", err, slog.String("pkg", "controller"))
+		slog.Error("error to get user", err)
 		resterror.NewNotFoundError(c, "user not found")
 		return
 	}
