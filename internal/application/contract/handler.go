@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserController interface {
+type AccountHandler interface {
 	Save(c *gin.Context)
 	GetByID(c *gin.Context)
 	Update(c *gin.Context)

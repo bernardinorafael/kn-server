@@ -1,4 +1,4 @@
-package httperror
+package resterror
 
 import (
 	"net/http"

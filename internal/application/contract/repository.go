@@ -4,7 +4,7 @@ import (
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
 )
 
-type UserRepository interface {
+type AccountRepository interface {
 	Save(u *entity.User) error
 	GetByEmail(email string) (*entity.User, error)
 	GetByID(id string) (*entity.User, error)

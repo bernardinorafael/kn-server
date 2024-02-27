@@ -25,6 +25,7 @@ func LoadConfig() (*Config, error) {
 
 	err = viper.Unmarshal(&Env)
 	if err != nil {
+
 		return nil, err
 	}
 

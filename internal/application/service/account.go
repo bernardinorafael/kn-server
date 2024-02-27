@@ -9,21 +9,23 @@ import (
 	"github.com/bernardinorafael/gozinho/internal/application/contract"
 	"github.com/bernardinorafael/gozinho/internal/application/dto"
 	"github.com/bernardinorafael/gozinho/internal/domain/entity"
-	"github.com/bernardinorafael/gozinho/internal/infra/http/response"
+	"github.com/bernardinorafael/gozinho/internal/infra/rest/response"
 	"github.com/bernardinorafael/gozinho/util/crypto"
 	"github.com/google/uuid"
 )
 
-type userService struct {
-	repository contract.UserRepository
+type accountService struct {
+	svc *service
 }
 
-func NewUserService(repository contract.UserRepository) contract.UserService {
-	return &userService{repository}
+func newAccountService(svc *service) contract.AccountService {
+	return &accountService{
+		svc: svc,
+	}
 }
 
-func (s *userService) Save(u *dto.UserInput) error {
-	_, err := s.repository.GetByEmail(u.Email)
+func (s *accountService) Save(u *dto.UserInput) error {
+	_, err := s.svc.ar.GetByEmail(u.Email)
 	if err == nil {
 		slog.Error("email already taken")
 		return errors.New("email already taken")
@@ -46,7 +48,7 @@ func (s *userService) Save(u *dto.UserInput) error {
 		UpdatedAt:  time.Now(),
 	}
 
-	if err := s.repository.Save(&user); err != nil {
+	if err := s.svc.ar.Save(&user); err != nil {
 		slog.Error("error to create user", err)
 		return err
 	}
@@ -54,8 +56,8 @@ func (s *userService) Save(u *dto.UserInput) error {
 	return nil
 }
 
-func (s *userService) GetByID(id string) (*response.UserResponse, error) {
-	_user, err := s.repository.GetByID(id)
+func (s *accountService) GetByID(id string) (*response.UserResponse, error) {
+	_user, err := s.svc.ar.GetByID(id)
 	if err != nil {
 		slog.Error("user not found", err, slog.String("pkg", "service"))
 		return nil, err
@@ -74,8 +76,8 @@ func (s *userService) GetByID(id string) (*response.UserResponse, error) {
 	return &user, nil
 }
 
-func (s *userService) Update(u *dto.UpdateUser, id string) error {
-	user, err := s.repository.GetByID(id)
+func (s *accountService) Update(u *dto.UpdateUser, id string) error {
+	user, err := s.svc.ar.GetByID(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			slog.Error("error to find user by ID", err)
@@ -88,7 +90,7 @@ func (s *userService) Update(u *dto.UpdateUser, id string) error {
 	}
 
 	if u.Email != "" {
-		user, err := s.repository.GetByEmail(u.Email)
+		user, err := s.svc.ar.GetByEmail(u.Email)
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
 				slog.Error("error to find user by e-mail")
@@ -107,7 +109,7 @@ func (s *userService) Update(u *dto.UpdateUser, id string) error {
 		Email:    u.Email,
 	}
 
-	if err := s.repository.Update(&updated); err != nil {
+	if err := s.svc.ar.Update(&updated); err != nil {
 		slog.Error("error to update user", err)
 		return err
 	}
@@ -115,8 +117,8 @@ func (s *userService) Update(u *dto.UpdateUser, id string) error {
 	return nil
 }
 
-func (s *userService) Delete(id string) error {
-	user, err := s.repository.GetByID(id)
+func (s *accountService) Delete(id string) error {
+	user, err := s.svc.ar.GetByID(id)
 	if err != nil {
 		slog.Error("error finding user by ID", user)
 		return err
@@ -126,7 +128,7 @@ func (s *userService) Delete(id string) error {
 		return errors.New("user not found")
 	}
 
-	if err := s.repository.Delete(id); err != nil {
+	if err := s.svc.ar.Delete(id); err != nil {
 		slog.Error("error to delete user", err)
 		return err
 	}
@@ -134,8 +136,8 @@ func (s *userService) Delete(id string) error {
 	return nil
 }
 
-func (s *userService) GetAll() (*response.AllUsersResponse, error) {
-	_users, err := s.repository.GetAll()
+func (s *accountService) GetAll() (*response.AllUsersResponse, error) {
+	_users, err := s.svc.ar.GetAll()
 	if err != nil {
 		slog.Error("error to find many users", err)
 		return nil, err
@@ -158,8 +160,8 @@ func (s *userService) GetAll() (*response.AllUsersResponse, error) {
 	return &users, nil
 }
 
-func (s *userService) UpdatePassword(u *dto.UpdatePassword, id string) error {
-	user, err := s.repository.GetByID(id)
+func (s *accountService) UpdatePassword(u *dto.UpdatePassword, id string) error {
+	user, err := s.svc.ar.GetByID(id)
 	if err != nil {
 		slog.Error("error do find user by ID", err, slog.String("pkg", "service"))
 		return err
@@ -177,7 +179,7 @@ func (s *userService) UpdatePassword(u *dto.UpdatePassword, id string) error {
 		return err
 	}
 
-	if err := s.repository.UpdatePassword(password, id); err != nil {
+	if err := s.svc.ar.UpdatePassword(password, id); err != nil {
 		slog.Error("failed to update password", err, slog.String("pkg", "service"))
 		return err
 	}
