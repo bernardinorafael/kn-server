@@ -25,8 +25,7 @@ func (r *accountRepository) Save(u *entity.Account) error {
 		Password:   u.Password,
 	}
 
-	err := r.DB.Create(&user).Error
-	if err != nil {
+	if err := r.DB.Create(&user).Error; err != nil {
 		return err
 	}
 
@@ -36,9 +35,8 @@ func (r *accountRepository) Save(u *entity.Account) error {
 func (r *accountRepository) CheckUserExist(email, username, personalID string) (bool, error) {
 	var user entity.Account
 
-	err := r.DB.
-		Where("email = ? OR username = ? OR personal_id = ?",
-			email, username, personalID).Scan(&user).Error
+	err := r.DB.Where("email = ? OR username = ? OR personal_id = ?",
+		email, username, personalID).First(&user).Error
 
 	if err == nil {
 		return true, nil

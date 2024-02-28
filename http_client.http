@@ -20,10 +20,10 @@ POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "name": "paola olieveira",
-    "username": "paola_ol",
-    "email": "paola@hotmail.com",
-    "personal_id": "1213143",
+    "name": "rafael juliano gomes",
+    "username": "raf_gomes",
+    "email": "rafa_gomes12@gmail.com",
+    "personal_id": "11223143",
     "password": "12345678"
 }
 

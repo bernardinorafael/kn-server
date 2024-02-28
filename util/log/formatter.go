@@ -29,7 +29,7 @@ func newLogJSONFormatter(w io.Writer, params LogParams) *logJSONFormatter {
 	}
 
 	res := &logJSONFormatter{
-		Handler:   slog.NewJSONHandler(w, &params.slogOptions),
+		Handler:   slog.NewTextHandler(w, &params.slogOptions),
 		logToFile: false,
 		w:         w,
 	}
@@ -46,7 +46,6 @@ func newLogJSONFormatter(w io.Writer, params LogParams) *logJSONFormatter {
 }
 
 func (f *logJSONFormatter) Handle(c context.Context, r slog.Record) error {
-
 	fnName, fileName, fileLine := f.getRuntimeData()
 	level := f.getLevel(r.Level)
 
@@ -87,7 +86,6 @@ func (f *logJSONFormatter) Enabled(c context.Context, level slog.Level) bool {
 }
 
 func (f *logJSONFormatter) applyLevelColor(fullMsg, level string) string {
-
 	if !f.logToFile {
 		level := level
 		levelUpper := strings.ToUpper(level)
