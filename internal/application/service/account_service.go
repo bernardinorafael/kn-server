@@ -28,14 +28,10 @@ func (a *accountService) Save(ctx context.Context, u *dto.UserInput) error {
 	a.svc.l.Info(ctx, "process started")
 	defer a.svc.l.Info(ctx, "process finished")
 
-	exists, err := a.svc.ar.GetByEmail(u.Email)
-	if err != nil {
-		a.svc.l.Errorf(ctx, "error finding user by email: %s", err.Error())
-		return err
-	}
-	if exists != nil {
-		a.svc.l.Error(ctx, "email already taken")
-		return errors.New("email already taken")
+	exist, err := a.svc.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
+	if exist {
+		a.svc.l.Error(ctx, "user already taken")
+		return errors.New("user already taken")
 	}
 
 	password, err := crypto.EncryptPassword(u.Password)

@@ -12,4 +12,5 @@ type AccountRepository interface {
 	Delete(id string) error
 	GetAll() ([]entity.Account, error)
 	UpdatePassword(password string, id string) error
+	CheckUserExist(email, username, personalID string) (bool, error)
 }

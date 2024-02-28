@@ -25,13 +25,13 @@ func main() {
 	ctx := context.Background()
 	l := logger.New(cfg)
 
-	db, err := database.Connect(ctx, l)
+	DB, err := database.Connect(ctx, l)
 	if err != nil {
 		l.Errorf(ctx, "error connect database: %s", err)
 		return
 	}
 
-	accountRepository := repository.NewAccountRepository(db)
+	accountRepository := repository.NewAccountRepository(DB)
 
 	services, err := service.New(
 		service.GetAccountRepository(accountRepository),

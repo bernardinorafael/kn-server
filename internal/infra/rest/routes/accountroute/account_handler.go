@@ -46,15 +46,15 @@ func (s Handler) Save(c *gin.Context) {
 
 	err = s.svc.Save(ctx, &input)
 	if err != nil {
-		if err.Error() == "email already taken" {
-			resterror.NewConflictError(c, err.Error())
+		if err.Error() == "user already taken" {
+			resterror.NewConflictError(c, "credential(s) already taken")
 			return
 		}
 		resterror.NewBadRequestError(c, "error creating user")
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": "ok"})
+	c.Status(http.StatusCreated)
 }
 
 func (s Handler) GetByID(c *gin.Context) {
@@ -101,7 +101,7 @@ func (s Handler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.Status(http.StatusOK)
 }
 
 func (s Handler) Delete(c *gin.Context) {
@@ -123,7 +123,7 @@ func (s Handler) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.Status(http.StatusOK)
 }
 
 func (s Handler) GetAll(c *gin.Context) {
@@ -161,5 +161,5 @@ func (s Handler) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.Status(http.StatusOK)
 }
