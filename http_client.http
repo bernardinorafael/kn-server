@@ -1,10 +1,10 @@
 ### Update Password
-PUT http://localhost:8080/user/6fd5d1af-5ecb-4b61-b21e-1310f56e978c
+PUT http://localhost:8080/user/0a457b67-c846-4c8e-ae87-18a8ccb67462
 Content-Type: application/json
 
 {
-    "password": "123456",
-    "previous_password": "agora_essa_nova_senha"
+    "password": "novasenha",
+    "old_password": "novasenha"
 }
 
 ### Update User
@@ -20,10 +20,10 @@ POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "name": "rafael juliano gomes",
-    "username": "raf_gomes",
-    "email": "rafa_gomes12@gmail.com",
-    "personal_id": "11223143",
+    "name": "silvio santos",
+    "username": "silvio_santos",
+    "email": "silvio_santos_sbt@gmail.com",
+    "personal_id": "19756100981",
     "password": "12345678"
 }
 

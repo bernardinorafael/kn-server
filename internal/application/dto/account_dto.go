@@ -15,8 +15,8 @@ type UpdateUser struct {
 }
 
 type UpdatePassword struct {
-	Password         string `json:"password" validate:"required,min=8"`
-	PreviousPassword string `json:"previous_password" validate:"eqfield=Password"`
+	Password    string `json:"password" validate:"required,min=8"`
+	OldPassword string `json:"old_password" validate:"eqfield=Password"`
 }
 
 type Login struct {

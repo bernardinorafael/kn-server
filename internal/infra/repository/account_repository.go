@@ -128,3 +128,16 @@ func (r *accountRepository) UpdatePassword(password string, id string) error {
 
 	return nil
 }
+
+func (r *accountRepository) GetPassword(id string) (string, error) {
+	var account = entity.Account{ID: id}
+	var password string
+
+	if err := r.DB.First(&account).Error; err != nil {
+		return "", err
+	}
+
+	password = account.Password
+
+	return password, nil
+}

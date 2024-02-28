@@ -167,16 +167,24 @@ func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePasswo
 	a.svc.l.Info(ctx, "process started")
 	defer a.svc.l.Info(ctx, "process finished")
 
-	user, err := a.svc.ar.GetByID(id)
+	oldPassDB, err := a.svc.ar.GetPassword(id)
 	if err != nil {
 		a.svc.l.Errorf(ctx, "error find user by ID: %s", err.Error())
 		return err
 	}
 
-	err = crypto.CheckPassword(user.Password, u.PreviousPassword)
+	// compare old password sent in req to, old in DB
+	err = crypto.CheckPassword(oldPassDB, u.OldPassword)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "invalid password: %s", err.Error())
+		a.svc.l.Errorf(ctx, "invalid old password: %s", err.Error())
 		return err
+	}
+
+	// compare old password sent in req, to the new one
+	err = crypto.CheckPassword(oldPassDB, u.Password)
+	if err == nil {
+		a.svc.l.Errorf(ctx, "old password is equal to current one")
+		return errors.New("old password is equal to current one")
 	}
 
 	password, err := crypto.EncryptPassword(u.Password)
@@ -185,7 +193,8 @@ func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePasswo
 		return err
 	}
 
-	if err := a.svc.ar.UpdatePassword(password, id); err != nil {
+	err = a.svc.ar.UpdatePassword(password, id)
+	if err != nil {
 		a.svc.l.Errorf(ctx, "error updating password: %s", err.Error())
 		return err
 	}
