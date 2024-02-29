@@ -14,4 +14,5 @@ type AccountService interface {
 	Delete(ctx context.Context, id string) error
 	GetAll(ctx context.Context) (*response.AllUsersResponse, error)
 	UpdatePassword(ctx context.Context, u *dto.UpdatePassword, id string) error
+	Login(ctx context.Context, u *dto.Login) (*response.AuthToken, error)
 }

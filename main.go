@@ -7,6 +7,7 @@ import (
 	"github.com/bernardinorafael/gozinho/config"
 	"github.com/bernardinorafael/gozinho/config/logger"
 	"github.com/bernardinorafael/gozinho/internal/application/service"
+	"github.com/bernardinorafael/gozinho/internal/infra/auth"
 	"github.com/bernardinorafael/gozinho/internal/infra/database"
 	"github.com/bernardinorafael/gozinho/internal/infra/repository"
 	"github.com/bernardinorafael/gozinho/internal/infra/rest/routes/accountroute"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.Use(gin.Logger())
 
 	cfg, err := config.GetConfigEnv()
 	if err != nil {
@@ -24,6 +26,12 @@ func main() {
 
 	ctx := context.Background()
 	l := logger.New(cfg)
+
+	_, err = auth.NewAuthenticationToken(cfg, l)
+	if err != nil {
+		l.Errorf(ctx, "error initializing auth token: %s", err)
+		return
+	}
 
 	DB, err := database.Connect(ctx, l)
 	if err != nil {

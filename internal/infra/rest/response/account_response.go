@@ -17,3 +17,7 @@ type UserResponse struct {
 type AllUsersResponse struct {
 	Users []UserResponse `json:"users"`
 }
+
+type AuthToken struct {
+	AccessToken string `json:"access_token"`
+}

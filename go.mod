@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.5.0
 	github.com/gookit/color v1.5.4
 	github.com/labstack/gommon v0.4.2

@@ -1,20 +1,24 @@
 package config
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
 var Env *EnvFile
 
 type EnvFile struct {
-	Port         string `mapstructure:"PORT"`
-	Mode         string `mapstructure:"ENVIRONMENT"`
-	DSN          string `mapstructure:"DB_POSTGRE_DSN"`
-	JwtSecret    string `mapstructure:"JWT_SECRET"`
-	JwtExpiresIn int    `mapstructure:"JWT_EXPIRES"`
-	Name         string `mapstructure:"NAME"`
-	Debug        bool   `mapstructure:"DEBUG"`
-	LogToFile    string `mapstructure:"LOG_TO_FILE"`
+	Port      string `mapstructure:"PORT"`
+	Mode      string `mapstructure:"ENVIRONMENT"`
+	DSN       string `mapstructure:"DB_POSTGRE_DSN"`
+	Name      string `mapstructure:"NAME"`
+	Debug     bool   `mapstructure:"DEBUG"`
+	LogToFile string `mapstructure:"LOG_TO_FILE"`
+
+	JWTSecret           string        `mapstructure:"JWT_SECRET"`
+	JwtExpiresIn        int           `mapstructure:"JWT_EXPIRES"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func GetConfigEnv() (*EnvFile, error) {

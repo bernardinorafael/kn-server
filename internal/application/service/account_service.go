@@ -28,7 +28,7 @@ func (a *accountService) Save(ctx context.Context, u *dto.UserInput) error {
 	a.svc.l.Info(ctx, "process started")
 	defer a.svc.l.Info(ctx, "process finished")
 
-	exist, err := a.svc.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
+	exist, _ := a.svc.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
 	if exist {
 		a.svc.l.Error(ctx, "user already taken")
 		return errors.New("user already taken")
@@ -55,7 +55,6 @@ func (a *accountService) Save(ctx context.Context, u *dto.UserInput) error {
 		a.svc.l.Errorf(ctx, "error creating user: %s", err.Error())
 		return err
 	}
-
 	return nil
 }
 
@@ -78,7 +77,6 @@ func (a *accountService) GetByID(ctx context.Context, id string) (*response.User
 		Active:     _user.Active,
 		CreatedAt:  _user.CreatedAt,
 	}
-
 	return &user, nil
 }
 
@@ -114,7 +112,6 @@ func (a *accountService) Update(ctx context.Context, u *dto.UpdateUser, id strin
 		a.svc.l.Errorf(ctx, "error update user: %s", err.Error())
 		return err
 	}
-
 	return nil
 }
 
@@ -132,7 +129,6 @@ func (a *accountService) Delete(ctx context.Context, id string) error {
 		a.svc.l.Errorf(ctx, "error deleting user: %s", err.Error())
 		return err
 	}
-
 	return nil
 }
 
@@ -173,14 +169,12 @@ func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePasswo
 		return err
 	}
 
-	// compare old password sent in req to, old in DB
 	err = crypto.CheckPassword(oldPassDB, u.OldPassword)
 	if err != nil {
 		a.svc.l.Errorf(ctx, "invalid old password: %s", err.Error())
 		return err
 	}
 
-	// compare old password sent in req, to the new one
 	err = crypto.CheckPassword(oldPassDB, u.Password)
 	if err == nil {
 		a.svc.l.Errorf(ctx, "old password is equal to current one")
@@ -198,6 +192,31 @@ func (a *accountService) UpdatePassword(ctx context.Context, u *dto.UpdatePasswo
 		a.svc.l.Errorf(ctx, "error updating password: %s", err.Error())
 		return err
 	}
-
 	return nil
+}
+
+func (a *accountService) Login(ctx context.Context, input *dto.Login) (*response.AuthToken, error) {
+	a.svc.l.Info(ctx, "process started")
+	defer a.svc.l.Info(ctx, "process finished")
+
+	userInDB, err := a.svc.ar.GetByEmail(input.Email)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			a.svc.l.Errorf(ctx, "unable to find user by email: %s", err.Error())
+			return nil, err
+		}
+	}
+
+	_, err = a.svc.ar.GetPassword(userInDB.ID)
+	if err != nil {
+		a.svc.l.Error(ctx, "invalid credential")
+		return nil, err
+	}
+
+	if err := crypto.CheckPassword(userInDB.Password, input.Password); err != nil {
+		a.svc.l.Error(ctx, "invalid credential")
+		return nil, err
+	}
+
+	return nil, nil
 }

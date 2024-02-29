@@ -25,7 +25,6 @@ func NewHandler(svc contract.AccountService) *Handler {
 			svc: svc,
 		}
 	})
-
 	return handler
 }
 
@@ -53,7 +52,6 @@ func (s Handler) Save(c *gin.Context) {
 		resterror.NewBadRequestError(c, "error creating user")
 		return
 	}
-
 	c.Status(http.StatusCreated)
 }
 
@@ -66,7 +64,6 @@ func (s Handler) GetByID(c *gin.Context) {
 		resterror.NewNotFoundError(c, "user not found")
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
@@ -100,7 +97,6 @@ func (s Handler) Update(c *gin.Context) {
 		resterror.NewBadRequestError(c, "error to get user")
 		return
 	}
-
 	c.Status(http.StatusOK)
 }
 
@@ -122,7 +118,6 @@ func (s Handler) Delete(c *gin.Context) {
 		resterror.NewBadRequestError(c, "error to get user")
 		return
 	}
-
 	c.Status(http.StatusOK)
 }
 
@@ -134,7 +129,6 @@ func (s Handler) GetAll(c *gin.Context) {
 		resterror.NewBadRequestError(c, "error to get all users")
 		return
 	}
-
 	c.JSON(http.StatusOK, users)
 }
 
@@ -160,6 +154,5 @@ func (s Handler) UpdatePassword(c *gin.Context) {
 		resterror.NewConflictError(c, "error on update password")
 		return
 	}
-
 	c.Status(http.StatusOK)
 }

@@ -11,7 +11,6 @@ func EncryptPassword(p string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
-
 	return string(encrypted), nil
 }
 
