@@ -62,20 +62,20 @@ func (a *accountService) GetByID(ctx context.Context, id string) (*response.User
 	a.svc.l.Info(ctx, "process started")
 	defer a.svc.l.Info(ctx, "process finished")
 
-	_user, err := a.svc.ar.GetByID(id)
+	userInDB, err := a.svc.ar.GetByID(id)
 	if err != nil {
 		a.svc.l.Errorf(ctx, "error to find user: %s", err.Error())
 		return nil, err
 	}
 
 	user := response.UserResponse{
-		ID:         _user.ID,
-		Email:      _user.Email,
-		PersonalID: _user.PersonalID,
-		Name:       _user.Name,
-		Username:   _user.Username,
-		Active:     _user.Active,
-		CreatedAt:  _user.CreatedAt,
+		ID:         userInDB.ID,
+		Email:      userInDB.Email,
+		PersonalID: userInDB.PersonalID,
+		Name:       userInDB.Name,
+		Username:   userInDB.Username,
+		Active:     userInDB.Active,
+		CreatedAt:  userInDB.CreatedAt,
 	}
 	return &user, nil
 }

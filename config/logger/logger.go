@@ -13,7 +13,6 @@ func New(cfg *config.EnvFile) utillog.Logger {
 		AppName:         cfg.Name,
 		AttrFromContext: AttrFromContext,
 	}
-
 	return utillog.New(params)
 }
 
