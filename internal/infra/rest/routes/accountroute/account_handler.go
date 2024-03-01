@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/bernardinorafael/gozinho/internal/application/contract"
-	"github.com/bernardinorafael/gozinho/internal/application/dto"
-	resterror "github.com/bernardinorafael/gozinho/internal/infra/rest/error"
-	"github.com/bernardinorafael/gozinho/internal/infra/rest/restutil"
+	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	resterror "github.com/bernardinorafael/kn-server/internal/infra/rest/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,16 +18,49 @@ var handler *Handler
 var once sync.Once
 
 type Handler struct {
-	svc contract.AccountService
+	svc  contract.AccountService
+	auth auth.Authentication
 }
 
-func NewHandler(svc contract.AccountService) *Handler {
+func NewHandler(svc contract.AccountService, auth auth.Authentication) *Handler {
 	once.Do(func() {
-		handler = &Handler{
-			svc: svc,
-		}
+		handler = &Handler{svc, auth}
 	})
 	return handler
+}
+
+func (s Handler) Login(c *gin.Context) {
+	ctx := restutil.GetContext(c)
+
+	credentials := dto.Login{}
+	if c.Request.Body == http.NoBody {
+		resterror.NewBadRequestError(c, "not found/invalid body")
+		return
+	}
+
+	err := c.ShouldBind(&credentials)
+	if err != nil {
+		resterror.NewBadRequestError(c, "not found/invalid body")
+		return
+	}
+
+	account, err := s.svc.Login(ctx, credentials)
+	if err != nil {
+		resterror.NewUnauthorizedRequestError(c, "failed to login")
+		return
+	}
+
+	input := dto.TokenPayloadInput{ID: account.ID}
+	token, payload, err := s.auth.CreateAccessToken(ctx, input)
+
+	r := response.LoginResponse{
+		AccessToken: token,
+		UserID:      payload.UserID,
+		ExpiresAt:   payload.ExpiresAt,
+		IssuedAt:    payload.ExpiresAt,
+	}
+
+	c.JSON(http.StatusOK, r)
 }
 
 func (s Handler) Save(c *gin.Context) {
@@ -37,13 +72,13 @@ func (s Handler) Save(c *gin.Context) {
 		return
 	}
 
-	err := c.ShouldBind(&input)
+	err := c.ShouldBind(input)
 	if err != nil {
 		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
-	err = s.svc.Save(ctx, &input)
+	err = s.svc.Save(ctx, input)
 	if err != nil {
 		if err.Error() == "user already taken" {
 			resterror.NewConflictError(c, "credential(s) already taken")
@@ -78,13 +113,13 @@ func (s Handler) Update(c *gin.Context) {
 		return
 	}
 
-	err := c.ShouldBind(&input)
+	err := c.ShouldBind(input)
 	if err != nil {
 		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
-	err = s.svc.Update(ctx, &input, id)
+	err = s.svc.Update(ctx, input, id)
 	if err != nil {
 		slog.Error("error to update user", err)
 		if err.Error() == "user not found" {
@@ -143,13 +178,13 @@ func (s Handler) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	err := c.ShouldBind(&input)
+	err := c.ShouldBind(input)
 	if err != nil {
 		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
-	err = s.svc.UpdatePassword(ctx, &input, id)
+	err = s.svc.UpdatePassword(ctx, input, id)
 	if err != nil {
 		resterror.NewConflictError(c, "error on update password")
 		return

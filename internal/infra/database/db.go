@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/bernardinorafael/gozinho/config"
-	"github.com/bernardinorafael/gozinho/internal/domain/entity"
-	utillog "github.com/bernardinorafael/gozinho/util/log"
+	"github.com/bernardinorafael/kn-server/config"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	utillog "github.com/bernardinorafael/kn-server/util/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

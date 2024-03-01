@@ -4,13 +4,13 @@ import (
 	"context"
 	"log"
 
-	"github.com/bernardinorafael/gozinho/config"
-	"github.com/bernardinorafael/gozinho/config/logger"
-	"github.com/bernardinorafael/gozinho/internal/application/service"
-	"github.com/bernardinorafael/gozinho/internal/infra/auth"
-	"github.com/bernardinorafael/gozinho/internal/infra/database"
-	"github.com/bernardinorafael/gozinho/internal/infra/repository"
-	"github.com/bernardinorafael/gozinho/internal/infra/rest/routes/accountroute"
+	"github.com/bernardinorafael/kn-server/config"
+	"github.com/bernardinorafael/kn-server/config/logger"
+	"github.com/bernardinorafael/kn-server/internal/application/service"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/database"
+	"github.com/bernardinorafael/kn-server/internal/infra/repository"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/accountroute"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,19 +27,19 @@ func main() {
 	ctx := context.Background()
 	l := logger.New(cfg)
 
-	_, err = auth.NewAuthenticationToken(cfg, l)
+	authToken, err := auth.New(cfg, l)
 	if err != nil {
 		l.Errorf(ctx, "error initializing auth token: %s", err)
 		return
 	}
 
-	DB, err := database.Connect(ctx, l)
+	conn, err := database.Connect(ctx, l)
 	if err != nil {
 		l.Errorf(ctx, "error connect database: %s", err)
 		return
 	}
 
-	accountRepository := repository.NewAccountRepository(DB)
+	accountRepository := repository.NewAccountRepository(conn)
 
 	services, err := service.New(
 		service.GetAccountRepository(accountRepository),
@@ -50,7 +50,7 @@ func main() {
 		return
 	}
 
-	accountHandler := accountroute.NewHandler(services.AccountService)
+	accountHandler := accountroute.NewHandler(services.AccountService, authToken)
 	accountroute.Start(r, accountHandler)
 
 	_ = r.SetTrustedProxies(nil)

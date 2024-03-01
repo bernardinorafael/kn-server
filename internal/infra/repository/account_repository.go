@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/bernardinorafael/gozinho/internal/application/contract"
-	"github.com/bernardinorafael/gozinho/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -41,7 +41,6 @@ func (r *accountRepository) CheckUserExist(email, username, personalID string) (
 	if err == nil {
 		return true, nil
 	}
-
 	return false, err
 }
 
@@ -131,13 +130,12 @@ func (r *accountRepository) UpdatePassword(password string, id string) error {
 
 func (r *accountRepository) GetPassword(id string) (string, error) {
 	var account = entity.Account{ID: id}
-	var password string
 
-	if err := r.DB.First(&account).Error; err != nil {
+	err := r.DB.First(&account).Error
+	if err != nil {
 		return "", err
 	}
+	p := account.Password
 
-	password = account.Password
-
-	return password, nil
+	return p, nil
 }

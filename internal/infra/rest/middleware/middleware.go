@@ -1,26 +1,26 @@
 package middleware
 
 import (
-	"github.com/bernardinorafael/gozinho/internal/application/contract"
-	"github.com/bernardinorafael/gozinho/internal/infra"
-	resterror "github.com/bernardinorafael/gozinho/internal/infra/rest/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	resterror "github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/gin-gonic/gin"
 )
 
-func WithAuthentication(authToken contract.Authentication) gin.HandlerFunc {
+func WithAuthentication(a auth.Authentication) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Request.Header.Get(string(infra.TokenKey))
+		token := c.Request.Header.Get(string(auth.TokenKey))
 		if len(token) == 0 {
-			resterror.NewUnauthorizedRequestError(c, "authentication required")
+			resterror.NewUnauthorizedRequestError(c, "access token is required")
 			return
 		}
 
-		payload, err := authToken.VerifyToken(c, token)
+		payload, err := a.ValidateToken(c, token)
 		if err != nil {
-			resterror.NewUnauthorizedRequestError(c, "authentication required")
+			resterror.NewUnauthorizedRequestError(c, "auth failed")
+			return
 		}
 
-		c.Set(string(infra.UserIDKey), payload.UserID)
+		c.Set(string(auth.UserIDKey), payload.UserID)
 		c.Next()
 	}
 }

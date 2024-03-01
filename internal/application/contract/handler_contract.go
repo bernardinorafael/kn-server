@@ -11,4 +11,5 @@ type AccountHandler interface {
 	Delete(c *gin.Context)
 	GetAll(c *gin.Context)
 	UpdatePassword(c *gin.Context)
+	Login(c *gin.Context)
 }

@@ -1,4 +1,4 @@
-module github.com/bernardinorafael/gozinho
+module github.com/bernardinorafael/kn-server
 
 go 1.21.6
 

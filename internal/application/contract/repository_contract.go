@@ -1,7 +1,7 @@
 package contract
 
 import (
-	"github.com/bernardinorafael/gozinho/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 )
 
 type AccountRepository interface {

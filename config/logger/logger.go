@@ -3,8 +3,8 @@ package logger
 import (
 	"context"
 
-	"github.com/bernardinorafael/gozinho/config"
-	utillog "github.com/bernardinorafael/gozinho/util/log"
+	"github.com/bernardinorafael/kn-server/config"
+	utillog "github.com/bernardinorafael/kn-server/util/log"
 )
 
 func New(cfg *config.EnvFile) utillog.Logger {

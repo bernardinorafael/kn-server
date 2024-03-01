@@ -9,4 +9,5 @@ func Start(router *gin.Engine, ctrl *Handler) {
 	router.PATCH("/user/:id", ctrl.Update)
 	router.DELETE("/user/:id", ctrl.Delete)
 	router.PUT("/user/:id", ctrl.UpdatePassword)
+	router.POST("/login", ctrl.Login)
 }
