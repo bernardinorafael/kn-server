@@ -5,12 +5,12 @@ import (
 )
 
 type UserResponse struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	Username   string    `json:"username"`
-	Email      string    `json:"email"`
-	PersonalID string    `json:"personal_id"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Document  string    `json:"document"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type AllUsersResponse struct {

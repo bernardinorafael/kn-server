@@ -28,32 +28,32 @@ func (a *accountService) Save(ctx context.Context, u dto.UserInput) error {
 	a.service.l.Info(ctx, "process started")
 	defer a.service.l.Info(ctx, "process finished")
 
-	exist, _ := a.service.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
+	exist, _ := a.service.ar.CheckUserExist(u.Email, u.Username, u.Document)
 	if exist {
-		a.service.l.Error(ctx, "usekr already taken")
-		return userAlreadyTakenError
+		a.service.l.Error(ctx, "user already taken")
+		return errUserAlreadyTaken
 	}
 
 	password, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error hashing password: %v", err.Error())
-		return hashPasswordError
+		return errHashPassword
 	}
 
 	user := entity.Account{
-		ID:         uuid.New().String(),
-		Name:       u.Name,
-		Username:   u.Username,
-		Email:      u.Email,
-		Password:   password,
-		PersonalID: u.PersonalID,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:        uuid.New().String(),
+		Name:      u.Name,
+		Username:  u.Username,
+		Email:     u.Email,
+		Password:  password,
+		Document:  u.Document,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	if err := a.service.ar.Save(&user); err != nil {
 		a.service.l.Errorf(ctx, "error creating user: %s", err.Error())
-		return createUserError
+		return errCreateUser
 	}
 	return nil
 }
@@ -65,17 +65,17 @@ func (a *accountService) GetByID(ctx context.Context, id string) (*response.User
 	u, err := a.service.ar.GetByID(id)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error to find user: %s", err.Error())
-		return nil, userNotFoundError
+		return nil, errUserNotFound
 	}
 	userInDB := u
 
 	user := response.UserResponse{
-		ID:         userInDB.ID,
-		Email:      userInDB.Email,
-		PersonalID: userInDB.PersonalID,
-		Name:       userInDB.Name,
-		Username:   userInDB.Username,
-		CreatedAt:  userInDB.CreatedAt,
+		ID:        userInDB.ID,
+		Email:     userInDB.Email,
+		Document:  userInDB.Document,
+		Name:      userInDB.Name,
+		Username:  userInDB.Username,
+		CreatedAt: userInDB.CreatedAt,
 	}
 	return &user, nil
 }
@@ -88,7 +88,7 @@ func (a *accountService) Update(ctx context.Context, u dto.UpdateUser, id string
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			a.service.l.Errorf(ctx, "error to find user by ID: %s", err.Error())
-			return userNotFoundError
+			return errUserNotFound
 		}
 	}
 
@@ -97,20 +97,20 @@ func (a *accountService) Update(ctx context.Context, u dto.UpdateUser, id string
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
 				a.service.l.Errorf(ctx, "unable to find user by email: %s", err.Error())
-				return emailNotFoundError
+				return errEmailNotFound
 			}
 		}
 	}
 
-	updated := entity.Account{
+	account := entity.Account{
 		Name:     u.Name,
 		Username: u.Username,
 		Email:    u.Email,
 	}
 
-	if err := a.service.ar.Update(&updated); err != nil {
+	if err := a.service.ar.Update(&account); err != nil {
 		a.service.l.Errorf(ctx, "error update user: %s", err.Error())
-		return updateUserError
+		return errUpdateUser
 	}
 	return nil
 }
@@ -122,12 +122,12 @@ func (a *accountService) Delete(ctx context.Context, id string) error {
 	_, err := a.service.ar.GetByID(id)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error find user by ID: %s", err.Error())
-		return userNotFoundError
+		return errUserNotFound
 	}
 
 	if err := a.service.ar.Delete(id); err != nil {
 		a.service.l.Errorf(ctx, "error deleting user: %s", err.Error())
-		return deleteUserError
+		return errDeleteUser
 	}
 	return nil
 }
@@ -139,19 +139,19 @@ func (a *accountService) GetAll(ctx context.Context) (*response.AllUsersResponse
 	u, err := a.service.ar.GetAll()
 	if err != nil {
 		a.service.l.Errorf(ctx, "error find users: %s", err.Error())
-		return nil, getManyUsersError
+		return nil, errGetManyUsers
 	}
 	_users := u
 
 	users := response.AllUsersResponse{}
 	for _, user := range _users {
 		usersResponse := response.UserResponse{
-			ID:         user.ID,
-			Name:       user.Name,
-			Username:   user.Username,
-			Email:      user.Email,
-			PersonalID: user.PersonalID,
-			CreatedAt:  user.CreatedAt,
+			ID:        user.ID,
+			Name:      user.Name,
+			Username:  user.Username,
+			Email:     user.Email,
+			Document:  user.Document,
+			CreatedAt: user.CreatedAt,
 		}
 		users.Users = append(users.Users, usersResponse)
 	}
@@ -165,31 +165,31 @@ func (a *accountService) UpdatePassword(ctx context.Context, u dto.UpdatePasswor
 	oldPassDB, err := a.service.ar.GetPassword(id)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error find user by ID: %s", err.Error())
-		return userNotFoundError
+		return errUserNotFound
 	}
 
 	if err = crypto.CheckPassword(oldPassDB, u.OldPassword); err != nil {
 		a.service.l.Errorf(ctx, "invalid old password: %s", err.Error())
-		return invalidCredentialError
+		return errInvAlidCredential
 	}
 
 	err = crypto.CheckPassword(oldPassDB, u.Password)
 	if err == nil {
 		a.service.l.Error(ctx, "old password is equal to current one")
-		return equalPasswordsError
+		return errEqualPasswords
 	}
 
 	p, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error hashing password: %s", err.Error())
-		return hashPasswordError
+		return errHashPassword
 	}
 	password := p
 
 	err = a.service.ar.UpdatePassword(password, id)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error updating password: %s", err.Error())
-		return updateUserError
+		return errUpdateUser
 
 	}
 	return nil
@@ -202,7 +202,7 @@ func (a *accountService) Login(ctx context.Context, input dto.Login) (*entity.Ac
 	acc, err := a.service.ar.GetByEmail(input.Email)
 	if err != nil {
 		a.service.l.Errorf(ctx, "cannot find user by email: %s", err.Error())
-		return nil, emailNotFoundError
+		return nil, errEmailNotFound
 	}
 
 	ctx = context.WithValue(ctx, auth.UserIDKey, acc.ID)
@@ -210,13 +210,13 @@ func (a *accountService) Login(ctx context.Context, input dto.Login) (*entity.Ac
 	_, err = a.service.ar.GetPassword(acc.ID)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error to get user password: %s", err.Error())
-		return nil, invalidCredentialError
+		return nil, errInvAlidCredential
 	}
 
 	err = crypto.CheckPassword(acc.Password, input.Password)
 	if err != nil {
 		a.service.l.Errorf(ctx, "password does not match: %s", err.Error())
-		return nil, invalidCredentialError
+		return nil, errInvAlidCredential
 	}
 
 	a.service.l.Infow(ctx, "user info used to login",
@@ -226,14 +226,14 @@ func (a *accountService) Login(ctx context.Context, input dto.Login) (*entity.Ac
 	)
 
 	account := &entity.Account{
-		ID:         acc.ID,
-		Name:       acc.Name,
-		Username:   acc.Username,
-		Email:      acc.Email,
-		Password:   acc.Password,
-		PersonalID: acc.PersonalID,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:        acc.ID,
+		Name:      acc.Name,
+		Username:  acc.Username,
+		Email:     acc.Email,
+		Password:  acc.Password,
+		Document:  acc.Document,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	return account, nil

@@ -2,30 +2,27 @@ package service
 
 import (
 	"errors"
-	"time"
 
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	utillog "github.com/bernardinorafael/kn-server/util/log"
 )
 
-var jwtTokenExpiresAt time.Duration
-
 var (
-	userAlreadyTakenError  = errors.New("the provided user is already in use")
-	hashPasswordError      = errors.New("an error occurred in trying to hash password")
-	createUserError        = errors.New("an error occurred trying to create user")
-	userNotFoundError      = errors.New("no users were found with the provided ID")
-	emailNotFoundError     = errors.New("no users matched the provided e-mail")
-	updateUserError        = errors.New("an error occurred, cannot update this resource")
-	deleteUserError        = errors.New("an error occurred, cannot delete this resource")
-	getManyUsersError      = errors.New("an error occurred, unable to retrieve the resource")
-	invalidCredentialError = errors.New("the provided input does not match the server")
-	equalPasswordsError    = errors.New("both passwords are the same")
-	expiredTokenError      = errors.New("the provided access token has expired")
-	invalidTokenError      = errors.New("the provided access token is invalid")
-	couldNotParseJwtError  = errors.New("failed to parse the provided jwt token")
-	encryptTokenError      = errors.New("failed to encrypt the provided token")
+	errUserAlreadyTaken  = errors.New("the provided user is already in use")
+	errHashPassword      = errors.New("an error occurred in trying to hash password")
+	errCreateUser        = errors.New("an error occurred trying to create user")
+	errUserNotFound      = errors.New("no users were found with the provided ID")
+	errEmailNotFound     = errors.New("no users matched the provided e-mail")
+	errUpdateUser        = errors.New("an error occurred, cannot update this resource")
+	errDeleteUser        = errors.New("an error occurred, cannot delete this resource")
+	errGetManyUsers      = errors.New("an error occurred, unable to retrieve the resource")
+	errInvAlidCredential = errors.New("the provided input does not match the server")
+	errEqualPasswords    = errors.New("both passwords are the same")
+	errExpiredToken      = errors.New("the provided access token has expired")
+	errInvalidToken      = errors.New("the provided access token is invalid")
+	errCouldNotParseJwt  = errors.New("failed to parse the provided jwt token")
+	errEncryptToken      = errors.New("failed to encrypt the provided token")
 )
 
 type service struct {

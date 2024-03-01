@@ -20,10 +20,10 @@ POST http://localhost:8080/user
 Content-Type: application/json
 
 {
-    "name": "silvio santos",
+    "name": "cirilo josias da silva",
     "username": "silvio_santos",
     "email": "silvio_santos_sbt@gmail.com",
-    "personal_id": "19756100981",
+    "document": "19756100981",
     "password": "12345678"
 }
 
@@ -32,10 +32,18 @@ GET http://localhost:8080/user/378e5c58-89f0-457f-8a8c-9e2e1d07453c
 Accept: application/json
 
 ### Get Many Users
-GET http://localhost:8080/users
+GET http://localhost:8080/user/all
 Content-Type: application/json
 
 ### Delete User
 DELETE http://localhost:8080/user/66e91f16-5fe1-4334-b823-4b8153ae0af6
 Content-Type: application/json
 
+### Login
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+    "email": "silvio_santos_sbt@gmail.com",
+    "password": "12345678"
+}

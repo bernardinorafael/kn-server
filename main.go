@@ -26,11 +26,6 @@ func main() {
 	ctx := context.Background()
 	l := logger.New(cfg)
 
-	if err != nil {
-		l.Errorf(ctx, "error initializing auth token: %s", err)
-		return
-	}
-
 	conn, err := database.Connect(ctx, l)
 	if err != nil {
 		l.Errorf(ctx, "error connect database: %s", err)
@@ -49,9 +44,9 @@ func main() {
 		return
 	}
 
-	accountHandler := accountroute.NewHandler(s.AccountService, s.AuthService)
+	accountHandler := accountroute.New(s.AccountService, s.AuthService)
 
-	accountroute.Start(r, accountHandler)
+	accountroute.Start(r, accountHandler, s.AuthService)
 
 	_ = r.SetTrustedProxies(nil)
 	if err := r.Run("0.0.0.0:" + cfg.Port); err != nil {

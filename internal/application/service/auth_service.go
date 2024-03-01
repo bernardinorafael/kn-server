@@ -20,30 +20,31 @@ func newAuthService(service *service) contract.AuthService {
 }
 
 func (a *authService) CreateAccessToken(ctx context.Context, i dto.TokenPayloadInput) (string, *dto.TokenPayload, error) {
+	duration := a.service.cfg.AccessTokenDuration
 	secret := []byte(a.service.cfg.JWTSecret)
 
 	payload := &dto.TokenPayload{
 		UserID:    i.ID,
 		IssuedAt:  time.Now(),
-		ExpiresAt: time.Now().Add(jwtTokenExpiresAt),
+		ExpiresAt: time.Now().Add(duration),
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(secret)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error to encrypt token: %v", err.Error())
-		return "", payload, encryptTokenError
+		return "", payload, errEncryptToken
 	}
 	return token, payload, nil
 }
 
 func (a *authService) ValidateToken(ctx context.Context, token string) (*dto.TokenPayload, error) {
 	if strings.TrimSpace(token) == "" {
-		return nil, invalidTokenError
+		return nil, errInvAlidCredential
 	}
 
 	keyFunc := func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, invalidTokenError
+			return nil, errInvAlidCredential
 		}
 		return []byte(a.service.cfg.JWTSecret), nil
 	}
@@ -52,9 +53,9 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (*dto.Tok
 	if err != nil {
 		var v *jwt.ValidationError
 		ok := errors.As(err, &v)
-		if ok && strings.Contains(v.Inner.Error(), expiredTokenError.Error()) {
-			a.service.l.Error(ctx, expiredTokenError.Error())
-			return nil, expiredTokenError
+		if ok && strings.Contains(v.Inner.Error(), errExpiredToken.Error()) {
+			a.service.l.Error(ctx, errExpiredToken.Error())
+			return nil, errExpiredToken
 		}
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (*dto.Tok
 	payload, ok := jwtToken.Claims.(*dto.TokenPayload)
 	if !ok {
 		a.service.l.Errorf(ctx, "could not parse jwt token: %v", err)
-		return nil, couldNotParseJwtError
+		return nil, errCouldNotParseJwt
 	}
 	return payload, nil
 }

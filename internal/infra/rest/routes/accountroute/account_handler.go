@@ -13,22 +13,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var handler *Handler
-var once sync.Once
+var (
+	handler *Handler
+	once    sync.Once
+)
 
 type Handler struct {
-	svc  contract.AccountService
+	as   contract.AccountService
 	auth contract.AuthService
 }
 
-func NewHandler(svc contract.AccountService, auth contract.AuthService) *Handler {
+func New(as contract.AccountService, auth contract.AuthService) *Handler {
 	once.Do(func() {
-		handler = &Handler{svc, auth}
+		handler = &Handler{as, auth}
 	})
 	return handler
 }
 
-func (s Handler) Login(c *gin.Context) {
+func (h Handler) Login(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	credentials := dto.Login{}
@@ -43,14 +45,17 @@ func (s Handler) Login(c *gin.Context) {
 		return
 	}
 
-	account, err := s.svc.Login(ctx, credentials)
+	account, err := h.as.Login(ctx, credentials)
 	if err != nil {
 		resterror.NewUnauthorizedRequestError(c, "failed to login")
 		return
 	}
 
 	input := dto.TokenPayloadInput{ID: account.ID}
-	token, payload, err := s.auth.CreateAccessToken(ctx, input)
+	token, payload, err := h.auth.CreateAccessToken(ctx, input)
+	if err != nil {
+		resterror.NewBadRequestError(c, err.Error())
+	}
 
 	r := response.LoginResponse{
 		AccessToken: token,
@@ -62,7 +67,7 @@ func (s Handler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-func (s Handler) Save(c *gin.Context) {
+func (h Handler) Save(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	input := dto.UserInput{}
@@ -77,7 +82,7 @@ func (s Handler) Save(c *gin.Context) {
 		return
 	}
 
-	err = s.svc.Save(ctx, input)
+	err = h.as.Save(ctx, input)
 	if err != nil {
 		if err.Error() == "user already taken" {
 			resterror.NewConflictError(c, "credential(s) already taken")
@@ -89,11 +94,11 @@ func (s Handler) Save(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (s Handler) GetByID(c *gin.Context) {
+func (h Handler) GetByID(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
-	user, err := s.svc.GetByID(ctx, id)
+	user, err := h.as.GetByID(ctx, id)
 	if err != nil {
 		resterror.NewNotFoundError(c, "user not found")
 		return
@@ -101,7 +106,7 @@ func (s Handler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-func (s Handler) Update(c *gin.Context) {
+func (h Handler) Update(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
@@ -118,7 +123,7 @@ func (s Handler) Update(c *gin.Context) {
 		return
 	}
 
-	err = s.svc.Update(ctx, input, id)
+	err = h.as.Update(ctx, input, id)
 	if err != nil {
 		slog.Error("error to update user", err)
 		if err.Error() == "user not found" {
@@ -134,7 +139,7 @@ func (s Handler) Update(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (s Handler) Delete(c *gin.Context) {
+func (h Handler) Delete(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
@@ -143,7 +148,7 @@ func (s Handler) Delete(c *gin.Context) {
 		return
 	}
 
-	err := s.svc.Delete(ctx, id)
+	err := h.as.Delete(ctx, id)
 	if err != nil {
 		if err.Error() == "user not found" {
 			resterror.NewNotFoundError(c, "user not found")
@@ -155,10 +160,10 @@ func (s Handler) Delete(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (s Handler) GetAll(c *gin.Context) {
+func (h Handler) GetAll(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
-	users, err := s.svc.GetAll(ctx)
+	users, err := h.as.GetAll(ctx)
 	if err != nil {
 		resterror.NewBadRequestError(c, "error to get all users")
 		return
@@ -166,7 +171,7 @@ func (s Handler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func (s Handler) UpdatePassword(c *gin.Context) {
+func (h Handler) UpdatePassword(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
@@ -183,7 +188,7 @@ func (s Handler) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	err = s.svc.UpdatePassword(ctx, input, id)
+	err = h.as.UpdatePassword(ctx, input, id)
 	if err != nil {
 		resterror.NewConflictError(c, "error on update password")
 		return
