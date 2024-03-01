@@ -7,7 +7,6 @@ import (
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
-	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/database"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/accountroute"
@@ -27,7 +26,6 @@ func main() {
 	ctx := context.Background()
 	l := logger.New(cfg)
 
-	authToken, err := auth.New(cfg, l)
 	if err != nil {
 		l.Errorf(ctx, "error initializing auth token: %s", err)
 		return
@@ -41,8 +39,9 @@ func main() {
 
 	accountRepository := repository.NewAccountRepository(conn)
 
-	services, err := service.New(
+	s, err := service.New(
 		service.GetAccountRepository(accountRepository),
+		service.GetConfig(cfg),
 		service.GetLogger(l),
 	)
 	if err != nil {
@@ -50,7 +49,8 @@ func main() {
 		return
 	}
 
-	accountHandler := accountroute.NewHandler(services.AccountService, authToken)
+	accountHandler := accountroute.NewHandler(s.AccountService, s.AuthService)
+
 	accountroute.Start(r, accountHandler)
 
 	_ = r.SetTrustedProxies(nil)

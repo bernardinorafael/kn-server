@@ -7,7 +7,6 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	resterror "github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
@@ -19,10 +18,10 @@ var once sync.Once
 
 type Handler struct {
 	svc  contract.AccountService
-	auth auth.Authentication
+	auth contract.AuthService
 }
 
-func NewHandler(svc contract.AccountService, auth auth.Authentication) *Handler {
+func NewHandler(svc contract.AccountService, auth contract.AuthService) *Handler {
 	once.Do(func() {
 		handler = &Handler{svc, auth}
 	})

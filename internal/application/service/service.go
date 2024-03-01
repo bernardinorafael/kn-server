@@ -2,10 +2,14 @@ package service
 
 import (
 	"errors"
+	"time"
 
+	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	utillog "github.com/bernardinorafael/kn-server/util/log"
 )
+
+var jwtTokenExpiresAt time.Duration
 
 var (
 	userAlreadyTakenError  = errors.New("the provided user is already in use")
@@ -18,36 +22,48 @@ var (
 	getManyUsersError      = errors.New("an error occurred, unable to retrieve the resource")
 	invalidCredentialError = errors.New("the provided input does not match the server")
 	equalPasswordsError    = errors.New("both passwords are the same")
+	expiredTokenError      = errors.New("the provided access token has expired")
+	invalidTokenError      = errors.New("the provided access token is invalid")
+	couldNotParseJwtError  = errors.New("failed to parse the provided jwt token")
+	encryptTokenError      = errors.New("failed to encrypt the provided token")
 )
 
 type service struct {
-	ar contract.AccountRepository
-	l  utillog.Logger
+	ar  contract.AccountRepository
+	l   utillog.Logger
+	cfg *config.EnvFile
 }
 
 type Services struct {
 	AccountService contract.AccountService
-	AuthService    contract.AccountService
+	AuthService    contract.AuthService
 }
 
-type SvcOptions func(*service)
+type svcOptions func(*service)
 
-func New(opts ...SvcOptions) (*Services, error) {
+func New(svcOptions ...svcOptions) (*Services, error) {
 	svc := &service{}
-	for _, option := range opts {
-		option(svc)
+	for _, opt := range svcOptions {
+		opt(svc)
 	}
-	return &Services{AccountService: newAccountService(svc)}, nil
+	return &Services{
+		AccountService: newAccountService(svc),
+		AuthService:    newAuthService(svc),
+	}, nil
 }
 
-func GetAccountRepository(ar contract.AccountRepository) SvcOptions {
-	return func(service *service) {
-		service.ar = ar
+func GetAccountRepository(ar contract.AccountRepository) svcOptions {
+	return func(s *service) {
+		s.ar = ar
 	}
 }
-
-func GetLogger(l utillog.Logger) SvcOptions {
-	return func(service *service) {
-		service.l = l
+func GetConfig(cfg *config.EnvFile) svcOptions {
+	return func(s *service) {
+		s.cfg = cfg
+	}
+}
+func GetLogger(l utillog.Logger) svcOptions {
+	return func(s *service) {
+		s.l = l
 	}
 }

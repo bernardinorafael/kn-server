@@ -17,31 +17,28 @@ import (
 )
 
 type accountService struct {
-	svc *service
+	service *service
 }
 
-func newAccountService(svc *service) contract.AccountService {
-	return &accountService{
-		svc: svc,
-	}
+func newAccountService(service *service) contract.AccountService {
+	return &accountService{service}
 }
 
 func (a *accountService) Save(ctx context.Context, u dto.UserInput) error {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	exist, _ := a.svc.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
+	exist, _ := a.service.ar.CheckUserExist(u.Email, u.Username, u.PersonalID)
 	if exist {
-		a.svc.l.Error(ctx, "user already taken")
+		a.service.l.Error(ctx, "usekr already taken")
 		return userAlreadyTakenError
 	}
 
-	p, err := crypto.EncryptPassword(u.Password)
+	password, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error hashing password: %v", err.Error())
+		a.service.l.Errorf(ctx, "error hashing password: %v", err.Error())
 		return hashPasswordError
 	}
-	password := p
 
 	user := entity.Account{
 		ID:         uuid.New().String(),
@@ -54,20 +51,20 @@ func (a *accountService) Save(ctx context.Context, u dto.UserInput) error {
 		UpdatedAt:  time.Now(),
 	}
 
-	if err := a.svc.ar.Save(&user); err != nil {
-		a.svc.l.Errorf(ctx, "error creating user: %s", err.Error())
+	if err := a.service.ar.Save(&user); err != nil {
+		a.service.l.Errorf(ctx, "error creating user: %s", err.Error())
 		return createUserError
 	}
 	return nil
 }
 
 func (a *accountService) GetByID(ctx context.Context, id string) (*response.UserResponse, error) {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	u, err := a.svc.ar.GetByID(id)
+	u, err := a.service.ar.GetByID(id)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error to find user: %s", err.Error())
+		a.service.l.Errorf(ctx, "error to find user: %s", err.Error())
 		return nil, userNotFoundError
 	}
 	userInDB := u
@@ -84,22 +81,22 @@ func (a *accountService) GetByID(ctx context.Context, id string) (*response.User
 }
 
 func (a *accountService) Update(ctx context.Context, u dto.UpdateUser, id string) error {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	_, err := a.svc.ar.GetByID(id)
+	_, err := a.service.ar.GetByID(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			a.svc.l.Errorf(ctx, "error to find user by ID: %s", err.Error())
+			a.service.l.Errorf(ctx, "error to find user by ID: %s", err.Error())
 			return userNotFoundError
 		}
 	}
 
 	if u.Email != "" {
-		_, err := a.svc.ar.GetByEmail(u.Email)
+		_, err := a.service.ar.GetByEmail(u.Email)
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				a.svc.l.Errorf(ctx, "unable to find user by email: %s", err.Error())
+				a.service.l.Errorf(ctx, "unable to find user by email: %s", err.Error())
 				return emailNotFoundError
 			}
 		}
@@ -111,37 +108,37 @@ func (a *accountService) Update(ctx context.Context, u dto.UpdateUser, id string
 		Email:    u.Email,
 	}
 
-	if err := a.svc.ar.Update(&updated); err != nil {
-		a.svc.l.Errorf(ctx, "error update user: %s", err.Error())
+	if err := a.service.ar.Update(&updated); err != nil {
+		a.service.l.Errorf(ctx, "error update user: %s", err.Error())
 		return updateUserError
 	}
 	return nil
 }
 
 func (a *accountService) Delete(ctx context.Context, id string) error {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	_, err := a.svc.ar.GetByID(id)
+	_, err := a.service.ar.GetByID(id)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error find user by ID: %s", err.Error())
+		a.service.l.Errorf(ctx, "error find user by ID: %s", err.Error())
 		return userNotFoundError
 	}
 
-	if err := a.svc.ar.Delete(id); err != nil {
-		a.svc.l.Errorf(ctx, "error deleting user: %s", err.Error())
+	if err := a.service.ar.Delete(id); err != nil {
+		a.service.l.Errorf(ctx, "error deleting user: %s", err.Error())
 		return deleteUserError
 	}
 	return nil
 }
 
 func (a *accountService) GetAll(ctx context.Context) (*response.AllUsersResponse, error) {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	u, err := a.svc.ar.GetAll()
+	u, err := a.service.ar.GetAll()
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error find users: %s", err.Error())
+		a.service.l.Errorf(ctx, "error find users: %s", err.Error())
 		return nil, getManyUsersError
 	}
 	_users := u
@@ -162,36 +159,36 @@ func (a *accountService) GetAll(ctx context.Context) (*response.AllUsersResponse
 }
 
 func (a *accountService) UpdatePassword(ctx context.Context, u dto.UpdatePassword, id string) error {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	oldPassDB, err := a.svc.ar.GetPassword(id)
+	oldPassDB, err := a.service.ar.GetPassword(id)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error find user by ID: %s", err.Error())
+		a.service.l.Errorf(ctx, "error find user by ID: %s", err.Error())
 		return userNotFoundError
 	}
 
 	if err = crypto.CheckPassword(oldPassDB, u.OldPassword); err != nil {
-		a.svc.l.Errorf(ctx, "invalid old password: %s", err.Error())
+		a.service.l.Errorf(ctx, "invalid old password: %s", err.Error())
 		return invalidCredentialError
 	}
 
 	err = crypto.CheckPassword(oldPassDB, u.Password)
 	if err == nil {
-		a.svc.l.Error(ctx, "old password is equal to current one")
+		a.service.l.Error(ctx, "old password is equal to current one")
 		return equalPasswordsError
 	}
 
 	p, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error hashing password: %s", err.Error())
+		a.service.l.Errorf(ctx, "error hashing password: %s", err.Error())
 		return hashPasswordError
 	}
 	password := p
 
-	err = a.svc.ar.UpdatePassword(password, id)
+	err = a.service.ar.UpdatePassword(password, id)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error updating password: %s", err.Error())
+		a.service.l.Errorf(ctx, "error updating password: %s", err.Error())
 		return updateUserError
 
 	}
@@ -199,30 +196,30 @@ func (a *accountService) UpdatePassword(ctx context.Context, u dto.UpdatePasswor
 }
 
 func (a *accountService) Login(ctx context.Context, input dto.Login) (*entity.Account, error) {
-	a.svc.l.Info(ctx, "process started")
-	defer a.svc.l.Info(ctx, "process finished")
+	a.service.l.Info(ctx, "process started")
+	defer a.service.l.Info(ctx, "process finished")
 
-	acc, err := a.svc.ar.GetByEmail(input.Email)
+	acc, err := a.service.ar.GetByEmail(input.Email)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "cannot find user by email: %s", err.Error())
+		a.service.l.Errorf(ctx, "cannot find user by email: %s", err.Error())
 		return nil, emailNotFoundError
 	}
 
 	ctx = context.WithValue(ctx, auth.UserIDKey, acc.ID)
 
-	_, err = a.svc.ar.GetPassword(acc.ID)
+	_, err = a.service.ar.GetPassword(acc.ID)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "error to get user password: %s", err.Error())
+		a.service.l.Errorf(ctx, "error to get user password: %s", err.Error())
 		return nil, invalidCredentialError
 	}
 
 	err = crypto.CheckPassword(acc.Password, input.Password)
 	if err != nil {
-		a.svc.l.Errorf(ctx, "password does not match: %s", err.Error())
+		a.service.l.Errorf(ctx, "password does not match: %s", err.Error())
 		return nil, invalidCredentialError
 	}
 
-	a.svc.l.Infow(ctx, "user info used to login",
+	a.service.l.Infow(ctx, "user info used to login",
 		slog.Group("user-info"),
 		slog.String("user-id", acc.ID),
 		slog.String("user-name", acc.Name),
