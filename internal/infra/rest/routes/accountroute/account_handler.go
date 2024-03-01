@@ -3,6 +3,7 @@ package accountroute
 import (
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
@@ -47,7 +48,7 @@ func (h Handler) Login(c *gin.Context) {
 
 	account, err := h.as.Login(ctx, credentials)
 	if err != nil {
-		resterror.NewUnauthorizedRequestError(c, "failed to login")
+		resterror.NewUnauthorizedError(c, "failed to login")
 		return
 	}
 
@@ -71,17 +72,11 @@ func (h Handler) Save(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	input := dto.UserInput{}
-	if c.Request.Body == http.NoBody {
-		resterror.NewBadRequestError(c, "not found/invalid body")
-		return
-	}
-
-	err := c.ShouldBind(input)
+	err := c.ShouldBind(&input)
 	if err != nil {
 		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
-
 	err = h.as.Save(ctx, input)
 	if err != nil {
 		if err.Error() == "user already taken" {
@@ -108,18 +103,12 @@ func (h Handler) GetByID(c *gin.Context) {
 
 func (h Handler) Update(c *gin.Context) {
 	ctx := restutil.GetContext(c)
-
 	id := c.Param("id")
+
 	input := dto.UpdateUser{}
-
-	if c.Request.Body == http.NoBody {
-		resterror.NewBadRequestError(c, "not found/invalid body")
-		return
-	}
-
 	err := c.ShouldBind(input)
 	if err != nil {
-		resterror.NewBadRequestError(c, "not found/invalid body")
+		resterror.NewBadRequestError(c, "invalid body request")
 		return
 	}
 
@@ -141,20 +130,11 @@ func (h Handler) Update(c *gin.Context) {
 
 func (h Handler) Delete(c *gin.Context) {
 	ctx := restutil.GetContext(c)
-
 	id := c.Param("id")
-	if id == "" {
-		resterror.NewBadRequestError(c, "ID param not found")
-		return
-	}
 
 	err := h.as.Delete(ctx, id)
 	if err != nil {
-		if err.Error() == "user not found" {
-			resterror.NewNotFoundError(c, "user not found")
-			return
-		}
-		resterror.NewBadRequestError(c, "error to get user")
+		resterror.NewNotFoundError(c, "the user you are trying to delete was not found")
 		return
 	}
 	c.Status(http.StatusOK)
@@ -163,12 +143,18 @@ func (h Handler) Delete(c *gin.Context) {
 func (h Handler) GetAll(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
-	users, err := h.as.GetAll(ctx)
+	accounts, err := h.as.GetAll(ctx)
 	if err != nil {
+		if strings.Contains(err.Error(), "the list is empty") {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "there are no users registered at the moment",
+			})
+			return
+		}
 		resterror.NewBadRequestError(c, "error to get all users")
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, accounts)
 }
 
 func (h Handler) UpdatePassword(c *gin.Context) {

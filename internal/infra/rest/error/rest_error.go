@@ -22,12 +22,12 @@ type HttpResponseError struct {
 func NewBadRequestError(c *gin.Context, msg string) {
 	c.JSON(http.StatusBadRequest, HttpResponseError{
 		Message: msg,
-		Err:     "BAD_REQUEST",
+		Err:     "bad_request",
 		Code:    http.StatusBadRequest,
 	})
 }
 
-func NewUnauthorizedRequestError(c *gin.Context, msg string) {
+func NewUnauthorizedError(c *gin.Context, msg string) {
 	c.JSON(http.StatusUnauthorized, HttpResponseError{
 		Message: msg,
 		Err:     "unauthorized",

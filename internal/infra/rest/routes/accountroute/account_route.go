@@ -6,15 +6,11 @@ import (
 )
 
 func Start(r *gin.Engine, handler *Handler, a contract.AuthService) {
-	user := r.Group("/user")
-	{
-		user.POST("", handler.Save)
-		user.GET("/:id", handler.GetByID)
-		user.GET("/all", handler.GetAll)
-		user.PATCH("/:id", handler.Update)
-		user.DELETE("/:id", handler.Delete)
-		user.PUT(":id", handler.UpdatePassword)
-	}
-
+	r.POST("/user", handler.Save)
+	r.GET("/user/:id", handler.GetByID)
+	r.GET("/users", handler.GetAll)
+	r.PATCH("/user/:id", handler.Update)
+	r.DELETE("/user/:id", handler.Delete)
+	r.PUT("/user/:id", handler.UpdatePassword)
 	r.POST("/login", handler.Login)
 }

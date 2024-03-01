@@ -136,15 +136,18 @@ func (a *accountService) GetAll(ctx context.Context) (*response.AllUsersResponse
 	a.service.l.Info(ctx, "process started")
 	defer a.service.l.Info(ctx, "process finished")
 
-	u, err := a.service.ar.GetAll()
+	us, err := a.service.ar.GetAll()
 	if err != nil {
+		if len(us) == 0 {
+			return nil, errors.New("the list is empty")
+		}
 		a.service.l.Errorf(ctx, "error find users: %s", err.Error())
 		return nil, errGetManyUsers
 	}
-	_users := u
+	allUser := us
 
 	users := response.AllUsersResponse{}
-	for _, user := range _users {
+	for _, user := range allUser {
 		usersResponse := response.UserResponse{
 			ID:        user.ID,
 			Name:      user.Name,

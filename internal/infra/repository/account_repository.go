@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"github.com/google/uuid"
@@ -92,7 +94,10 @@ func (r *accountRepository) Update(u *entity.Account) error {
 func (r *accountRepository) GetAll() ([]entity.Account, error) {
 	var accounts []entity.Account
 
-	if err := r.DB.Find(&accounts).Error; err != nil {
+	if err := r.DB.First(&accounts).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, gorm.ErrRecordNotFound
+		}
 		return nil, err
 	}
 
