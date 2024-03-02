@@ -1,4 +1,4 @@
-package resterror
+package resterr
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ type Fields struct {
 	Message string      `json:"message"`
 }
 
-type HttpResponseError struct {
+type HttpResponseErr struct {
 	Message string   `json:"message"`
 	Err     string   `json:"error"`
 	Code    int      `json:"code"`
@@ -20,7 +20,7 @@ type HttpResponseError struct {
 }
 
 func NewBadRequestError(c *gin.Context, msg string) {
-	c.JSON(http.StatusBadRequest, HttpResponseError{
+	c.JSON(http.StatusBadRequest, HttpResponseErr{
 		Message: msg,
 		Err:     "bad_request",
 		Code:    http.StatusBadRequest,
@@ -28,7 +28,7 @@ func NewBadRequestError(c *gin.Context, msg string) {
 }
 
 func NewUnauthorizedError(c *gin.Context, msg string) {
-	c.JSON(http.StatusUnauthorized, HttpResponseError{
+	c.JSON(http.StatusUnauthorized, HttpResponseErr{
 		Message: msg,
 		Err:     "unauthorized",
 		Code:    http.StatusUnauthorized,
@@ -36,7 +36,7 @@ func NewUnauthorizedError(c *gin.Context, msg string) {
 }
 
 func NewBadRequestValidationError(c *gin.Context, msg string, fields []Fields) {
-	c.JSON(http.StatusBadRequest, HttpResponseError{
+	c.JSON(http.StatusBadRequest, HttpResponseErr{
 		Message: msg,
 		Err:     "bad_request_validation",
 		Code:    http.StatusBadRequest,
@@ -45,7 +45,7 @@ func NewBadRequestValidationError(c *gin.Context, msg string, fields []Fields) {
 }
 
 func NewInternalServerError(c *gin.Context, msg string) {
-	c.JSON(http.StatusInternalServerError, HttpResponseError{
+	c.JSON(http.StatusInternalServerError, HttpResponseErr{
 		Message: msg,
 		Err:     "internal_server_error",
 		Code:    http.StatusInternalServerError,
@@ -53,7 +53,7 @@ func NewInternalServerError(c *gin.Context, msg string) {
 }
 
 func NewNotFoundError(c *gin.Context, msg string) {
-	c.JSON(http.StatusNotFound, HttpResponseError{
+	c.JSON(http.StatusNotFound, HttpResponseErr{
 		Message: msg,
 		Err:     "not_found",
 		Code:    http.StatusNotFound,
@@ -61,7 +61,7 @@ func NewNotFoundError(c *gin.Context, msg string) {
 }
 
 func NewForbiddenError(c *gin.Context, msg string) {
-	c.JSON(http.StatusForbidden, HttpResponseError{
+	c.JSON(http.StatusForbidden, HttpResponseErr{
 		Message: msg,
 		Err:     "forbidden",
 		Code:    http.StatusForbidden,
@@ -69,7 +69,7 @@ func NewForbiddenError(c *gin.Context, msg string) {
 }
 
 func NewConflictError(c *gin.Context, msg string) {
-	c.JSON(http.StatusConflict, HttpResponseError{
+	c.JSON(http.StatusConflict, HttpResponseErr{
 		Message: msg,
 		Err:     "conflict",
 		Code:    http.StatusConflict,
