@@ -5,12 +5,15 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
-	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
+	"gorm.io/gorm"
+
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
 	"github.com/bernardinorafael/kn-server/util/crypto"
 	"github.com/google/uuid"
@@ -24,20 +27,24 @@ func newAccountService(service *service) contract.AccountService {
 	return &accountService{service}
 }
 
-func (a *accountService) Save(ctx context.Context, u dto.UserInput) error {
+func (a *accountService) Save(ctx context.Context, u dto.UserInput) (string, error) {
 	a.service.l.Info(ctx, "process started")
 	defer a.service.l.Info(ctx, "process finished")
 
-	exist, _ := a.service.ar.CheckUserExist(u.Email, u.Username, u.Document)
-	if exist {
-		a.service.l.Error(ctx, "user already taken")
-		return errUserAlreadyTaken
+	err := a.service.ar.CheckUserExist(u.Email, u.Username, u.Document)
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key value") {
+			a.service.l.Errorf(ctx, "user already taken: %s", gorm.ErrDuplicatedKey.Error())
+			return "", err
+		}
+		a.service.l.Errorf(ctx, "failed to check user availability: %s", err.Error())
+		return "", nil
 	}
 
 	password, err := crypto.EncryptPassword(u.Password)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error hashing password: %v", err.Error())
-		return errHashPassword
+		return "", errHashPassword
 	}
 
 	user := entity.Account{
@@ -51,11 +58,12 @@ func (a *accountService) Save(ctx context.Context, u dto.UserInput) error {
 		UpdatedAt: time.Now(),
 	}
 
-	if err := a.service.ar.Save(&user); err != nil {
+	err = a.service.ar.Save(&user)
+	if err != nil {
 		a.service.l.Errorf(ctx, "error creating user: %s", err.Error())
-		return errCreateUser
+		return "", errCreateUser
 	}
-	return nil
+	return user.ID, nil
 }
 
 func (a *accountService) GetByID(ctx context.Context, id string) (*response.UserResponse, error) {
@@ -208,13 +216,13 @@ func (a *accountService) Login(ctx context.Context, input dto.Login) (*entity.Ac
 		return nil, errEmailNotFound
 	}
 
-	ctx = context.WithValue(ctx, auth.UserIDKey, acc.ID)
-
 	_, err = a.service.ar.GetPassword(acc.ID)
 	if err != nil {
 		a.service.l.Errorf(ctx, "error to get user password: %s", err.Error())
 		return nil, errInvAlidCredential
 	}
+
+	ctx = context.WithValue(ctx, restutil.AuthKey, acc.ID)
 
 	err = crypto.CheckPassword(acc.Password, input.Password)
 	if err != nil {

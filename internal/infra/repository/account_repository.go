@@ -18,7 +18,7 @@ func NewAccountRepository(DB *gorm.DB) contract.AccountRepository {
 }
 
 func (r *accountRepository) Save(u *entity.Account) error {
-	user := entity.Account{
+	account := entity.Account{
 		ID:       uuid.New().String(),
 		Name:     u.Name,
 		Username: u.Username,
@@ -27,23 +27,26 @@ func (r *accountRepository) Save(u *entity.Account) error {
 		Password: u.Password,
 	}
 
-	if err := r.DB.Create(&user).Error; err != nil {
+	if err := r.DB.Create(&account).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *accountRepository) CheckUserExist(email, username, Document string) (bool, error) {
+func (r *accountRepository) CheckUserExist(email, username, Document string) error {
 	var user entity.Account
 
-	err := r.DB.Where("email = ? OR username = ? OR document = ?",
-		email, username, Document).First(&user).Error
-
-	if err == nil {
-		return true, nil
+	q := "email = ? OR username = ? OR document = ?"
+	err := r.DB.Where(q, email, username, Document).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
 	}
-	return false, err
+
+	return nil
 }
 
 func (r *accountRepository) GetByEmail(email string) (*entity.Account, error) {

@@ -20,7 +20,6 @@ var (
 	errInvAlidCredential = errors.New("the provided input does not match the server")
 	errEqualPasswords    = errors.New("both passwords are the same")
 	errExpiredToken      = errors.New("the provided access token has expired")
-	errInvalidToken      = errors.New("the provided access token is invalid")
 	errCouldNotParseJwt  = errors.New("failed to parse the provided jwt token")
 	errEncryptToken      = errors.New("failed to encrypt the provided token")
 )

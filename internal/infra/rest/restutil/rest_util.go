@@ -3,13 +3,19 @@ package restutil
 import (
 	"context"
 
-	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/gin-gonic/gin"
 )
 
+type Key string
+
+const AuthKey Key = "user_id"
+
 func GetContext(c *gin.Context) (ctx context.Context) {
 	ctx = c.Request.Context()
-	ctx = context.WithValue(ctx, auth.TokenKey, "my-context-test")
+
+	if userId, ok := c.Get(string(AuthKey)); ok {
+		ctx = context.WithValue(ctx, AuthKey, userId)
+	}
 
 	return ctx
 }

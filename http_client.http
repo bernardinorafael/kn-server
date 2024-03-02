@@ -16,14 +16,14 @@ Content-Type: application/json
 }
 
 ### Creating User
-POST http://localhost:8080/user
+POST http://localhost:8080/register
 Content-Type: application/json
 
 {
-    "name": "cirilo josias da silva",
-    "username": "silvio_santos",
-    "email": "silvio_santos_sbt@gmail.com",
-    "document": "19756100981",
+    "name": "maristela angela maria",
+    "username": "mari_maria_angela",
+    "email": "maristela@hotmail.com",
+    "document": "19356400981",
     "password": "12345678"
 }
 
@@ -44,6 +44,6 @@ POST http://localhost:8080/login
 Content-Type: application/json
 
 {
-    "email": "silvio_santos_sbt@gmail.com",
+    "email": "garrafa_pet@gmail.com",
     "password": "12345678"
 }

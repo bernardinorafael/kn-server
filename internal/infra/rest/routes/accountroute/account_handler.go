@@ -20,13 +20,13 @@ var (
 )
 
 type Handler struct {
-	as   contract.AccountService
-	auth contract.AuthService
+	service contract.AccountService
+	auth    contract.AuthService
 }
 
-func New(as contract.AccountService, auth contract.AuthService) *Handler {
+func New(service contract.AccountService, auth contract.AuthService) *Handler {
 	once.Do(func() {
-		handler = &Handler{as, auth}
+		handler = &Handler{service, auth}
 	})
 	return handler
 }
@@ -46,14 +46,14 @@ func (h Handler) Login(c *gin.Context) {
 		return
 	}
 
-	account, err := h.as.Login(ctx, credentials)
+	account, err := h.service.Login(ctx, credentials)
 	if err != nil {
 		resterror.NewUnauthorizedError(c, "failed to login")
 		return
 	}
 
-	input := dto.TokenPayloadInput{ID: account.ID}
-	token, payload, err := h.auth.CreateAccessToken(ctx, input)
+	userID := dto.TokenPayloadInput{ID: account.ID}
+	token, payload, err := h.auth.CreateAccessToken(ctx, userID)
 	if err != nil {
 		resterror.NewBadRequestError(c, err.Error())
 	}
@@ -62,7 +62,7 @@ func (h Handler) Login(c *gin.Context) {
 		AccessToken: token,
 		UserID:      payload.UserID,
 		ExpiresAt:   payload.ExpiresAt,
-		IssuedAt:    payload.ExpiresAt,
+		IssuedAt:    payload.IssuedAt,
 	}
 
 	c.JSON(http.StatusOK, r)
@@ -77,27 +77,40 @@ func (h Handler) Save(c *gin.Context) {
 		resterror.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
-	err = h.as.Save(ctx, input)
+
+	userID, err := h.service.Save(ctx, input)
 	if err != nil {
-		if err.Error() == "user already taken" {
-			resterror.NewConflictError(c, "credential(s) already taken")
-			return
-		}
 		resterror.NewBadRequestError(c, "error creating user")
 		return
 	}
-	c.Status(http.StatusCreated)
+
+	id := dto.TokenPayloadInput{ID: userID}
+	token, payload, err := h.auth.CreateAccessToken(ctx, id)
+	if err != nil {
+		resterror.NewBadRequestError(c, err.Error())
+	}
+
+	r := response.LoginResponse{
+		AccessToken: token,
+		UserID:      payload.UserID,
+		ExpiresAt:   payload.ExpiresAt,
+		IssuedAt:    payload.IssuedAt,
+	}
+
+	c.JSON(http.StatusOK, r)
+
 }
 
 func (h Handler) GetByID(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
-	user, err := h.as.GetByID(ctx, id)
+	user, err := h.service.GetByID(ctx, id)
 	if err != nil {
 		resterror.NewNotFoundError(c, "user not found")
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
@@ -112,7 +125,7 @@ func (h Handler) Update(c *gin.Context) {
 		return
 	}
 
-	err = h.as.Update(ctx, input, id)
+	err = h.service.Update(ctx, input, id)
 	if err != nil {
 		slog.Error("error to update user", err)
 		if err.Error() == "user not found" {
@@ -125,6 +138,7 @@ func (h Handler) Update(c *gin.Context) {
 		resterror.NewBadRequestError(c, "error to get user")
 		return
 	}
+
 	c.Status(http.StatusOK)
 }
 
@@ -132,18 +146,19 @@ func (h Handler) Delete(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 	id := c.Param("id")
 
-	err := h.as.Delete(ctx, id)
+	err := h.service.Delete(ctx, id)
 	if err != nil {
 		resterror.NewNotFoundError(c, "the user you are trying to delete was not found")
 		return
 	}
+
 	c.Status(http.StatusOK)
 }
 
 func (h Handler) GetAll(c *gin.Context) {
 	ctx := restutil.GetContext(c)
 
-	accounts, err := h.as.GetAll(ctx)
+	accounts, err := h.service.GetAll(ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "the list is empty") {
 			c.JSON(http.StatusOK, gin.H{
@@ -174,7 +189,7 @@ func (h Handler) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	err = h.as.UpdatePassword(ctx, input, id)
+	err = h.service.UpdatePassword(ctx, input, id)
 	if err != nil {
 		resterror.NewConflictError(c, "error on update password")
 		return

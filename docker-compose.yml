@@ -1,20 +1,20 @@
 version: "3.9"
 
 services:
-  postgres:
-    container_name: kn_database
-    image: postgres:14.5
-    env_file:
-      - .env
-    environment:
-      POSTGRES_HOST: ${DB_HOST}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_DB: ${DB_NAME}
-      PG_DATA: /var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    volumes:
-      - apigo:/var/lib/postgresql/data
+   postgres:
+      container_name: kn_database
+      image: postgres:14.5
+      env_file:
+         - .env
+      environment:
+         POSTGRES_HOST: ${DB_HOST}
+         POSTGRES_PASSWORD: ${DB_PASSWORD}
+         POSTGRES_USER: ${DB_USER}
+         POSTGRES_DB: ${DB_NAME}
+         PG_DATA: /var/lib/postgresql/data
+      ports:
+         - "5432:5432"
+      volumes:
+         - apigo:/var/lib/postgresql/data
 volumes:
-  apigo:
+   apigo:
