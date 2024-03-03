@@ -10,12 +10,14 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/database"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/accountroute"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/authroute"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default()
-	r.Use(gin.Logger())
+	router := gin.Default()
+	router.Use(cors.Default())
 
 	cfg, err := config.GetConfigEnv()
 	if err != nil {
@@ -32,24 +34,26 @@ func main() {
 		return
 	}
 
-	accountRepository := repository.NewAccountRepository(conn)
+	// init repositories
+	ar := repository.NewAccountRepository(conn)
 
-	s, err := service.New(
-		service.GetAccountRepository(accountRepository),
-		service.GetConfig(cfg),
+	// init services
+	svc := service.New(
 		service.GetLogger(l),
+		service.GetConfig(cfg),
+		service.GetAccountRepository(ar),
 	)
-	if err != nil {
-		l.Errorf(ctx, "error to get domain services: %s", err)
-		return
-	}
 
-	accountHandler := accountroute.New(s.AccountService, s.AuthService)
+	// init handlers
+	auth := accountroute.NewAccountHandler(svc.AccountService)
+	user := authroute.NewUserHandler(svc.AuthService, svc.JWTService)
 
-	accountroute.Start(r, accountHandler, s.AuthService)
+	// init routes
+	accountroute.Start(router, auth, svc.JWTService)
+	authroute.Start(router, user)
 
-	_ = r.SetTrustedProxies(nil)
-	if err := r.Run("0.0.0.0:" + cfg.Port); err != nil {
+	_ = router.SetTrustedProxies(nil)
+	if err := router.Run("0.0.0.0:" + cfg.Port); err != nil {
 		l.Fatalf(ctx, "error starting server: %v", err)
 	}
 }

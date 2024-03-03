@@ -1,0 +1,59 @@
+### update user info
+PATCH http://localhost:8080/user/ccace2cf-a547-406b-9f1d-8b5f6add60c8
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+	"name": "claudionir pia",
+	"email": "pia__ber@hotmail.com"
+}
+
+### create user
+POST http://localhost:8080/user
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+    "name": "mario nogueira",
+    "email": "mario__nog@gmail.com",
+    "document": "908788172",
+    "password": "12345678"
+}
+
+### get user by ID
+GET http://localhost:8080/user/ccace2cf-a547-406b-9f1d-8b5f6add60c8
+Accept: application/json
+Authorization: Bearer {{access_token}}
+
+### get all users
+GET http://localhost:8080/users
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+### delete an user
+DELETE http://localhost:8080/user/66e91f16-5fe1-4334-b823-4b8153ae0af6
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+### login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+
+{
+    "email": "pia_ber@hotmail.com",
+    "password": "12345678"
+}
+
+### register
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+    "name": "claudionir pedro bernardino",
+    "email": "pia_ber@hotmail.com",
+    "document": "09834522099",
+    "password": "12345678"
+}
+
+

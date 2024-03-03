@@ -5,15 +5,22 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
 )
 
 type AccountService interface {
-	Save(ctx context.Context, u dto.UserInput) (string, error)
-	GetByID(ctx context.Context, id string) (*response.UserResponse, error)
-	Update(ctx context.Context, u dto.UpdateUser, id string) error
-	Delete(ctx context.Context, id string) error
-	GetAll(ctx context.Context) (*response.AllUsersResponse, error)
-	UpdatePassword(ctx context.Context, u dto.UpdatePassword, id string) error
-	Login(ctx context.Context, u dto.Login) (*entity.Account, error)
+	CreateAccount(ctx context.Context, i dto.CreateAccount) error
+	GetByID(ctx context.Context, id string) (*entity.Account, error)
+	UpdateAccount(ctx context.Context, i dto.UpdateAccount, id string) error
+	DeleteAccount(ctx context.Context, id string) error
+	GetAll(ctx context.Context) (*[]entity.Account, error)
+}
+
+type AuthService interface {
+	Register(ctx context.Context, i dto.Register) (id string, err error)
+	Login(ctx context.Context, i dto.Login) (id string, err error)
+}
+
+type JWTService interface {
+	CreateToken(ctx context.Context, id string) (string, *dto.Claims, error)
+	ValidateToken(ctx context.Context, token string) (*dto.Claims, error)
 }

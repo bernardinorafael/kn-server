@@ -3,67 +3,87 @@ package service
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 
+	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/golang-jwt/jwt"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type authService struct {
-	service *service
+	s *service
 }
 
 func newAuthService(service *service) contract.AuthService {
 	return &authService{service}
 }
 
-func (a *authService) CreateAccessToken(ctx context.Context, i dto.TokenPayloadInput) (string, *dto.TokenPayload, error) {
-	duration := a.service.cfg.AccessTokenDuration
-	secret := []byte(a.service.cfg.JWTSecret)
+func (us *authService) Register(ctx context.Context, i dto.Register) (id string, err error) {
+	us.s.log.Info(ctx, "Process started")
+	defer us.s.log.Info(ctx, "Process finished")
 
-	payload := &dto.TokenPayload{
-		UserID:    i.ID,
-		IssuedAt:  time.Now(),
-		ExpiresAt: time.Now().Add(duration),
+	_, err = us.s.accountRepo.GetByEmail(i.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		us.s.log.Errorf(ctx, "error to get account by email: %s", err.Error())
+		return "", ErrEmailNotFound
+	} else if err == nil {
+		return "", ErrEmailAlreadyTaken
 	}
 
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(secret)
+	encrypted, err := crypto.EncryptPassword(i.Password)
 	if err != nil {
-		a.service.l.Errorf(ctx, "error to encrypt token: %v", err.Error())
-		return "", payload, errEncryptToken
+		us.s.log.Error(ctx, "failed to encrypt password")
+		return "", ErrEncryptToken
 	}
-	return token, payload, nil
+
+	user := entity.Account{
+		ID:        uuid.New().String(),
+		Name:      i.Name,
+		Email:     i.Email,
+		Password:  encrypted,
+		Document:  i.Document,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	err = us.s.accountRepo.Save(user)
+	if err != nil {
+		us.s.log.Errorf(ctx, "error creating user: %s", err.Error())
+		return "", ErrCreateUser
+	}
+
+	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
+
+	return user.ID, nil
 }
 
-func (a *authService) ValidateToken(ctx context.Context, token string) (*dto.TokenPayload, error) {
-	if strings.TrimSpace(token) == "" {
-		return nil, errInvAlidCredential
-	}
+func (us *authService) Login(ctx context.Context, i dto.Login) (id string, err error) {
+	us.s.log.Info(ctx, "Process started")
+	defer us.s.log.Info(ctx, "Process finished")
 
-	keyFunc := func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errInvAlidCredential
-		}
-		return []byte(a.service.cfg.JWTSecret), nil
-	}
-
-	jwtToken, err := jwt.ParseWithClaims(token, &dto.TokenPayload{}, keyFunc)
+	account, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil {
-		var v *jwt.ValidationError
-		ok := errors.As(err, &v)
-		if ok && strings.Contains(v.Inner.Error(), errExpiredToken.Error()) {
-			a.service.l.Error(ctx, errExpiredToken.Error())
-			return nil, errExpiredToken
-		}
-		return nil, err
+		us.s.log.Errorf(ctx, "cannot find user by email: %s", err.Error())
+		return "", ErrInvalidCredentials
 	}
 
-	payload, ok := jwtToken.Claims.(*dto.TokenPayload)
-	if !ok {
-		a.service.l.Errorf(ctx, "could not parse jwt token: %v", err)
-		return nil, errCouldNotParseJwt
+	encrypted, err := us.s.accountRepo.GetPassword(account.ID)
+	if err != nil {
+		us.s.log.Errorf(ctx, "error to get user password: %s", err.Error())
+		return "", ErrInvalidCredentials
 	}
-	return payload, nil
+
+	err = crypto.CheckPassword(encrypted, i.Password)
+	if err != nil {
+		us.s.log.Errorf(ctx, "password does not match: %s", err.Error())
+		return "", ErrInvalidCredentials
+	}
+
+	ctx = context.WithValue(ctx, restutil.AuthKey, account.ID)
+
+	return account.ID, nil
 }

@@ -17,32 +17,17 @@ func NewAccountRepository(DB *gorm.DB) contract.AccountRepository {
 	return &accountRepository{DB}
 }
 
-func (r *accountRepository) Save(u *entity.Account) error {
+func (r *accountRepository) Save(u entity.Account) error {
 	account := entity.Account{
 		ID:       uuid.New().String(),
 		Name:     u.Name,
-		Username: u.Username,
 		Email:    u.Email,
 		Document: u.Document,
 		Password: u.Password,
 	}
 
-	if err := r.DB.Create(&account).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *accountRepository) CheckUserExist(email, username, Document string) error {
-	var user entity.Account
-
-	q := "email = ? OR username = ? OR document = ?"
-	err := r.DB.Where(q, email, username, Document).First(&user).Error
+	err := r.DB.Create(&account).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
 		return err
 	}
 
@@ -57,7 +42,7 @@ func (r *accountRepository) GetByEmail(email string) (*entity.Account, error) {
 		return nil, err
 	}
 
-	return &account, err
+	return &account, nil
 }
 
 func (r *accountRepository) GetByID(id string) (*entity.Account, error) {
@@ -70,31 +55,19 @@ func (r *accountRepository) GetByID(id string) (*entity.Account, error) {
 	return &account, nil
 }
 
-func (r *accountRepository) Update(u *entity.Account) error {
-	var account = entity.Account{ID: u.ID}
-
-	if err := r.DB.First(&account).Error; err != nil {
-		return err
-	}
-
-	if u.Name != "" {
-		account.Name = u.Name
-	}
-	if u.Username != "" {
-		account.Username = u.Username
-	}
-	if u.Email != "" {
-		account.Email = u.Email
-	}
-
-	if err := r.DB.Save(&account).Error; err != nil {
+func (r *accountRepository) Update(account *entity.Account, id string) error {
+	err := r.DB.Debug().
+		Model(account).
+		Where("id = ?", id).
+		Updates(account).Error
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *accountRepository) GetAll() ([]entity.Account, error) {
+func (r *accountRepository) GetAll() (*[]entity.Account, error) {
 	var accounts []entity.Account
 
 	if err := r.DB.First(&accounts).Error; err != nil {
@@ -104,7 +77,7 @@ func (r *accountRepository) GetAll() ([]entity.Account, error) {
 		return nil, err
 	}
 
-	return accounts, nil
+	return &accounts, nil
 }
 
 func (r *accountRepository) Delete(id string) error {
@@ -139,11 +112,10 @@ func (r *accountRepository) UpdatePassword(password string, id string) error {
 func (r *accountRepository) GetPassword(id string) (string, error) {
 	var account = entity.Account{ID: id}
 
-	err := r.DB.First(&account).Error
+	err := r.DB.Select("password").Find(&account).Error
 	if err != nil {
 		return "", err
 	}
-	p := account.Password
 
-	return p, nil
+	return account.Password, nil
 }

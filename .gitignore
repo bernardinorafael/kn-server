@@ -6,6 +6,7 @@
 
 #ide
 .idea/
+.run/
 
 # Test Binary
 *.test
@@ -18,3 +19,6 @@ db_data/
 
 #env
 .env
+
+# http
+http-client.env.json

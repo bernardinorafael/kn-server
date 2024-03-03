@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/bernardinorafael/kn-server/config"
-	utillog "github.com/bernardinorafael/kn-server/util/log"
+	utillog "github.com/bernardinorafael/kn-server/helper/log"
 )
 
 func New(cfg *config.EnvFile) utillog.Logger {

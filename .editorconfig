@@ -10,10 +10,10 @@ indent_size = 4
 tab_width = 4
 
 [Makefile]
-indent_size = 2
+indent_size = 3
 
 [{*.yml,*.yaml}]
-indent_size = 2
+indent_size = 3
 
-[*.sql]
+[*.json]
 indent_size = 2
