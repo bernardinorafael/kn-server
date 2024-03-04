@@ -16,6 +16,5 @@ func GetContext(c *gin.Context) (ctx context.Context) {
 	if userId, ok := c.Get(string(AuthKey)); ok {
 		ctx = context.WithValue(ctx, AuthKey, userId)
 	}
-
 	return ctx
 }

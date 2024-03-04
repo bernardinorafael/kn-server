@@ -25,7 +25,7 @@ func Authenticate(a contract.JWTService) gin.HandlerFunc {
 		}
 
 		token := p[1]
-		claims, err := a.ValidateToken(c, token)
+		claims, err := a.ValidateToken(token)
 		if err != nil {
 			httperr.NewInternalServerError(c, "failed to validate access token")
 			return

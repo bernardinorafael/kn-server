@@ -158,9 +158,7 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 	return nil
 }
 
-func suppressDefaults(
-	next func([]string, slog.Attr) slog.Attr,
-) func([]string, slog.Attr) slog.Attr {
+func suppressDefaults(next func([]string, slog.Attr) slog.Attr) func([]string, slog.Attr) slog.Attr {
 	return func(groups []string, a slog.Attr) slog.Attr {
 		if a.Key == slog.TimeKey ||
 			a.Key == slog.LevelKey ||

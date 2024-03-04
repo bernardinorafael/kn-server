@@ -54,7 +54,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(ctx, account.ID)
+	token, claims, err := h.jwtService.CreateToken(account.ID)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
@@ -101,7 +101,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(ctx, account.ID)
+	token, claims, err := h.jwtService.CreateToken(account.ID)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return

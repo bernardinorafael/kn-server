@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"strings"
 	"time"
 
@@ -33,12 +32,13 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 		us.s.log.Error("error to get account by email", err.Error())
 		return nil, ErrEmailNotFound
 	} else if err == nil {
+		us.s.log.Error("error to get account by email", ErrEmailAlreadyTaken.Error())
 		return nil, ErrEmailAlreadyTaken
 	}
 
 	encrypted, err := crypto.EncryptPassword(i.Password)
 	if err != nil {
-		us.s.log.Error("failed to encrypt password")
+		us.s.log.Error("failed to encrypt password", err.Error())
 		return nil, ErrEncryptToken
 	}
 
@@ -55,12 +55,18 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 	err = us.s.accountRepo.Save(account)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
-			us.s.log.Error("document already exist")
+			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken.Error())
 			return nil, ErrDocumentAlreadyTaken
 		}
-		us.s.log.Error("error creating account")
+		us.s.log.Error("error creating account", err.Error())
 		return nil, ErrCreateUser
 	}
+
+	us.s.log.Info("successfully created account",
+		"name", account.Name,
+		"email", account.Email,
+		"document", account.Document,
+	)
 
 	ctx = context.WithValue(ctx, restutil.AuthKey, account.ID)
 
@@ -77,10 +83,6 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account,
 		return nil, ErrInvalidCredentials
 	}
 
-	us.s.log.With(slog.Group("user trying to login",
-		"name", acc.Name, "email", acc.Email,
-	))
-
 	encrypted, err := us.s.accountRepo.GetPassword(acc.ID)
 	if err != nil {
 		us.s.log.Error("error to get user password", err.Error())
@@ -92,6 +94,11 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account,
 		us.s.log.Error("password does not match", err.Error())
 		return nil, ErrInvalidCredentials
 	}
+
+	us.s.log.Info("successfully login as",
+		"name", acc.Name,
+		"email", acc.Email,
+	)
 
 	ctx = context.WithValue(ctx, restutil.AuthKey, acc.ID)
 

@@ -41,7 +41,7 @@ Content-Type: application/json
 
 
 {
-    "email": "maria_aparecida@gmail.com",
+    "email": "rafaelferreirab2@gmail.com",
     "password": "12345678"
 }
 
@@ -50,9 +50,9 @@ POST http://localhost:8080/auth/register
 Content-Type: application/json
 
 {
-    "document": 10383445896,
-    "email": "maria_aparecida@gmail.com",
-    "name": "maria aparecida joselita",
+    "document": 10383445906,
+    "email": "rafaelferreirab2@gmail.com",
+    "name": "rafael bernardino",
     "password": "12345678"
 }
 
