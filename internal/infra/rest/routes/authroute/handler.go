@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	httperr "github.com/bernardinorafael/kn-server/helper/error"
+	"github.com/bernardinorafael/kn-server/helper/validator"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
@@ -41,6 +42,12 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	validations := validator.Validate(req)
+	if validations != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
+		return
+	}
+
 	id, err := h.authService.Login(ctx, req)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
@@ -70,6 +77,12 @@ func (h *UserHandler) Register(c *gin.Context) {
 	err := c.ShouldBind(&req)
 	if err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
+		return
+	}
+
+	validations := validator.Validate(req)
+	if validations != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
 		return
 	}
 

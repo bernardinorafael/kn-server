@@ -25,7 +25,5 @@ func Connect(ctx context.Context, log utillog.Logger) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	log.Info(ctx, "database connected")
-
 	return db, err
 }

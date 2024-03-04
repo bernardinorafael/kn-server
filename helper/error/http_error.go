@@ -6,64 +6,71 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type httpErr struct {
-	Err     string `json:"error"`
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+type ValidationField struct {
+	Field string `json:"field"`
+	Msg   string `json:"message"`
 }
 
-func NewHttpErr(err, msg string, code int) httpErr {
-	return httpErr{
-		Code:    code,
-		Err:     err,
-		Message: msg,
-	}
+type HttpErr struct {
+	Err         string            `json:"error"`
+	Code        int               `json:"code"`
+	Message     string            `json:"message"`
+	Validations []ValidationField `json:"validations,omitempty"`
 }
 
-func NewBadRequestError(c *gin.Context, msg string) {
-	c.JSON(http.StatusBadRequest, httpErr{
+func NewFieldsErrorValidation(c *gin.Context, m string, v []ValidationField) {
+	c.JSON(http.StatusUnprocessableEntity, HttpErr{
+		Err:         http.StatusText(http.StatusUnprocessableEntity),
+		Code:        http.StatusUnprocessableEntity,
+		Message:     m,
+		Validations: v,
+	})
+}
+
+func NewBadRequestError(c *gin.Context, m string) {
+	c.JSON(http.StatusBadRequest, &HttpErr{
 		Code:    http.StatusBadRequest,
 		Err:     http.StatusText(http.StatusBadRequest),
-		Message: msg,
+		Message: m,
 	})
 }
 
-func NewUnauthorizedError(c *gin.Context, msg string) {
-	c.JSON(http.StatusUnauthorized, httpErr{
+func NewUnauthorizedError(c *gin.Context, m string) {
+	c.JSON(http.StatusUnauthorized, &HttpErr{
 		Code:    http.StatusUnauthorized,
 		Err:     http.StatusText(http.StatusUnauthorized),
-		Message: msg,
+		Message: m,
 	})
 }
 
-func NewInternalServerError(c *gin.Context, msg string) {
-	c.JSON(http.StatusInternalServerError, httpErr{
+func NewInternalServerError(c *gin.Context, m string) {
+	c.JSON(http.StatusInternalServerError, &HttpErr{
 		Code:    http.StatusInternalServerError,
 		Err:     http.StatusText(http.StatusInternalServerError),
-		Message: msg,
+		Message: m,
 	})
 }
 
-func NewNotFoundError(c *gin.Context, msg string) {
-	c.JSON(http.StatusNotFound, httpErr{
+func NewNotFoundError(c *gin.Context, m string) {
+	c.JSON(http.StatusNotFound, &HttpErr{
 		Code:    http.StatusNotFound,
 		Err:     http.StatusText(http.StatusNotFound),
-		Message: msg,
+		Message: m,
 	})
 }
 
-func NewForbiddenError(c *gin.Context, msg string) {
-	c.JSON(http.StatusForbidden, httpErr{
+func NewForbiddenError(c *gin.Context, m string) {
+	c.JSON(http.StatusForbidden, &HttpErr{
 		Code:    http.StatusForbidden,
 		Err:     http.StatusText(http.StatusForbidden),
-		Message: msg,
+		Message: m,
 	})
 }
 
-func NewConflictError(c *gin.Context, msg string) {
-	c.JSON(http.StatusConflict, httpErr{
+func NewConflictError(c *gin.Context, m string) {
+	c.JSON(http.StatusConflict, &HttpErr{
 		Code:    http.StatusConflict,
 		Err:     http.StatusText(http.StatusConflict),
-		Message: msg,
+		Message: m,
 	})
 }

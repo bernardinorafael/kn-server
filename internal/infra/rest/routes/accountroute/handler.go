@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/bernardinorafael/kn-server/helper/error"
+	"github.com/bernardinorafael/kn-server/helper/validator"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
@@ -34,6 +35,11 @@ func (h AccountHandler) CreateAccount(c *gin.Context) {
 	err := c.ShouldBind(&req)
 	if err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
+		return
+	}
+	validations := validator.Validate(req)
+	if validations != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
 		return
 	}
 
@@ -79,6 +85,12 @@ func (h AccountHandler) UpdateAccount(c *gin.Context) {
 	req := &dto.UpdateAccount{}
 	if err := c.ShouldBind(req); err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
+		return
+	}
+
+	validations := validator.Validate(req)
+	if validations != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
 		return
 	}
 

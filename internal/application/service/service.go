@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrUserAlreadyTaken     = errors.New("user already taken")
-	ErrDocumentALreadyTaken = errors.New("the provided document is already registered in the system")
+	ErrDocumentAlreadyTaken = errors.New("the provided document is already registered in the system")
 	ErrEmailAlreadyTaken    = errors.New("email already taken")
 	ErrHashPassword         = errors.New("an error occurred in trying to hash password")
 	ErrCreateUser           = errors.New("an error occurred trying to create user")

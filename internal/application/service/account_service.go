@@ -55,7 +55,7 @@ func (as *accountService) CreateAccount(ctx context.Context, i dto.CreateAccount
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
 			as.s.log.Error(ctx, "document already exist")
-			return ErrDocumentALreadyTaken
+			return ErrDocumentAlreadyTaken
 		}
 		as.s.log.Error(ctx, "error creating account")
 		return ErrCreateUser
