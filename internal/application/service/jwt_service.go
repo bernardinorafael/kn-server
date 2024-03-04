@@ -31,7 +31,7 @@ func (js *jwtService) CreateToken(ctx context.Context, id string) (string, *dto.
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
 	if err != nil {
-		js.s.log.Errorf(ctx, "error to encrypt token: %v", err.Error())
+		js.s.log.Error("error to encrypt token: %v", err.Error())
 		return "", claims, ErrEncryptToken
 	}
 
@@ -55,7 +55,7 @@ func (js *jwtService) ValidateToken(ctx context.Context, token string) (*dto.Cla
 		var v *jwt.ValidationError
 		ok := errors.As(err, &v)
 		if ok && strings.Contains(v.Inner.Error(), ErrExpiredToken.Error()) {
-			js.s.log.Error(ctx, ErrExpiredToken.Error())
+			js.s.log.Error(ErrExpiredToken.Error())
 			return nil, ErrExpiredToken
 		}
 		return nil, err
@@ -63,7 +63,7 @@ func (js *jwtService) ValidateToken(ctx context.Context, token string) (*dto.Cla
 
 	claims, ok := jwtToken.Claims.(*dto.Claims)
 	if !ok {
-		js.s.log.Errorf(ctx, "could not parse jwt token: %v", err)
+		js.s.log.Error("could not parse jwt token: %v", err)
 		return nil, ErrCouldNotParseJWT
 	}
 

@@ -4,8 +4,8 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-	"name": "claudionir pia",
-	"email": "pia__ber@hotmail.com"
+    "name": "claudionir pia",
+    "email": "pia__ber@hotmail.com"
 }
 
 ### create user

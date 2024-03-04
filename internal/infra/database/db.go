@@ -2,28 +2,30 @@ package database
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/bernardinorafael/kn-server/config"
-	utillog "github.com/bernardinorafael/kn-server/helper/log"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func Connect(ctx context.Context, log utillog.Logger) (*gorm.DB, error) {
+func Connect(ctx context.Context, l *slog.Logger) (*gorm.DB, error) {
 	env := config.Env
 
 	db, err := gorm.Open(postgres.Open(env.DSN), &gorm.Config{})
 	if err != nil {
-		log.Errorf(ctx, "error connecting database: %v", err)
+		l.Error("error connecting database", err)
 		return nil, err
 	}
 
 	err = db.AutoMigrate(&entity.Account{})
 	if err != nil {
-		log.Errorf(ctx, "error generate migrations: %v", err)
+		l.Error("error generate migrations: %v", err)
 		return nil, err
 	}
+
+	l.Info("database connected!")
 
 	return db, err
 }

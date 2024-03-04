@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -24,12 +25,12 @@ func newAuthService(service *service) contract.AuthService {
 }
 
 func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Account, error) {
-	us.s.log.Info(ctx, "Process started")
-	defer us.s.log.Info(ctx, "Process finished")
+	us.s.log.Info("Process started")
+	defer us.s.log.Info("Process finished")
 
 	_, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		us.s.log.Errorf(ctx, "error to get account by email: %s", err.Error())
+		us.s.log.Error("error to get account by email: %s", err.Error())
 		return nil, ErrEmailNotFound
 	} else if err == nil {
 		return nil, ErrEmailAlreadyTaken
@@ -37,7 +38,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 
 	encrypted, err := crypto.EncryptPassword(i.Password)
 	if err != nil {
-		us.s.log.Error(ctx, "failed to encrypt password")
+		us.s.log.Error("failed to encrypt password")
 		return nil, ErrEncryptToken
 	}
 
@@ -54,10 +55,10 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 	err = us.s.accountRepo.Save(account)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
-			us.s.log.Error(ctx, "document already exist")
+			us.s.log.Error("document already exist")
 			return nil, ErrDocumentAlreadyTaken
 		}
-		us.s.log.Error(ctx, "error creating account")
+		us.s.log.Error("error creating account")
 		return nil, ErrCreateUser
 	}
 
@@ -67,24 +68,28 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 }
 
 func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account, error) {
-	us.s.log.Info(ctx, "Process started")
-	defer us.s.log.Info(ctx, "Process finished")
+	us.s.log.Info("Process started")
+	defer us.s.log.Info("Process finished")
 
 	acc, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil {
-		us.s.log.Errorf(ctx, "cannot find user by email: %s", err.Error())
+		us.s.log.Error("cannot find user by email: %s", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
+	us.s.log.With(slog.Group("user trying to login",
+		"name", acc.Name, "email", acc.Email,
+	))
+
 	encrypted, err := us.s.accountRepo.GetPassword(acc.ID)
 	if err != nil {
-		us.s.log.Errorf(ctx, "error to get user password: %s", err.Error())
+		us.s.log.Error("error to get user password: %s", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
 	err = crypto.CheckPassword(encrypted, i.Password)
 	if err != nil {
-		us.s.log.Errorf(ctx, "password does not match: %s", err.Error())
+		us.s.log.Error("password does not match: %s", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 

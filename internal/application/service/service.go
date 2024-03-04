@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
+	"log/slog"
 
 	"github.com/bernardinorafael/kn-server/config"
-	utillog "github.com/bernardinorafael/kn-server/helper/log"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 )
 
@@ -29,7 +29,7 @@ var (
 
 type service struct {
 	accountRepo contract.AccountRepository
-	log         utillog.Logger
+	log         slog.Logger
 	cfg         *config.EnvFile
 }
 
@@ -64,8 +64,8 @@ func GetConfig(cfg *config.EnvFile) svcOptions {
 		service.cfg = cfg
 	}
 }
-func GetLogger(log utillog.Logger) svcOptions {
+func GetLogger(log *slog.Logger) svcOptions {
 	return func(service *service) {
-		service.log = log
+		service.log = *log
 	}
 }

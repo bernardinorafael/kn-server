@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/config/logger"
@@ -19,18 +20,21 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 
+	l := slog.New(logger.NewHandler(&slog.HandlerOptions{
+		AddSource: true,
+	}))
+
 	cfg, err := config.GetConfigEnv()
 	if err != nil {
-		log.Fatalf("failed to load env: %s", err)
+		l.Error("failed to load env", err)
 		return
 	}
 
 	ctx := context.Background()
-	l := logger.New(cfg)
 
 	conn, err := database.Connect(ctx, l)
 	if err != nil {
-		l.Errorf(ctx, "error connect database: %s", err)
+		l.Error("error connect database", err)
 		return
 	}
 
@@ -54,6 +58,7 @@ func main() {
 
 	_ = router.SetTrustedProxies(nil)
 	if err := router.Run("0.0.0.0:" + cfg.Port); err != nil {
-		l.Fatalf(ctx, "error starting server: %v", err)
+		l.Error("error starting server", err)
+		os.Exit(1)
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/bernardinorafael/kn-server/helper/validator"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,10 +26,9 @@ func NewAccountHandler(accService contract.AccountService) *AccountHandler {
 }
 
 func (h AccountHandler) GetUser(c *gin.Context) {
-	ctx := restutil.GetContext(c)
 
 	id := c.Param("id")
-	acc, err := h.accService.GetByID(ctx, id)
+	acc, err := h.accService.GetByID(id)
 	if err != nil {
 		httperr.NewNotFoundError(c, err.Error())
 		return
@@ -49,8 +47,6 @@ func (h AccountHandler) GetUser(c *gin.Context) {
 }
 
 func (h AccountHandler) UpdateAccount(c *gin.Context) {
-	ctx := restutil.GetContext(c)
-
 	id := c.Param("id")
 	req := &dto.UpdateAccount{}
 	if err := c.ShouldBind(req); err != nil {
@@ -64,7 +60,7 @@ func (h AccountHandler) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	err := h.accService.UpdateAccount(ctx, *req, id)
+	err := h.accService.UpdateAccount(*req, id)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
@@ -74,10 +70,9 @@ func (h AccountHandler) UpdateAccount(c *gin.Context) {
 }
 
 func (h AccountHandler) DeleteAccount(c *gin.Context) {
-	ctx := restutil.GetContext(c)
 	id := c.Param("id")
 
-	err := h.accService.DeleteAccount(ctx, id)
+	err := h.accService.DeleteAccount(id)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
@@ -87,9 +82,7 @@ func (h AccountHandler) DeleteAccount(c *gin.Context) {
 }
 
 func (h AccountHandler) GetAccounts(c *gin.Context) {
-	ctx := restutil.GetContext(c)
-
-	allAcc, err := h.accService.GetAll(ctx)
+	allAcc, err := h.accService.GetAll()
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return

@@ -8,10 +8,10 @@ import (
 )
 
 type AccountService interface {
-	GetByID(ctx context.Context, id string) (*entity.Account, error)
-	UpdateAccount(ctx context.Context, i dto.UpdateAccount, id string) error
-	DeleteAccount(ctx context.Context, id string) error
-	GetAll(ctx context.Context) (*[]entity.Account, error)
+	GetByID(id string) (*entity.Account, error)
+	UpdateAccount(i dto.UpdateAccount, id string) error
+	DeleteAccount(id string) error
+	GetAll() (*[]entity.Account, error)
 }
 
 type AuthService interface {
