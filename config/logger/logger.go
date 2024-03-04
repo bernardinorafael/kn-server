@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	timeFormat = "[15:04:05.000]"
+	timeFormat = "[15:04:05]"
 
 	reset = "\033[0m"
 
@@ -174,19 +174,20 @@ func suppressDefaults(
 	}
 }
 
-func NewHandler(opts *slog.HandlerOptions) *Handler {
+func NewLog(opts *slog.HandlerOptions) *Handler {
 	if opts == nil {
 		opts = &slog.HandlerOptions{}
 	}
+
 	b := &bytes.Buffer{}
 	return &Handler{
 		b: b,
+		m: &sync.Mutex{},
+		r: opts.ReplaceAttr,
 		h: slog.NewJSONHandler(b, &slog.HandlerOptions{
 			Level:       opts.Level,
 			AddSource:   opts.AddSource,
 			ReplaceAttr: suppressDefaults(opts.ReplaceAttr),
 		}),
-		r: opts.ReplaceAttr,
-		m: &sync.Mutex{},
 	}
 }

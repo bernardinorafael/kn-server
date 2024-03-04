@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"strings"
 	"time"
@@ -19,7 +18,7 @@ func newJWTService(service *service) contract.JWTService {
 	return &jwtService{s: service}
 }
 
-func (js *jwtService) CreateToken(ctx context.Context, id string) (string, *dto.Claims, error) {
+func (js *jwtService) CreateToken(id string) (string, *dto.Claims, error) {
 	duration := js.s.cfg.AccessTokenDuration
 	secret := []byte(js.s.cfg.JWTSecret)
 
@@ -31,14 +30,14 @@ func (js *jwtService) CreateToken(ctx context.Context, id string) (string, *dto.
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
 	if err != nil {
-		js.s.log.Error("error to encrypt token: %v", err.Error())
+		js.s.log.Error("error to encrypt token", err.Error())
 		return "", claims, ErrEncryptToken
 	}
 
 	return token, claims, nil
 }
 
-func (js *jwtService) ValidateToken(ctx context.Context, token string) (*dto.Claims, error) {
+func (js *jwtService) ValidateToken(token string) (*dto.Claims, error) {
 	if strings.TrimSpace(token) == "" {
 		return nil, ErrInvalidCredentials
 	}
@@ -63,7 +62,7 @@ func (js *jwtService) ValidateToken(ctx context.Context, token string) (*dto.Cla
 
 	claims, ok := jwtToken.Claims.(*dto.Claims)
 	if !ok {
-		js.s.log.Error("could not parse jwt token: %v", err)
+		js.s.log.Error("could not parse jwt token", err)
 		return nil, ErrCouldNotParseJWT
 	}
 

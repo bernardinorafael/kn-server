@@ -20,9 +20,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	l := slog.New(logger.NewHandler(&slog.HandlerOptions{
-		AddSource: true,
-	}))
+	l := slog.New(logger.NewLog(nil))
 
 	cfg, err := config.GetConfigEnv()
 	if err != nil {

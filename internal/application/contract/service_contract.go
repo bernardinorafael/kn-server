@@ -20,6 +20,6 @@ type AuthService interface {
 }
 
 type JWTService interface {
-	CreateToken(ctx context.Context, id string) (string, *dto.Claims, error)
-	ValidateToken(ctx context.Context, token string) (*dto.Claims, error)
+	CreateToken(id string) (string, *dto.Claims, error)
+	ValidateToken(token string) (*dto.Claims, error)
 }
