@@ -30,7 +30,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 
 	_, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		us.s.log.Error("error to get account by email: %s", err.Error())
+		us.s.log.Error("error to get account by email", err.Error())
 		return nil, ErrEmailNotFound
 	} else if err == nil {
 		return nil, ErrEmailAlreadyTaken
@@ -73,7 +73,7 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account,
 
 	acc, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil {
-		us.s.log.Error("cannot find user by email: %s", err.Error())
+		us.s.log.Error("cannot find user by email", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
@@ -83,13 +83,13 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account,
 
 	encrypted, err := us.s.accountRepo.GetPassword(acc.ID)
 	if err != nil {
-		us.s.log.Error("error to get user password: %s", err.Error())
+		us.s.log.Error("error to get user password", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
 	err = crypto.CheckPassword(encrypted, i.Password)
 	if err != nil {
-		us.s.log.Error("password does not match: %s", err.Error())
+		us.s.log.Error("password does not match", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
