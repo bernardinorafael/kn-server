@@ -9,15 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type accountService struct {
+type userService struct {
 	s *service
 }
 
-func newAccountService(service *service) contract.AccountService {
-	return &accountService{s: service}
+func newUserService(service *service) contract.UserService {
+	return &userService{s: service}
 }
 
-func (as *accountService) GetByID(id string) (*entity.Account, error) {
+func (as *userService) GetByID(id string) (*entity.User, error) {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
@@ -30,7 +30,7 @@ func (as *accountService) GetByID(id string) (*entity.Account, error) {
 	return user, nil
 }
 
-func (as *accountService) UpdateAccount(i dto.UpdateAccount, id string) error {
+func (as *userService) UpdateUser(i dto.UpdateAccount, id string) error {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
@@ -43,7 +43,7 @@ func (as *accountService) UpdateAccount(i dto.UpdateAccount, id string) error {
 		}
 	}
 
-	account := entity.Account{
+	account := entity.User{
 		Name:  i.Name,
 		Email: i.Email,
 	}
@@ -57,7 +57,7 @@ func (as *accountService) UpdateAccount(i dto.UpdateAccount, id string) error {
 	return nil
 }
 
-func (as *accountService) DeleteAccount(id string) error {
+func (as *userService) DeleteUser(id string) error {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
@@ -76,7 +76,7 @@ func (as *accountService) DeleteAccount(id string) error {
 	return nil
 }
 
-func (as *accountService) GetAll() (*[]entity.Account, error) {
+func (as *userService) GetAll() (*[]entity.User, error) {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 

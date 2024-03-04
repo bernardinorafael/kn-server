@@ -23,7 +23,7 @@ func newAuthService(service *service) contract.AuthService {
 	return &authService{service}
 }
 
-func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Account, error) {
+func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
@@ -42,7 +42,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 		return nil, ErrEncryptToken
 	}
 
-	account := entity.Account{
+	user := entity.User{
 		ID:        uuid.New().String(),
 		Name:      i.Name,
 		Email:     i.Email,
@@ -52,7 +52,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 		UpdatedAt: time.Now(),
 	}
 
-	err = us.s.accountRepo.Save(account)
+	err = us.s.accountRepo.Save(user)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
 			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken.Error())
@@ -63,27 +63,27 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Ac
 	}
 
 	us.s.log.Info("successfully created account",
-		"name", account.Name,
-		"email", account.Email,
-		"document", account.Document,
+		"name", user.Name,
+		"email", user.Email,
+		"document", user.Document,
 	)
 
-	ctx = context.WithValue(ctx, restutil.AuthKey, account.ID)
+	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
 
-	return &account, nil
+	return &user, nil
 }
 
-func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account, error) {
+func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	acc, err := us.s.accountRepo.GetByEmail(i.Email)
+	user, err := us.s.accountRepo.GetByEmail(i.Email)
 	if err != nil {
 		us.s.log.Error("cannot find user by email", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
-	encrypted, err := us.s.accountRepo.GetPassword(acc.ID)
+	encrypted, err := us.s.accountRepo.GetPassword(user.ID)
 	if err != nil {
 		us.s.log.Error("error to get user password", err.Error())
 		return nil, ErrInvalidCredentials
@@ -96,11 +96,11 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.Account,
 	}
 
 	us.s.log.Info("successfully login as",
-		"name", acc.Name,
-		"email", acc.Email,
+		"name", user.Name,
+		"email", user.Email,
 	)
 
-	ctx = context.WithValue(ctx, restutil.AuthKey, acc.ID)
+	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
 
-	return acc, nil
+	return user, nil
 }

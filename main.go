@@ -10,8 +10,8 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/database"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/accountroute"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/authroute"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/userroute"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -47,11 +47,11 @@ func main() {
 	)
 
 	// init handlers
-	auth := accountroute.NewAccountHandler(svc.AccountService)
+	auth := userroute.NewUserHandler(svc.AccountService)
 	user := authroute.NewUserHandler(svc.AuthService, svc.JWTService)
 
 	// init routes
-	accountroute.Start(router, auth, svc.JWTService)
+	userroute.Start(router, auth, svc.JWTService)
 	authroute.Start(router, user)
 
 	_ = router.SetTrustedProxies(nil)

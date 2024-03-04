@@ -1,4 +1,4 @@
-package accountroute
+package userroute
 
 import (
 	"net/http"
@@ -11,21 +11,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var handler *AccountHandler
+var handler *UserHandler
 var once sync.Once
 
-type AccountHandler struct {
-	accService contract.AccountService
+type UserHandler struct {
+	accService contract.UserService
 }
 
-func NewAccountHandler(accService contract.AccountService) *AccountHandler {
+func NewUserHandler(accService contract.UserService) *UserHandler {
 	once.Do(func() {
-		handler = &AccountHandler{accService}
+		handler = &UserHandler{accService}
 	})
 	return handler
 }
 
-func (h AccountHandler) GetUser(c *gin.Context) {
+func (h UserHandler) GetUser(c *gin.Context) {
 
 	id := c.Param("id")
 	acc, err := h.accService.GetByID(id)
@@ -46,7 +46,7 @@ func (h AccountHandler) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, account)
 }
 
-func (h AccountHandler) UpdateAccount(c *gin.Context) {
+func (h UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	req := &dto.UpdateAccount{}
 	if err := c.ShouldBind(req); err != nil {
@@ -60,7 +60,7 @@ func (h AccountHandler) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	err := h.accService.UpdateAccount(*req, id)
+	err := h.accService.UpdateUser(*req, id)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
@@ -69,10 +69,10 @@ func (h AccountHandler) UpdateAccount(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h AccountHandler) DeleteAccount(c *gin.Context) {
+func (h UserHandler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 
-	err := h.accService.DeleteAccount(id)
+	err := h.accService.DeleteUser(id)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
@@ -81,24 +81,24 @@ func (h AccountHandler) DeleteAccount(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h AccountHandler) GetAccounts(c *gin.Context) {
-	allAcc, err := h.accService.GetAll()
+func (h UserHandler) GetAccounts(c *gin.Context) {
+	allUsers, err := h.accService.GetAll()
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
 	}
 
-	var accounts []AccountResponse
-	for _, a := range *allAcc {
-		accounts = append(accounts, AccountResponse{
-			ID:        a.ID,
-			Name:      a.Name,
-			Email:     a.Email,
-			Document:  a.Document,
-			CreatedAt: a.CreatedAt,
-			UpdatedAt: a.UpdatedAt,
+	var users []AccountResponse
+	for _, u := range *allUsers {
+		users = append(users, AccountResponse{
+			ID:        u.ID,
+			Name:      u.Name,
+			Email:     u.Email,
+			Document:  u.Document,
+			CreatedAt: u.CreatedAt,
+			UpdatedAt: u.UpdatedAt,
 		})
 	}
 
-	c.JSON(http.StatusOK, accounts)
+	c.JSON(http.StatusOK, users)
 }

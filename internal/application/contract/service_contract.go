@@ -7,16 +7,16 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 )
 
-type AccountService interface {
-	GetByID(id string) (*entity.Account, error)
-	UpdateAccount(i dto.UpdateAccount, id string) error
-	DeleteAccount(id string) error
-	GetAll() (*[]entity.Account, error)
+type UserService interface {
+	GetByID(id string) (*entity.User, error)
+	UpdateUser(i dto.UpdateAccount, id string) error
+	DeleteUser(id string) error
+	GetAll() (*[]entity.User, error)
 }
 
 type AuthService interface {
-	Register(ctx context.Context, i dto.Register) (*entity.Account, error)
-	Login(ctx context.Context, i dto.Login) (*entity.Account, error)
+	Register(ctx context.Context, i dto.Register) (*entity.User, error)
+	Login(ctx context.Context, i dto.Login) (*entity.User, error)
 }
 
 type JWTService interface {

@@ -88,7 +88,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	account, err := h.authService.Register(ctx, req)
+	user, err := h.authService.Register(ctx, req)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			httperr.NewConflictError(c, err.Error())
@@ -101,7 +101,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(account.ID)
+	token, claims, err := h.jwtService.CreateToken(user.ID)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
@@ -109,8 +109,8 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	r := LoginResponse{
 		ID:          claims.UserID,
-		Name:        account.Name,
-		Email:       account.Email,
+		Name:        user.Name,
+		Email:       user.Email,
 		IssuedAt:    claims.IssuedAt,
 		ExpiresAt:   claims.ExpiresAt,
 		AccessToken: token,
