@@ -27,7 +27,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	_, err := us.s.accountRepo.GetByEmail(i.Email)
+	_, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		us.s.log.Error("error to get account by email", err.Error())
 		return nil, ErrEmailNotFound
@@ -52,7 +52,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 		UpdatedAt: time.Now(),
 	}
 
-	err = us.s.accountRepo.Save(user)
+	err = us.s.userRepo.Save(user)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
 			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken.Error())
@@ -77,13 +77,13 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.User, er
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	user, err := us.s.accountRepo.GetByEmail(i.Email)
+	user, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil {
 		us.s.log.Error("cannot find user by email", err.Error())
 		return nil, ErrInvalidCredentials
 	}
 
-	encrypted, err := us.s.accountRepo.GetPassword(user.ID)
+	encrypted, err := us.s.userRepo.GetPassword(user.ID)
 	if err != nil {
 		us.s.log.Error("error to get user password", err.Error())
 		return nil, ErrInvalidCredentials

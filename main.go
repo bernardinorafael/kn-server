@@ -43,7 +43,7 @@ func main() {
 	svc := service.New(
 		service.GetLogger(l),
 		service.GetConfig(cfg),
-		service.GetAccountRepository(ar),
+		service.GetUserRepository(ar),
 	)
 
 	// init handlers

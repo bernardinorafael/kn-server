@@ -28,15 +28,15 @@ var (
 )
 
 type service struct {
-	accountRepo contract.UserRepository
-	log         slog.Logger
-	cfg         *config.EnvFile
+	userRepo contract.UserRepository
+	log      slog.Logger
+	cfg      *config.EnvFile
 }
 
 type Services struct {
-	AccountService contract.UserService
-	JWTService     contract.JWTService
-	AuthService    contract.AuthService
+	UserService contract.UserService
+	JWTService  contract.JWTService
+	AuthService contract.AuthService
 }
 
 type svcOptions func(*service)
@@ -48,15 +48,15 @@ func New(svcOptions ...svcOptions) *Services {
 	}
 
 	return &Services{
-		AccountService: newUserService(svc),
-		JWTService:     newJWTService(svc),
-		AuthService:    newAuthService(svc),
+		UserService: newUserService(svc),
+		JWTService:  newJWTService(svc),
+		AuthService: newAuthService(svc),
 	}
 }
 
-func GetAccountRepository(accountRepo contract.UserRepository) svcOptions {
+func GetUserRepository(userRepo contract.UserRepository) svcOptions {
 	return func(service *service) {
-		service.accountRepo = accountRepo
+		service.userRepo = userRepo
 	}
 }
 func GetConfig(cfg *config.EnvFile) svcOptions {

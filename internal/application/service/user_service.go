@@ -21,7 +21,7 @@ func (as *userService) GetByID(id string) (*entity.User, error) {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
-	user, err := as.s.accountRepo.GetByID(id)
+	user, err := as.s.userRepo.GetByID(id)
 	if err != nil {
 		as.s.log.Error("error to find user", err.Error())
 		return nil, ErrUserNotFound
@@ -35,7 +35,7 @@ func (as *userService) UpdateUser(i dto.UpdateAccount, id string) error {
 	defer as.s.log.Info("Process finished")
 
 	if i.Email != "" {
-		_, err := as.s.accountRepo.GetByEmail(i.Email)
+		_, err := as.s.userRepo.GetByEmail(i.Email)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrEmailNotFound
 		} else if err == nil {
@@ -48,7 +48,7 @@ func (as *userService) UpdateUser(i dto.UpdateAccount, id string) error {
 		Email: i.Email,
 	}
 
-	err := as.s.accountRepo.Update(&account, id)
+	err := as.s.userRepo.Update(&account, id)
 	if err != nil {
 		as.s.log.Error("error update user", err.Error())
 		return ErrUpdateUser
@@ -61,13 +61,13 @@ func (as *userService) DeleteUser(id string) error {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
-	_, err := as.s.accountRepo.GetByID(id)
+	_, err := as.s.userRepo.GetByID(id)
 	if err != nil {
 		as.s.log.Error("error find user by ID", err.Error())
 		return ErrUserNotFound
 	}
 
-	err = as.s.accountRepo.Delete(id)
+	err = as.s.userRepo.Delete(id)
 	if err != nil {
 		as.s.log.Error("error deleting user", err.Error())
 		return ErrDeleteUser
@@ -80,7 +80,7 @@ func (as *userService) GetAll() (*[]entity.User, error) {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
-	accounts, err := as.s.accountRepo.GetAll()
+	accounts, err := as.s.userRepo.GetAll()
 	if err != nil {
 		if len(*accounts) == 0 {
 			return nil, ErrEmptyResourceError
