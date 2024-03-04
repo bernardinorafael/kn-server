@@ -47,7 +47,7 @@ func main() {
 	)
 
 	// init handlers
-	auth := userroute.NewUserHandler(svc.AccountService)
+	auth := userroute.NewUserHandler(svc.UserService)
 	user := authroute.NewUserHandler(svc.AuthService, svc.JWTService)
 
 	// init routes

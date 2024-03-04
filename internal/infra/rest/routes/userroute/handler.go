@@ -34,7 +34,7 @@ func (h UserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	account := AccountResponse{
+	account := UserResponse{
 		ID:        acc.ID,
 		Name:      acc.Name,
 		Email:     acc.Email,
@@ -88,13 +88,14 @@ func (h UserHandler) GetAccounts(c *gin.Context) {
 		return
 	}
 
-	var users []AccountResponse
+	var users []UserResponse
 	for _, u := range *allUsers {
-		users = append(users, AccountResponse{
+		users = append(users, UserResponse{
 			ID:        u.ID,
 			Name:      u.Name,
 			Email:     u.Email,
 			Document:  u.Document,
+			Username:  u.Username,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
 		})
