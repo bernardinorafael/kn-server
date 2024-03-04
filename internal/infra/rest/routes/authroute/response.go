@@ -3,8 +3,10 @@ package authroute
 import "time"
 
 type LoginResponse struct {
-	UserID      string    `json:"user_id"`
-	AccessToken string    `json:"access_token"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
 	IssuedAt    time.Time `json:"issued_at"`
 	ExpiresAt   time.Time `json:"expires_at"`
+	AccessToken string    `json:"access_token"`
 }

@@ -8,7 +8,7 @@ import (
 type Register struct {
 	Name     string `json:"name" validate:"required,min=3,max=30"`
 	Email    string `json:"email" validate:"required,email"`
-	Document int    `json:"document" validate:"required,len=11,gte=0"`
+	Document int    `json:"document" validate:"required,gte=0,numeric"`
 	Password string `json:"password" validate:"required,min=8"`
 }
 

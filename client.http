@@ -41,8 +41,8 @@ Content-Type: application/json
 
 
 {
-    "email": "pia_ber@hotmail.com",
-    "password": "12344567"
+    "email": "maria_aparecida@gmail.com",
+    "password": "12345678"
 }
 
 ### register
@@ -50,9 +50,9 @@ POST http://localhost:8080/auth/register
 Content-Type: application/json
 
 {
-    "name": "claudionir pedro bernardino",
-    "email": "pia_ber@hotmail.com",
-    "document": "09834522099",
+    "document": 10383445896,
+    "email": "maria_aparecida@gmail.com",
+    "name": "maria aparecida joselita",
     "password": "12345678"
 }
 

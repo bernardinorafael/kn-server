@@ -48,23 +48,25 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	id, err := h.authService.Login(ctx, req)
+	account, err := h.authService.Login(ctx, req)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(ctx, id)
+	token, claims, err := h.jwtService.CreateToken(ctx, account.ID)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
 	}
 
 	r := LoginResponse{
-		AccessToken: token,
-		UserID:      claims.UserID,
-		ExpiresAt:   claims.ExpiresAt,
+		ID:          claims.UserID,
+		Name:        account.Name,
+		Email:       account.Email,
 		IssuedAt:    claims.IssuedAt,
+		ExpiresAt:   claims.ExpiresAt,
+		AccessToken: token,
 	}
 
 	c.JSON(http.StatusOK, r)
@@ -86,9 +88,12 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	id, err := h.authService.Register(ctx, req)
+	account, err := h.authService.Register(ctx, req)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
+			httperr.NewConflictError(c, err.Error())
+			return
+		} else if errors.Is(err, service.ErrDocumentAlreadyTaken) {
 			httperr.NewConflictError(c, err.Error())
 			return
 		}
@@ -96,17 +101,19 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(ctx, id)
+	token, claims, err := h.jwtService.CreateToken(ctx, account.ID)
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())
 		return
 	}
 
 	r := LoginResponse{
-		AccessToken: token,
-		UserID:      claims.UserID,
-		ExpiresAt:   claims.ExpiresAt,
+		ID:          claims.UserID,
+		Name:        account.Name,
+		Email:       account.Email,
 		IssuedAt:    claims.IssuedAt,
+		ExpiresAt:   claims.ExpiresAt,
+		AccessToken: token,
 	}
 
 	c.JSON(http.StatusCreated, r)

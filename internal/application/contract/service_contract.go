@@ -8,7 +8,6 @@ import (
 )
 
 type AccountService interface {
-	CreateAccount(ctx context.Context, i dto.CreateAccount) error
 	GetByID(ctx context.Context, id string) (*entity.Account, error)
 	UpdateAccount(ctx context.Context, i dto.UpdateAccount, id string) error
 	DeleteAccount(ctx context.Context, id string) error
@@ -16,8 +15,8 @@ type AccountService interface {
 }
 
 type AuthService interface {
-	Register(ctx context.Context, i dto.Register) (id string, err error)
-	Login(ctx context.Context, i dto.Login) (id string, err error)
+	Register(ctx context.Context, i dto.Register) (*entity.Account, error)
+	Login(ctx context.Context, i dto.Login) (*entity.Account, error)
 }
 
 type JWTService interface {

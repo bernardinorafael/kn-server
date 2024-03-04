@@ -10,7 +10,6 @@ func Start(r *gin.Engine, handler *AccountHandler, a contract.JWTService) {
 	u := r.Group("/")
 	u.Use(middleware.Authenticate(a))
 	{
-		u.POST("/user", handler.CreateAccount)
 		u.GET("/users", handler.GetAccounts)
 		u.GET("/user/:id", handler.GetUser)
 		u.PATCH("/user/:id", handler.UpdateAccount)
