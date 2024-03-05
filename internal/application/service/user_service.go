@@ -23,7 +23,7 @@ func (as *userService) GetByID(id string) (*entity.User, error) {
 
 	user, err := as.s.userRepo.GetByID(id)
 	if err != nil {
-		as.s.log.Error("error to find user", err.Error())
+		as.s.log.Error("error to find user", err)
 		return nil, ErrUserNotFound
 	}
 
@@ -50,7 +50,7 @@ func (as *userService) UpdateUser(i dto.UpdateAccount, id string) error {
 
 	err := as.s.userRepo.Update(&account, id)
 	if err != nil {
-		as.s.log.Error("error update user", err.Error())
+		as.s.log.Error("error update user", err)
 		return ErrUpdateUser
 	}
 
@@ -63,13 +63,13 @@ func (as *userService) DeleteUser(id string) error {
 
 	_, err := as.s.userRepo.GetByID(id)
 	if err != nil {
-		as.s.log.Error("error find user by ID", err.Error())
+		as.s.log.Error("error find user by ID", err)
 		return ErrUserNotFound
 	}
 
 	err = as.s.userRepo.Delete(id)
 	if err != nil {
-		as.s.log.Error("error deleting user", err.Error())
+		as.s.log.Error("error deleting user", err)
 		return ErrDeleteUser
 	}
 
@@ -85,7 +85,7 @@ func (as *userService) GetAll() (*[]entity.User, error) {
 		if len(*accounts) == 0 {
 			return nil, ErrEmptyResourceError
 		}
-		as.s.log.Error("error find users", err.Error())
+		as.s.log.Error("error find users", err)
 		return nil, ErrGetManyUsers
 	}
 

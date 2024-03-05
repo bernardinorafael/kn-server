@@ -30,7 +30,7 @@ func (js *jwtService) CreateToken(id string) (string, *dto.Claims, error) {
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
 	if err != nil {
-		js.s.log.Error("error to encrypt token", err.Error())
+		js.s.log.Error("error to encrypt token", err)
 		return "", claims, ErrEncryptToken
 	}
 

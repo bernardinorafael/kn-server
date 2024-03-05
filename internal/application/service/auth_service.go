@@ -10,7 +10,6 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -29,16 +28,16 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 
 	_, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		us.s.log.Error("error to get account by email", err.Error())
+		us.s.log.Error("error to get account by email", err)
 		return nil, ErrEmailNotFound
 	} else if err == nil {
-		us.s.log.Error("error to get account by email", ErrEmailAlreadyTaken.Error())
+		us.s.log.Error("error to get account by email", ErrEmailAlreadyTaken)
 		return nil, ErrEmailAlreadyTaken
 	}
 
 	encrypted, err := crypto.EncryptPassword(i.Password)
 	if err != nil {
-		us.s.log.Error("failed to encrypt password", err.Error())
+		us.s.log.Error("failed to encrypt password", err)
 		return nil, ErrEncryptToken
 	}
 
@@ -55,10 +54,10 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 	err = us.s.userRepo.Save(user)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_accounts_document") {
-			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken.Error())
+			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken)
 			return nil, ErrDocumentAlreadyTaken
 		}
-		us.s.log.Error("error creating account", err.Error())
+		us.s.log.Error("error creating account", err)
 		return nil, ErrCreateUser
 	}
 
@@ -66,8 +65,6 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 		"name", user.Name,
 		"email", user.Email,
 	)
-
-	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
 
 	return &user, nil
 }
@@ -78,19 +75,19 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.User, er
 
 	user, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil {
-		us.s.log.Error("cannot find user by email", err.Error())
+		us.s.log.Error("cannot find user by email", err)
 		return nil, ErrInvalidCredentials
 	}
 
 	encrypted, err := us.s.userRepo.GetPassword(user.ID)
 	if err != nil {
-		us.s.log.Error("error to get user password", err.Error())
+		us.s.log.Error("error to get user password", err)
 		return nil, ErrInvalidCredentials
 	}
 
 	err = crypto.CheckPassword(encrypted, i.Password)
 	if err != nil {
-		us.s.log.Error("password does not match", err.Error())
+		us.s.log.Error("password does not match", err)
 		return nil, ErrInvalidCredentials
 	}
 
@@ -98,8 +95,6 @@ func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.User, er
 		"name", user.Name,
 		"email", user.Email,
 	)
-
-	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
 
 	return user, nil
 }
