@@ -21,7 +21,7 @@ func Connect(ctx context.Context, l *slog.Logger) (*gorm.DB, error) {
 
 	err = db.AutoMigrate(&entity.User{})
 	if err != nil {
-		l.Error("error generate migrations: %v", err)
+		l.Error("error generate migrations", err)
 		return nil, err
 	}
 

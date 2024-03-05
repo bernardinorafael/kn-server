@@ -65,7 +65,6 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 	us.s.log.Info("successfully created account",
 		"name", user.Name,
 		"email", user.Email,
-		"document", user.Document,
 	)
 
 	ctx = context.WithValue(ctx, restutil.AuthKey, user.ID)
