@@ -34,9 +34,10 @@ type service struct {
 }
 
 type Services struct {
-	UserService contract.UserService
-	JWTService  contract.JWTService
-	AuthService contract.AuthService
+	UserService    contract.UserService
+	JWTService     contract.JWTService
+	AuthService    contract.AuthService
+	ProductService contract.ProductService
 }
 
 type svcOptions func(*service)
@@ -48,9 +49,10 @@ func New(svcOptions ...svcOptions) *Services {
 	}
 
 	return &Services{
-		UserService: newUserService(svc),
-		JWTService:  newJWTService(svc),
-		AuthService: newAuthService(svc),
+		UserService:    newUserService(svc),
+		JWTService:     newJWTService(svc),
+		AuthService:    newAuthService(svc),
+		ProductService: newProductService(svc),
 	}
 }
 

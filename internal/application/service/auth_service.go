@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"strings"
 	"time"
@@ -22,7 +21,7 @@ func newAuthService(service *service) contract.AuthService {
 	return &authService{service}
 }
 
-func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.User, error) {
+func (us *authService) Register(i dto.Register) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
@@ -69,7 +68,7 @@ func (us *authService) Register(ctx context.Context, i dto.Register) (*entity.Us
 	return &user, nil
 }
 
-func (us *authService) Login(ctx context.Context, i dto.Login) (*entity.User, error) {
+func (us *authService) Login(i dto.Login) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 

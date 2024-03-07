@@ -14,3 +14,9 @@ type UserRepository interface {
 	UpdatePassword(password string, id string) error
 	GetPassword(id string) (string, error)
 }
+
+type ProductRepository interface {
+	Save(p entity.Product) error
+	GetBySlug(slug string) (*entity.Product, error)
+	GetAll() (*[]entity.Product, error)
+}

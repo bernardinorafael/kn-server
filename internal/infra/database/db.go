@@ -1,7 +1,6 @@
 package database
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/bernardinorafael/kn-server/config"
@@ -10,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Connect(ctx context.Context, l *slog.Logger) (*gorm.DB, error) {
+func Connect(l *slog.Logger) (*gorm.DB, error) {
 	env := config.Env
 
 	db, err := gorm.Open(postgres.Open(env.DSN), &gorm.Config{})
@@ -19,13 +18,13 @@ func Connect(ctx context.Context, l *slog.Logger) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&entity.User{})
+	err = db.AutoMigrate(&entity.User{}, &entity.Product{})
 	if err != nil {
 		l.Error("error generate migrations", err)
 		return nil, err
 	}
 
-	l.Info("database connected!")
+	l.Info("database connected")
 
 	return db, err
 }

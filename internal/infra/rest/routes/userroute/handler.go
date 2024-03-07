@@ -48,7 +48,7 @@ func (h UserHandler) GetUser(c *gin.Context) {
 
 func (h UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
-	req := &dto.UpdateAccount{}
+	req := &dto.UpdateUser{}
 	if err := c.ShouldBind(req); err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
 		return

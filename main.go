@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log/slog"
 	"os"
 
@@ -28,9 +27,7 @@ func main() {
 		return
 	}
 
-	ctx := context.Background()
-
-	conn, err := database.Connect(ctx, l)
+	conn, err := database.Connect(l)
 	if err != nil {
 		l.Error("error connect database", err)
 		return

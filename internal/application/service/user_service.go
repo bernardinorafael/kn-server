@@ -30,7 +30,7 @@ func (as *userService) GetByID(id string) (*entity.User, error) {
 	return user, nil
 }
 
-func (as *userService) UpdateUser(i dto.UpdateAccount, id string) error {
+func (as *userService) UpdateUser(i dto.UpdateUser, id string) error {
 	as.s.log.Info("Process started")
 	defer as.s.log.Info("Process finished")
 
