@@ -10,7 +10,6 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,8 +32,6 @@ func NewUserHandler(as contract.AuthService, js contract.JWTService) *UserHandle
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
-	ctx := restutil.GetContext(c)
-
 	req := dto.Login{}
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -48,7 +45,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	account, err := h.authService.Login(ctx, req)
+	account, err := h.authService.Login(req)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
@@ -73,8 +70,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
-	ctx := restutil.GetContext(c)
-
 	req := dto.Register{}
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -88,7 +83,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authService.Register(ctx, req)
+	user, err := h.authService.Register(req)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			httperr.NewConflictError(c, err.Error())

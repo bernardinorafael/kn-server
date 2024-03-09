@@ -2,7 +2,7 @@
 
 include .env
 
-APP_NAME=kn.co
+APP_NAME=kn.server
 
 run:
 	@go run main.go

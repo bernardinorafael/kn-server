@@ -17,6 +17,6 @@ type UserRepository interface {
 
 type ProductRepository interface {
 	Save(p entity.Product) error
-	GetBySlug(slug string) (*entity.Product, error)
 	GetAll() (*[]entity.Product, error)
+	GetByName(p entity.Product) (*entity.Product, error)
 }

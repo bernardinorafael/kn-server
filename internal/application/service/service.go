@@ -19,7 +19,7 @@ var (
 	ErrUpdateUser           = errors.New("an error occurred, cannot update this resource")
 	ErrDeleteUser           = errors.New("an error occurred, cannot delete this resource")
 	ErrGetManyUsers         = errors.New("an error occurred, unable to retrieve the resource")
-	ErrInvalidCredentials   = errors.New("authentication failed, the provided email and/or password is incorrect")
+	ErrInvalidCredentials   = errors.New("the provided email and/or password is incorrect")
 	ErrEqualPasswords       = errors.New("both passwords are the same")
 	ErrExpiredToken         = errors.New("the provided access token has expired")
 	ErrCouldNotParseJWT     = errors.New("failed to parse the provided jwt token")
@@ -29,6 +29,7 @@ var (
 
 type service struct {
 	userRepo contract.UserRepository
+	prodRepo contract.ProductRepository
 	log      slog.Logger
 	cfg      *config.EnvFile
 }
@@ -59,6 +60,11 @@ func New(svcOptions ...svcOptions) *Services {
 func GetUserRepository(userRepo contract.UserRepository) svcOptions {
 	return func(service *service) {
 		service.userRepo = userRepo
+	}
+}
+func GetProductRepository(prodRepo contract.ProductRepository) svcOptions {
+	return func(service *service) {
+		service.prodRepo = prodRepo
 	}
 }
 func GetConfig(cfg *config.EnvFile) svcOptions {
