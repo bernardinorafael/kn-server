@@ -17,10 +17,10 @@ func NewProductRepository(DB *gorm.DB) contract.ProductRepository {
 	return &productRepository{DB}
 }
 
-func (pr *productRepository) GetByName(p entity.Product) (*entity.Product, error) {
-	product := entity.Product{}
+func (pr *productRepository) GetByName(name string) (*entity.Product, error) {
+	var product entity.Product
 
-	err := pr.DB.Where("name = ?", p.Name).First(&product).Error
+	err := pr.DB.Where("name = ?", name).First(&product).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
@@ -31,17 +31,12 @@ func (pr *productRepository) GetByName(p entity.Product) (*entity.Product, error
 	return &product, nil
 }
 
-func (pr productRepository) Save(p entity.Product) error {
+func (pr *productRepository) Save(p entity.Product) error {
 	product := entity.Product{
-		Name:        p.Name,
-		Slug:        p.Slug,
-		Description: p.Description,
-		Price:       p.Price,
-		Stock:       p.Stock,
-		SKU:         p.SKU,
-		Size:        p.Size,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		Name:      p.Name,
+		Price:     p.Price,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	if err := pr.DB.Create(&product).Error; err != nil {
@@ -51,6 +46,7 @@ func (pr productRepository) Save(p entity.Product) error {
 	return nil
 }
 
-func (pr productRepository) GetAll() (*[]entity.Product, error) {
+func (pr *productRepository) GetAll() (*[]entity.Product, error) {
+	// TODO: make this method
 	return nil, nil
 }

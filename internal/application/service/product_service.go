@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 )
@@ -17,10 +19,25 @@ func (ps *ProductService) SaveProduct(p entity.Product) error {
 	ps.s.log.Info("Process started")
 	defer ps.s.log.Info("Process finished")
 
-	// TODO: verify the availability(name)
-	// TODO: generate the SKU
-	// TODO: generate the slug
-	// TODO: save in db
+	_, err := ps.s.prodRepo.GetByName(p.Name)
+	if err != nil {
+		ps.s.log.Error("cannot find product by name", err)
+		return err
+	}
+
+	product := entity.Product{
+		ID:        p.ID,
+		Name:      p.Name,
+		Price:     p.Price,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	err = ps.s.prodRepo.Save(product)
+	if err != nil {
+		ps.s.log.Error("error saving product in DB", err)
+		return err
+	}
 
 	return nil
 }

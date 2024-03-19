@@ -18,7 +18,7 @@ func Authenticate(a contract.JWTService) gin.HandlerFunc {
 		}
 
 		p := strings.Split(header, " ")
-		if len(p) != 2 || p[0] != "Bearer" {
+		if len(p) != 2 || p[0] != "" {
 			httperr.NewBadRequestError(c, "invalid Authorization header")
 			c.Abort()
 			return

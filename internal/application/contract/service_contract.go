@@ -12,11 +12,6 @@ type UserService interface {
 	GetAll() (*[]entity.User, error)
 }
 
-type ProductService interface {
-	SaveProduct(p entity.Product) error
-	GetByID(id uint) (*entity.Product, error)
-}
-
 type AuthService interface {
 	Register(i dto.Register) (*entity.User, error)
 	Login(i dto.Login) (*entity.User, error)
@@ -25,4 +20,9 @@ type AuthService interface {
 type JWTService interface {
 	CreateToken(id string) (string, *dto.Claims, error)
 	ValidateToken(token string) (*dto.Claims, error)
+}
+
+type ProductService interface {
+	SaveProduct(p entity.Product) error
+	GetByID(id uint) (*entity.Product, error)
 }
