@@ -10,32 +10,32 @@ import (
 )
 
 type userService struct {
-	s *service
+	svc *service
 }
 
 func newUserService(service *service) contract.UserService {
-	return &userService{s: service}
+	return &userService{svc: service}
 }
 
-func (as *userService) GetByID(id string) (*entity.User, error) {
-	as.s.log.Info("Process started")
-	defer as.s.log.Info("Process finished")
+func (us *userService) GetByID(id string) (*entity.User, error) {
+	us.svc.log.Info("Process started")
+	defer us.svc.log.Info("Process finished")
 
-	user, err := as.s.userRepo.GetByID(id)
+	user, err := us.svc.userRepo.GetByID(id)
 	if err != nil {
-		as.s.log.Error("error to find user", err)
+		us.svc.log.Error("error to find user", err)
 		return nil, ErrUserNotFound
 	}
 
 	return user, nil
 }
 
-func (as *userService) UpdateUser(i dto.UpdateUser, id string) error {
-	as.s.log.Info("Process started")
-	defer as.s.log.Info("Process finished")
+func (us *userService) UpdateUser(i dto.UpdateUser, id string) error {
+	us.svc.log.Info("Process started")
+	defer us.svc.log.Info("Process finished")
 
 	if i.Email != "" {
-		_, err := as.s.userRepo.GetByEmail(i.Email)
+		_, err := us.svc.userRepo.GetByEmail(i.Email)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrEmailNotFound
 		} else if err == nil {
@@ -48,44 +48,44 @@ func (as *userService) UpdateUser(i dto.UpdateUser, id string) error {
 		Email: i.Email,
 	}
 
-	err := as.s.userRepo.Update(&account, id)
+	err := us.svc.userRepo.Update(&account, id)
 	if err != nil {
-		as.s.log.Error("error update user", err)
+		us.svc.log.Error("error update user", err)
 		return ErrUpdateUser
 	}
 
 	return nil
 }
 
-func (as *userService) DeleteUser(id string) error {
-	as.s.log.Info("Process started")
-	defer as.s.log.Info("Process finished")
+func (us *userService) DeleteUser(id string) error {
+	us.svc.log.Info("Process started")
+	defer us.svc.log.Info("Process finished")
 
-	_, err := as.s.userRepo.GetByID(id)
+	_, err := us.svc.userRepo.GetByID(id)
 	if err != nil {
-		as.s.log.Error("error find user by ID", err)
+		us.svc.log.Error("error find user by ID", err)
 		return ErrUserNotFound
 	}
 
-	err = as.s.userRepo.Delete(id)
+	err = us.svc.userRepo.Delete(id)
 	if err != nil {
-		as.s.log.Error("error deleting user", err)
+		us.svc.log.Error("error deleting user", err)
 		return ErrDeleteUser
 	}
 
 	return nil
 }
 
-func (as *userService) GetAll() (*[]entity.User, error) {
-	as.s.log.Info("Process started")
-	defer as.s.log.Info("Process finished")
+func (us *userService) GetAll() (*[]entity.User, error) {
+	us.svc.log.Info("Process started")
+	defer us.svc.log.Info("Process finished")
 
-	accounts, err := as.s.userRepo.GetAll()
+	accounts, err := us.svc.userRepo.GetAll()
 	if err != nil {
 		if len(*accounts) == 0 {
 			return nil, ErrEmptyResourceError
 		}
-		as.s.log.Error("error find users", err)
+		us.svc.log.Error("error find users", err)
 		return nil, ErrGetManyUsers
 	}
 

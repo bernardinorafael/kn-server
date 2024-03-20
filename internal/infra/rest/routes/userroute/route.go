@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Start(r *gin.Engine, handler *UserHandler, a contract.JWTService) {
-	u := r.Group("/")
-	u.Use(middleware.Authenticate(a))
+func Start(r *gin.Engine, handler *UserHandler, js contract.JWTService) {
+	user := r.Group("/")
+	user.Use(middleware.Authenticate(js))
 	{
-		u.GET("/users", handler.GetAccounts)
-		u.GET("/user/:id", handler.GetUser)
-		u.PATCH("/user/:id", handler.UpdateUser)
-		u.DELETE("/user/:id", handler.DeleteUser)
+		user.GET("/users", handler.GetAccounts)
+		user.GET("/user/:id", handler.GetUser)
+		user.PATCH("/user/:id", handler.UpdateUser)
+		user.DELETE("/user/:id", handler.DeleteUser)
 	}
 }

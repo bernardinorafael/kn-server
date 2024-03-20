@@ -34,7 +34,7 @@ func main() {
 	}
 
 	// init repositories
-	ar := repository.NewAccountRepository(conn)
+	ar := repository.NewUserRepository(conn)
 	pr := repository.NewProductRepository(conn)
 
 	// init services

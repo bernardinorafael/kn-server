@@ -5,9 +5,9 @@ import (
 )
 
 func Start(r *gin.Engine, handler *UserHandler) {
-	a := r.Group("/auth")
+	auth := r.Group("/auth")
 	{
-		a.POST("/login", handler.Login)
-		a.POST("/register", handler.Register)
+		auth.POST("/login", handler.Login)
+		auth.POST("/register", handler.Register)
 	}
 }

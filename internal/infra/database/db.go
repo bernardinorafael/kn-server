@@ -18,7 +18,7 @@ func Connect(l *slog.Logger) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&entity.User{}, &entity.Product{})
+	err = db.AutoMigrate(&entity.User{})
 	if err != nil {
 		l.Error("error generate migrations", err)
 		return nil, err

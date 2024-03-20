@@ -13,7 +13,7 @@ type accountRepository struct {
 	DB *gorm.DB
 }
 
-func NewAccountRepository(DB *gorm.DB) contract.UserRepository {
+func NewUserRepository(DB *gorm.DB) contract.UserRepository {
 	return &accountRepository{DB}
 }
 
@@ -81,14 +81,13 @@ func (r *accountRepository) GetAll() (*[]entity.User, error) {
 }
 
 func (r *accountRepository) Delete(id string) error {
-	var err error
 	var user = entity.User{ID: id}
 
-	if err = r.DB.First(&user).Error; err != nil {
+	if err := r.DB.First(&user).Error; err != nil {
 		return err
 	}
 
-	if err = r.DB.Delete(&user).Error; err != nil {
+	if err := r.DB.Delete(&user).Error; err != nil {
 		return err
 	}
 

@@ -95,7 +95,6 @@ func (h UserHandler) GetAccounts(c *gin.Context) {
 			Name:      u.Name,
 			Email:     u.Email,
 			Document:  u.Document,
-			Username:  u.Username,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
 		})

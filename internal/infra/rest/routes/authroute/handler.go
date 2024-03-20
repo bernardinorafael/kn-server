@@ -33,34 +33,33 @@ func NewUserHandler(as contract.AuthService, js contract.JWTService) *UserHandle
 
 func (h *UserHandler) Login(c *gin.Context) {
 	req := dto.Login{}
+
 	err := c.ShouldBind(&req)
 	if err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
 		return
 	}
 
-	validations := validator.Validate(req)
-	if validations != nil {
-		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
+	val := validator.Validate(req)
+	if val != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", val)
 		return
 	}
 
-	account, err := h.authService.Login(req)
+	user, err := h.authService.Login(req)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
 	}
 
-	token, claims, err := h.jwtService.CreateToken(account.ID)
+	token, claims, err := h.jwtService.CreateToken(user.ID)
 	if err != nil {
 		httperr.NewUnauthorizedError(c, err.Error())
 		return
 	}
 
 	r := LoginResponse{
-		ID:          claims.UserID,
-		Name:        account.Name,
-		Email:       account.Email,
+		UserID:      claims.UserID,
 		IssuedAt:    claims.IssuedAt,
 		ExpiresAt:   claims.ExpiresAt,
 		AccessToken: token,
@@ -71,6 +70,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 func (h *UserHandler) Register(c *gin.Context) {
 	req := dto.Register{}
+
 	err := c.ShouldBind(&req)
 	if err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
@@ -103,9 +103,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 	}
 
 	r := LoginResponse{
-		ID:          claims.UserID,
-		Name:        user.Name,
-		Email:       user.Email,
+		UserID:      claims.UserID,
 		IssuedAt:    claims.IssuedAt,
 		ExpiresAt:   claims.ExpiresAt,
 		AccessToken: token,

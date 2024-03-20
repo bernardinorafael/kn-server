@@ -30,7 +30,7 @@ func Validate(d interface{}) []httperr.ValidationField {
 			case "min":
 				cause.Field = e.StructField()
 				cause.Msg = fmt.Sprintf(
-					"the field %s must have a value greater than %s",
+					"the field %s must have the length greater than %s",
 					e.StructField(), e.Param(),
 				)
 			case "len":
