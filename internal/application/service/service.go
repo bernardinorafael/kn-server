@@ -29,16 +29,14 @@ var (
 
 type service struct {
 	userRepo contract.UserRepository
-	prodRepo contract.ProductRepository
 	log      slog.Logger
 	cfg      *config.EnvFile
 }
 
 type Services struct {
-	UserService    contract.UserService
-	JWTService     contract.JWTService
-	AuthService    contract.AuthService
-	ProductService contract.ProductService
+	UserService contract.UserService
+	JWTService  contract.JWTService
+	AuthService contract.AuthService
 }
 
 type svcOptions func(*service)
@@ -50,21 +48,15 @@ func New(svcOptions ...svcOptions) *Services {
 	}
 
 	return &Services{
-		UserService:    newUserService(svc),
-		JWTService:     newJWTService(svc),
-		AuthService:    newAuthService(svc),
-		ProductService: newProductService(svc),
+		UserService: newUserService(svc),
+		JWTService:  newJWTService(svc),
+		AuthService: newAuthService(svc),
 	}
 }
 
 func GetUserRepository(userRepo contract.UserRepository) svcOptions {
 	return func(service *service) {
 		service.userRepo = userRepo
-	}
-}
-func GetProductRepository(prodRepo contract.ProductRepository) svcOptions {
-	return func(service *service) {
-		service.prodRepo = prodRepo
 	}
 }
 func GetConfig(cfg *config.EnvFile) svcOptions {

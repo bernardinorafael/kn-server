@@ -1,14 +1,11 @@
 package userroute
 
 import (
+	httperr "github.com/bernardinorafael/kn-server/helper/error"
+	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"sync"
-
-	httperr "github.com/bernardinorafael/kn-server/helper/error"
-	"github.com/bernardinorafael/kn-server/helper/validator"
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/gin-gonic/gin"
 )
 
 var handler *UserHandler
@@ -26,62 +23,27 @@ func NewUserHandler(accService contract.UserService) *UserHandler {
 }
 
 func (h UserHandler) GetUser(c *gin.Context) {
-
 	id := c.Param("id")
-	acc, err := h.accService.GetByID(id)
+
+	u, err := h.accService.GetByID(id)
 	if err != nil {
 		httperr.NewNotFoundError(c, err.Error())
 		return
 	}
 
-	account := UserResponse{
-		ID:        acc.ID,
-		Name:      acc.Name,
-		Email:     acc.Email,
-		Document:  acc.Document,
-		CreatedAt: acc.CreatedAt,
-		UpdatedAt: acc.UpdatedAt,
+	user := UserResponse{
+		ID:        u.ID,
+		Name:      u.Name,
+		Email:     u.Email,
+		Document:  u.Document,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	}
 
-	c.JSON(http.StatusOK, account)
+	c.JSON(http.StatusOK, user)
 }
 
-func (h UserHandler) UpdateUser(c *gin.Context) {
-	id := c.Param("id")
-	req := &dto.UpdateUser{}
-	if err := c.ShouldBind(req); err != nil {
-		httperr.NewBadRequestError(c, "not found/invalid body")
-		return
-	}
-
-	validations := validator.Validate(req)
-	if validations != nil {
-		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
-		return
-	}
-
-	err := h.accService.UpdateUser(*req, id)
-	if err != nil {
-		httperr.NewBadRequestError(c, err.Error())
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func (h UserHandler) DeleteUser(c *gin.Context) {
-	id := c.Param("id")
-
-	err := h.accService.DeleteUser(id)
-	if err != nil {
-		httperr.NewBadRequestError(c, err.Error())
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func (h UserHandler) GetAccounts(c *gin.Context) {
+func (h UserHandler) GetManyUsers(c *gin.Context) {
 	allUsers, err := h.accService.GetAll()
 	if err != nil {
 		httperr.NewBadRequestError(c, err.Error())

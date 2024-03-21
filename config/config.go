@@ -11,7 +11,7 @@ var Env *EnvFile
 type EnvFile struct {
 	Port      string `mapstructure:"PORT"`
 	Mode      string `mapstructure:"ENVIRONMENT"`
-	DSN       string `mapstructure:"DB_POSTGRE_DSN"`
+	DSN       string `mapstructure:"DB_POSTGRES_DSN"`
 	Name      string `mapstructure:"NAME"`
 	Debug     bool   `mapstructure:"DEBUG"`
 	LogToFile string `mapstructure:"LOG_TO_FILE"`

@@ -36,7 +36,7 @@ func Validate(d interface{}) []httperr.ValidationField {
 			case "len":
 				cause.Field = e.StructField()
 				cause.Msg = fmt.Sprintf(
-					"the field %s must contain exactly %s numbers",
+					"the field %s must contain exactly %s characters",
 					e.StructField(), e.Param(),
 				)
 			case "gte":

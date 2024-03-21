@@ -10,9 +10,7 @@ func Start(r *gin.Engine, handler *UserHandler, js contract.JWTService) {
 	user := r.Group("/")
 	user.Use(middleware.Authenticate(js))
 	{
-		user.GET("/users", handler.GetAccounts)
+		user.GET("/users", handler.GetManyUsers)
 		user.GET("/user/:id", handler.GetUser)
-		user.PATCH("/user/:id", handler.UpdateUser)
-		user.DELETE("/user/:id", handler.DeleteUser)
 	}
 }

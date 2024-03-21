@@ -77,10 +77,9 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	validations := validator.Validate(req)
-	if validations != nil {
-		httperr.NewFieldsErrorValidation(c, "invalid fields", validations)
-		return
+	val := validator.Validate(req)
+	if val != nil {
+		httperr.NewFieldsErrorValidation(c, "invalid fields", val)
 	}
 
 	user, err := h.authService.Register(req)

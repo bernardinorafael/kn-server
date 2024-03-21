@@ -18,14 +18,16 @@ type authService struct {
 }
 
 func newAuthService(service *service) contract.AuthService {
-	return &authService{service}
+	return &authService{
+		s: service,
+	}
 }
 
-func (us *authService) Register(i dto.Register) (*entity.User, error) {
+func (us *authService) Register(input dto.Register) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	_, err := us.s.userRepo.GetByEmail(i.Email)
+	_, err := us.s.userRepo.GetByEmail(input.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		us.s.log.Error("error to get account by email", err)
 		return nil, ErrEmailNotFound
@@ -34,7 +36,7 @@ func (us *authService) Register(i dto.Register) (*entity.User, error) {
 		return nil, ErrEmailAlreadyTaken
 	}
 
-	encrypted, err := crypto.EncryptPassword(i.Password)
+	encrypted, err := crypto.EncryptPassword(input.Password)
 	if err != nil {
 		us.s.log.Error("failed to encrypt password", err)
 		return nil, ErrEncryptToken
@@ -42,10 +44,10 @@ func (us *authService) Register(i dto.Register) (*entity.User, error) {
 
 	user := entity.User{
 		ID:        uuid.New().String(),
-		Name:      i.Name,
-		Email:     i.Email,
+		Name:      input.Name,
+		Email:     input.Email,
 		Password:  encrypted,
-		Document:  i.Document,
+		Document:  input.Document,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -60,7 +62,7 @@ func (us *authService) Register(i dto.Register) (*entity.User, error) {
 		return nil, ErrCreateUser
 	}
 
-	us.s.log.Info("successfully created account",
+	us.s.log.Info("creating account to",
 		"name", user.Name,
 		"email", user.Email,
 	)
@@ -68,11 +70,11 @@ func (us *authService) Register(i dto.Register) (*entity.User, error) {
 	return &user, nil
 }
 
-func (us *authService) Login(i dto.Login) (*entity.User, error) {
+func (us *authService) Login(input dto.Login) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	user, err := us.s.userRepo.GetByEmail(i.Email)
+	user, err := us.s.userRepo.GetByEmail(input.Email)
 	if err != nil {
 		us.s.log.Error("cannot find user by email", err)
 		return nil, ErrInvalidCredentials
@@ -84,13 +86,13 @@ func (us *authService) Login(i dto.Login) (*entity.User, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = crypto.CheckPassword(encrypted, i.Password)
+	err = crypto.CheckPassword(encrypted, input.Password)
 	if err != nil {
 		us.s.log.Error("password does not match", err)
 		return nil, ErrInvalidCredentials
 	}
 
-	us.s.log.Info("successfully login as",
+	us.s.log.Info("login user to",
 		"name", user.Name,
 		"email", user.Email,
 	)
