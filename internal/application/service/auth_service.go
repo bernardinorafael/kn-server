@@ -45,6 +45,7 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 	user := entity.User{
 		ID:        uuid.New().String(),
 		Name:      input.Name,
+		Surname:   input.Surname,
 		Email:     input.Email,
 		Password:  encrypted,
 		Document:  input.Document,
@@ -54,7 +55,7 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 
 	err = us.s.userRepo.Save(user)
 	if err != nil {
-		if strings.Contains(err.Error(), "uni_accounts_document") {
+		if strings.Contains(err.Error(), "uni_users_document") {
 			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken)
 			return nil, ErrDocumentAlreadyTaken
 		}

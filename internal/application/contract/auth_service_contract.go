@@ -6,6 +6,6 @@ import (
 )
 
 type AuthService interface {
-	Register(input dto.Register) (*entity.User, error)
-	Login(input dto.Login) (*entity.User, error)
+	Register(i dto.Register) (*entity.User, error)
+	Login(i dto.Login) (*entity.User, error)
 }

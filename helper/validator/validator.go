@@ -19,42 +19,34 @@ func Validate(d interface{}) []httperr.ValidationField {
 			switch e.Tag() {
 			case "required":
 				cause.Field = e.StructField()
-				cause.Msg = fmt.Sprintf(
-					"the field %s is required", e.StructField(),
-				)
+				cause.Msg = "is a required field"
 			case "email":
 				cause.Field = e.StructField()
-				cause.Msg = fmt.Sprintf(
-					"the field %s must be a valid email address", e.StructField(),
-				)
+				cause.Msg = "must be a valid email address"
 			case "min":
 				cause.Field = e.StructField()
 				cause.Msg = fmt.Sprintf(
-					"the field %s must have the length greater than %s",
+					"the field `%s` must have the length greater than %s",
+					e.StructField(), e.Param(),
+				)
+			case "max":
+				cause.Field = e.StructField()
+				cause.Msg = fmt.Sprintf(
+					"the field `%s` must have a maximum of  %s characters",
 					e.StructField(), e.Param(),
 				)
 			case "len":
 				cause.Field = e.StructField()
 				cause.Msg = fmt.Sprintf(
-					"the field %s must contain exactly %s characters",
+					"the field `%s` must have a length %s characters",
 					e.StructField(), e.Param(),
 				)
-			case "gte":
+			case "numeric":
 				cause.Field = e.StructField()
-				cause.Msg = fmt.Sprintf(
-					"the field %s must be a positive number", e.StructField(),
-				)
-			case "max":
-				cause.Field = e.StructField()
-				cause.Msg = fmt.Sprintf(
-					"the field %s must have maximum length of %s",
-					e.StructField(), e.Param(),
-				)
+				cause.Msg = "only numeric digits are allowed"
 			default:
 				cause.Field = e.StructField()
-				cause.Msg = fmt.Sprintf(
-					"the field %s is invalid", e.StructField(),
-				)
+				cause.Msg = fmt.Sprintf("the field `%s` is invalid", e.StructField())
 			}
 			causes = append(causes, cause)
 		}
