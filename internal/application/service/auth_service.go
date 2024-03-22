@@ -65,6 +65,7 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 
 	us.s.log.Info("creating account to",
 		"name", user.Name,
+		"surname", user.Surname,
 		"email", user.Email,
 	)
 
@@ -93,8 +94,7 @@ func (us *authService) Login(input dto.Login) (*entity.User, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	us.s.log.Info("login user to",
-		"name", user.Name,
+	us.s.log.Info("login process to user",
 		"email", user.Email,
 	)
 
