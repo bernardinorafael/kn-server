@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"log/slog"
 	"os"
 
@@ -18,6 +19,9 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
+	gin.DebugPrintRouteFunc = func(methodFn, pathFn, _ string, _ int) {
+		log.Printf("%v %v\n", methodFn, pathFn)
+	}
 
 	l := slog.New(logger.NewLog(nil))
 
@@ -52,8 +56,9 @@ func main() {
 	authroute.Start(router, user)
 
 	_ = router.SetTrustedProxies(nil)
-	if err := router.Run("0.0.0.0:" + cfg.Port); err != nil {
-		l.Error("error starting server", err)
+	err = router.Run("0.0.0.0:" + cfg.Port)
+	if err != nil {
+		l.Error("error connecting web server", err)
 		os.Exit(1)
 	}
 }

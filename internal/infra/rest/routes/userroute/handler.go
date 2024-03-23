@@ -1,11 +1,12 @@
 package userroute
 
 import (
+	"net/http"
+	"sync"
+
 	httperr "github.com/bernardinorafael/kn-server/helper/error"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"sync"
 )
 
 var handler *UserHandler
