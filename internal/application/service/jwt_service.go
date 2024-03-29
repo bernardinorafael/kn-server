@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -37,19 +38,48 @@ func (js *jwtService) CreateToken(id string) (string, *dto.Claims, error) {
 	return token, claims, nil
 }
 
+func (js *jwtService) Decode(token string) (string, error) {
+	if strings.TrimSpace(token) == "" {
+		return "", ErrCouldNotParseJWT
+	}
+
+	secret := js.s.cfg.JWTSecret
+	var id string
+
+	keyFn := func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrInvalidCredentials
+		}
+		return []byte(secret), nil
+	}
+
+	jwtToken, err := jwt.Parse(token, keyFn)
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := jwtToken.Claims.(jwt.MapClaims); ok {
+		id = fmt.Sprint(claims["id"])
+	}
+
+	return id, nil
+}
+
 func (js *jwtService) ValidateToken(token string) (*dto.Claims, error) {
+	secret := js.s.cfg.JWTSecret
+
 	if strings.TrimSpace(token) == "" {
 		return nil, ErrInvalidCredentials
 	}
 
-	keyFunc := func(t *jwt.Token) (interface{}, error) {
+	keyFn := func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidCredentials
 		}
-		return []byte(js.s.cfg.JWTSecret), nil
+		return []byte(secret), nil
 	}
 
-	jwtToken, err := jwt.ParseWithClaims(token, &dto.Claims{}, keyFunc)
+	jwtToken, err := jwt.ParseWithClaims(token, &dto.Claims{}, keyFn)
 	if err != nil {
 		var v *jwt.ValidationError
 		ok := errors.As(err, &v)

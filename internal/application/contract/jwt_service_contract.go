@@ -7,4 +7,5 @@ import (
 type JWTService interface {
 	CreateToken(id string) (string, *dto.Claims, error)
 	ValidateToken(token string) (*dto.Claims, error)
+	Decode(token string) (string, error)
 }

@@ -27,7 +27,7 @@ func main() {
 
 	cfg, err := config.GetConfigEnv()
 	if err != nil {
-		l.Error("failed to load env", err)
+		l.Error("failed load env", err)
 		return
 	}
 
