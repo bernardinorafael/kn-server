@@ -37,7 +37,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 	err := c.ShouldBind(&req)
 	if err != nil {
 		httperr.NewBadRequestError(c, "not found/invalid body")
-		return
 	}
 
 	val := validator.Validate(req)
@@ -58,14 +57,14 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	r := LoginResponse{
+	res := LoginResponse{
 		UserID:      claims.UserID,
 		IssuedAt:    claims.IssuedAt,
 		ExpiresAt:   claims.ExpiresAt,
 		AccessToken: token,
 	}
 
-	c.JSON(http.StatusOK, r)
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
@@ -102,12 +101,12 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	r := LoginResponse{
+	res := LoginResponse{
 		UserID:      claims.UserID,
 		IssuedAt:    claims.IssuedAt,
 		ExpiresAt:   claims.ExpiresAt,
 		AccessToken: token,
 	}
 
-	c.JSON(http.StatusCreated, r)
+	c.JSON(http.StatusCreated, res)
 }

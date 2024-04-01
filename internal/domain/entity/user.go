@@ -3,6 +3,8 @@ package entity
 import (
 	"time"
 
+	"github.com/bernardinorafael/kn-server/helper/crypto"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,4 +18,22 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+}
+
+func MakeUser(name, surname, pass, email, doc string) (*User, error) {
+	encrypted, err := crypto.Make(pass)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{
+		ID:       uuid.New().String(),
+		Password: encrypted,
+		Name:     name,
+		Surname:  surname,
+		Email:    email,
+		Document: doc,
+	}
+
+	return user, nil
 }

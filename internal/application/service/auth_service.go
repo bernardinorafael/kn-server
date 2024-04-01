@@ -36,7 +36,7 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 		return nil, ErrEmailAlreadyTaken
 	}
 
-	encrypted, err := crypto.EncryptPassword(input.Password)
+	encrypted, err := crypto.Make(input.Password)
 	if err != nil {
 		us.s.log.Error("failed to encrypt password", err)
 		return nil, ErrEncryptToken
@@ -88,7 +88,7 @@ func (us *authService) Login(input dto.Login) (*entity.User, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = crypto.CheckPassword(encrypted, input.Password)
+	err = crypto.Compare(encrypted, input.Password)
 	if err != nil {
 		us.s.log.Error("password does not match", err)
 		return nil, ErrInvalidCredentials
