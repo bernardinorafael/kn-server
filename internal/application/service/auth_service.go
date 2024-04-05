@@ -3,13 +3,11 @@ package service
 import (
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,11 +21,11 @@ func newAuthService(service *service) contract.AuthService {
 	}
 }
 
-func (us *authService) Register(input dto.Register) (*entity.User, error) {
+func (us *authService) Register(i dto.Register) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	_, err := us.s.userRepo.GetByEmail(input.Email)
+	_, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		us.s.log.Error("error to get account by email", err)
 		return nil, ErrEmailNotFound
@@ -36,24 +34,12 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 		return nil, ErrEmailAlreadyTaken
 	}
 
-	encrypted, err := crypto.Make(input.Password)
+	user, err := entity.NewUser(i.Name, i.Password, i.Email)
 	if err != nil {
-		us.s.log.Error("failed to encrypt password", err)
-		return nil, ErrEncryptToken
+		return nil, err
 	}
 
-	user := entity.User{
-		ID:        uuid.New().String(),
-		Name:      input.Name,
-		Surname:   input.Surname,
-		Email:     input.Email,
-		Password:  encrypted,
-		Document:  input.Document,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	err = us.s.userRepo.Save(user)
+	err = us.s.userRepo.Create(*user)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_document") {
 			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken)
@@ -65,18 +51,17 @@ func (us *authService) Register(input dto.Register) (*entity.User, error) {
 
 	us.s.log.Info("creating account to",
 		"name", user.Name,
-		"surname", user.Surname,
 		"email", user.Email,
 	)
 
-	return &user, nil
+	return user, nil
 }
 
-func (us *authService) Login(input dto.Login) (*entity.User, error) {
+func (us *authService) Login(i dto.Login) (*entity.User, error) {
 	us.s.log.Info("Process started")
 	defer us.s.log.Info("Process finished")
 
-	user, err := us.s.userRepo.GetByEmail(input.Email)
+	user, err := us.s.userRepo.GetByEmail(i.Email)
 	if err != nil {
 		us.s.log.Error("cannot find user by email", err)
 		return nil, ErrInvalidCredentials
@@ -88,7 +73,7 @@ func (us *authService) Login(input dto.Login) (*entity.User, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = crypto.Compare(encrypted, input.Password)
+	err = crypto.Compare(encrypted, i.Password)
 	if err != nil {
 		us.s.log.Error("password does not match", err)
 		return nil, ErrInvalidCredentials

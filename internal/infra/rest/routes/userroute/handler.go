@@ -36,7 +36,6 @@ func (h UserHandler) GetUser(c *gin.Context) {
 		ID:        u.ID,
 		Name:      u.Name,
 		Email:     u.Email,
-		Document:  u.Document,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
@@ -57,7 +56,6 @@ func (h UserHandler) GetManyUsers(c *gin.Context) {
 			ID:        u.ID,
 			Name:      u.Name,
 			Email:     u.Email,
-			Document:  u.Document,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
 		})

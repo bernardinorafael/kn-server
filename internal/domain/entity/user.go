@@ -9,18 +9,17 @@ import (
 )
 
 type User struct {
-	ID        string         `json:"id"`
-	Name      string         `json:"name"`
-	Surname   string         `json:"surname"`
-	Password  string         `json:"password,omitempty"`
-	Email     string         `json:"email" gorm:"unique"`
-	Document  string         `json:"document" gorm:"unique"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Password string `json:"password,omitempty"`
+	Email    string `json:"email" gorm:"unique"`
+
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }
 
-func MakeUser(name, surname, pass, email, doc string) (*User, error) {
+func NewUser(name, pass, email string) (*User, error) {
 	encrypted, err := crypto.Make(pass)
 	if err != nil {
 		return nil, err
@@ -28,11 +27,9 @@ func MakeUser(name, surname, pass, email, doc string) (*User, error) {
 
 	user := &User{
 		ID:       uuid.New().String(),
-		Password: encrypted,
-		Name:     name,
-		Surname:  surname,
 		Email:    email,
-		Document: doc,
+		Name:     name,
+		Password: encrypted,
 	}
 
 	return user, nil
