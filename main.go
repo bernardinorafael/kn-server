@@ -9,7 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/database"
-	"github.com/bernardinorafael/kn-server/internal/infra/repository"
+	"github.com/bernardinorafael/kn-server/internal/infra/persistence/repository"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/authroute"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/routes/userroute"
 	"github.com/gin-contrib/cors"
@@ -31,14 +31,14 @@ func main() {
 		return
 	}
 
-	conn, err := database.Connect(l)
+	con, err := database.Connect(l)
 	if err != nil {
 		l.Error("error connect database", err)
 		return
 	}
 
 	// init repositories
-	ar := repository.NewUserRepository(conn)
+	ar := repository.NewUserRepository(con)
 
 	// init services
 	svc := service.New(

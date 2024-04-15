@@ -4,6 +4,8 @@
 *.so
 *.dylib
 
+.DS_Store
+
 #ide
 .idea/
 .run/

@@ -53,10 +53,10 @@ func (repository *userRepository) GetByID(id string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (ur *userRepository) GetAll() (*[]entity.User, error) {
+func (repository *userRepository) GetAll() (*[]entity.User, error) {
 	var users []entity.User
 
-	if err := ur.DB.First(&users).Error; err != nil {
+	if err := repository.DB.First(&users).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
 		}
@@ -66,10 +66,10 @@ func (ur *userRepository) GetAll() (*[]entity.User, error) {
 	return &users, nil
 }
 
-func (ur *userRepository) GetPassword(id string) (string, error) {
+func (repository *userRepository) GetPassword(id string) (string, error) {
 	var user = entity.User{ID: id}
 
-	err := ur.DB.Select("password").Find(&user).Error
+	err := repository.DB.Select("password").Find(&user).Error
 	if err != nil {
 		return "", err
 	}

@@ -1,10 +1,10 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,12 +25,10 @@ func NewUser(name, pass, email string) (*User, error) {
 		return nil, err
 	}
 
-	user := &User{
+	return &User{
 		ID:       uuid.New().String(),
 		Email:    email,
 		Name:     name,
 		Password: encrypted,
-	}
-
-	return user, nil
+	}, nil
 }
