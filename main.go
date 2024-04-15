@@ -38,13 +38,13 @@ func main() {
 	}
 
 	// init repositories
-	ar := repository.NewUserRepository(con)
+	userRepository := repository.NewUserRepository(con)
 
 	// init services
 	svc := service.New(
 		service.GetLogger(l),
 		service.GetConfig(cfg),
-		service.GetUserRepository(ar),
+		service.GetUserRepository(userRepository),
 	)
 
 	// init handlers

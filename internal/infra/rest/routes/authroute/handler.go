@@ -17,11 +17,11 @@ var handler *UserHandler
 var once sync.Once
 
 type UserHandler struct {
-	authService contract.AuthService
-	jwtService  contract.JWTService
+	authService contract.Auth
+	jwtService  contract.JWT
 }
 
-func NewUserHandler(as contract.AuthService, js contract.JWTService) *UserHandler {
+func NewUserHandler(as contract.Auth, js contract.JWT) *UserHandler {
 	once.Do(func() {
 		handler = &UserHandler{
 			jwtService:  js,

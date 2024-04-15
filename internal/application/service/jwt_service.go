@@ -15,7 +15,7 @@ type jwtService struct {
 	s *service
 }
 
-func newJWTService(service *service) contract.JWTService {
+func newJWTService(service *service) contract.JWT {
 	return &jwtService{s: service}
 }
 

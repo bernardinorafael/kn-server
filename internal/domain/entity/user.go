@@ -1,8 +1,9 @@
 package entity
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"gorm.io/gorm"
@@ -11,8 +12,9 @@ import (
 type User struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
-	Password string `json:"password,omitempty"`
 	Email    string `json:"email" gorm:"unique"`
+	Document string `json:"document,omitempty" gorm:"unique"`
+	Password string `json:"password,omitempty"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

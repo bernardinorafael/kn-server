@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Authenticate(a contract.JWTService) gin.HandlerFunc {
+func Authenticate(a contract.JWT) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.Request.Header.Get("Authorization")
 		if header == "" {

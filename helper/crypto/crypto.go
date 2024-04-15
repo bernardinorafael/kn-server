@@ -1,6 +1,8 @@
 package crypto
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 func Make(password string) (string, error) {
 	encrypted, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -11,9 +13,5 @@ func Make(password string) (string, error) {
 }
 
 func Compare(encrypted, password string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(password))
-	if err != nil {
-		return err
-	}
-	return nil
+	return bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(password))
 }

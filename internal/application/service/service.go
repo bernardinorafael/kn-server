@@ -35,8 +35,8 @@ type service struct {
 
 type Services struct {
 	UserService contract.UserService
-	JWTService  contract.JWTService
-	AuthService contract.AuthService
+	JWTService  contract.JWT
+	AuthService contract.Auth
 }
 
 type svcOptions func(*service)

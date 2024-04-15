@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Start(r *gin.Engine, handler *UserHandler, js contract.JWTService) {
+func Start(r *gin.Engine, handler *UserHandler, js contract.JWT) {
 	user := r.Group("/")
 	user.Use(middleware.Authenticate(js))
 	{

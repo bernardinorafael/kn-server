@@ -15,7 +15,7 @@ type authService struct {
 	s *service
 }
 
-func newAuthService(service *service) contract.AuthService {
+func newAuthService(service *service) contract.Auth {
 	return &authService{
 		s: service,
 	}
