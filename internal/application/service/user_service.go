@@ -32,7 +32,7 @@ func (us *userService) GetAll() (*[]entity.User, error) {
 
 	accounts, err := us.s.userRepo.GetAll()
 	if err != nil {
-		if len(accounts) == 0 {
+		if len(*accounts) == 0 {
 			return nil, ErrEmptyResourceError
 		}
 		us.s.log.Error("error find users", err)
