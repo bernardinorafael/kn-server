@@ -9,6 +9,7 @@
 #ide
 .idea/
 .run/
+.zed/
 
 # Test Binary
 *.test
