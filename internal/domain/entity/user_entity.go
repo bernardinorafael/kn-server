@@ -23,7 +23,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func New(name, email, password string) (*User, error) {
+func NewUser(name, email, password string) (*User, error) {
 	if len(name) <= 3 {
 		return nil, ErrInvalidNameLength
 	}
