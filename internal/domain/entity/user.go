@@ -1,36 +1,51 @@
 package entity
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"errors"
+	"regexp"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"gorm.io/gorm"
 )
 
-type User struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email" gorm:"unique"`
-	Document string `json:"document,omitempty" gorm:"unique"`
-	Password string `json:"password,omitempty"`
+var (
+	ErrInvalidNameLength   = errors.New("name must be at least 3 characters long")
+	ErrInvalidFullName     = errors.New("invalid name, must contain name and full name")
+	ErrInvalidEmailAddress = errors.New("invalid email address format")
+)
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+type User struct {
+	gorm.Model
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-func NewUser(name, pass, email string) (*User, error) {
-	encrypted, err := crypto.Make(pass)
+func NewUser(name, email, password string) (*User, error) {
+	if len(name) <= 3 {
+		return nil, ErrInvalidNameLength
+	}
+
+	ok, _ := regexp.MatchString("^[A-Za-zÀ-ÿ]+(?:\\s[A-Za-zÀ-ÿ]+)+$", name)
+	if !ok {
+		return nil, ErrInvalidFullName
+	}
+
+	ok, _ = regexp.MatchString("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", email)
+	if !ok {
+		return nil, ErrInvalidEmailAddress
+	}
+
+	encrypted, err := crypto.Make(password)
 	if err != nil {
 		return nil, err
 	}
 
-	return &User{
-		ID:       uuid.New().String(),
-		Email:    email,
+	user := &User{
 		Name:     name,
+		Email:    email,
 		Password: encrypted,
-	}, nil
+	}
+
+	return user, nil
 }

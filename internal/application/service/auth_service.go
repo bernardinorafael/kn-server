@@ -1,87 +1,27 @@
 package service
 
 import (
-	"errors"
-	"strings"
-
-	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
-	"gorm.io/gorm"
 )
 
 type authService struct {
-	s *service
+	svc *service
 }
 
-func newAuthService(service *service) contract.Auth {
-	return &authService{
-		s: service,
-	}
+func newAuthService(svc *service) contract.AuthService {
+	return &authService{svc}
 }
 
-func (us *authService) Register(i dto.Register) (*entity.User, error) {
-	us.s.log.Info("Process started")
-	defer us.s.log.Info("Process finished")
+func (s authService) Login(email, password string) error {
+	s.svc.log.Info("Start process")
+	defer s.svc.log.Info("End process")
 
-	_, err := us.s.userRepo.GetByEmail(i.Email)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		us.s.log.Error("error to get account by email", err)
-		return nil, ErrEmailNotFound
-	} else if err == nil {
-		us.s.log.Error("error to get account by email", ErrEmailAlreadyTaken)
-		return nil, ErrEmailAlreadyTaken
-	}
-
-	user, err := entity.NewUser(i.Name, i.Password, i.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	err = us.s.userRepo.Create(*user)
-	if err != nil {
-		if strings.Contains(err.Error(), "uni_users_document") {
-			us.s.log.Error("document already exist", ErrDocumentAlreadyTaken)
-			return nil, ErrDocumentAlreadyTaken
-		}
-		us.s.log.Error("error creating account", err)
-		return nil, ErrCreateUser
-	}
-
-	us.s.log.Info("creating account to",
-		"name", user.Name,
-		"email", user.Email,
-	)
-
-	return user, nil
+	return nil
 }
 
-func (us *authService) Login(i dto.Login) (*entity.User, error) {
-	us.s.log.Info("Process started")
-	defer us.s.log.Info("Process finished")
+func (s authService) Register(name, email, password string) error {
+	s.svc.log.Info("Start process")
+	defer s.svc.log.Info("End process")
 
-	user, err := us.s.userRepo.GetByEmail(i.Email)
-	if err != nil {
-		us.s.log.Error("cannot find user by email", err)
-		return nil, ErrInvalidCredentials
-	}
-
-	encrypted, err := us.s.userRepo.GetPassword(user.ID)
-	if err != nil {
-		us.s.log.Error("error to get user password", err)
-		return nil, ErrInvalidCredentials
-	}
-
-	err = crypto.Compare(encrypted, i.Password)
-	if err != nil {
-		us.s.log.Error("password does not match", err)
-		return nil, ErrInvalidCredentials
-	}
-
-	us.s.log.Info("login process to user",
-		"email", user.Email,
-	)
-
-	return user, nil
+	return nil
 }
