@@ -11,10 +11,13 @@ var Env *EnvFile
 type EnvFile struct {
 	Port      string `mapstructure:"PORT"`
 	Mode      string `mapstructure:"ENVIRONMENT"`
-	DSN       string `mapstructure:"DB_POSTGRES_DSN"`
 	Name      string `mapstructure:"NAME"`
 	Debug     bool   `mapstructure:"DEBUG"`
 	LogToFile string `mapstructure:"LOG_TO_FILE"`
+
+	DSN    string `mapstructure:"DB_POSTGRES_DSN"`
+	DBName string `mapstructure:"DB_NAME"`
+	DBUrl  string `mapstructure:"DB_URL"`
 
 	JWTSecret           string        `mapstructure:"JWT_SECRET"`
 	JwtExpiresIn        int           `mapstructure:"JWT_EXPIRES"`

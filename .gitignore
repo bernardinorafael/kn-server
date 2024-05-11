@@ -7,9 +7,7 @@
 .DS_Store
 
 #ide
-.idea/
 .run/
-.zed/
 
 # Test Binary
 *.test

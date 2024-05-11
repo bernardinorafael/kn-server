@@ -1,8 +1,9 @@
 package entity_test
 
 import (
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"testing"
+
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 
 	"github.com/stretchr/testify/assert"
 )

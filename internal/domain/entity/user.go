@@ -3,10 +3,9 @@ package entity
 import (
 	"errors"
 	"regexp"
-	"time"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
-	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -16,11 +15,10 @@ var (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
+	gorm.Model
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func NewUser(name, email, password string) (*User, error) {
@@ -44,11 +42,9 @@ func NewUser(name, email, password string) (*User, error) {
 	}
 
 	user := &User{
-		ID:        uuid.New(),
-		Name:      name,
-		Email:     email,
-		Password:  encrypted,
-		CreatedAt: time.Now(),
+		Name:     name,
+		Email:    email,
+		Password: encrypted,
 	}
 
 	return user, nil
