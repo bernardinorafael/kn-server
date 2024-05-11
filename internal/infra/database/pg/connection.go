@@ -17,13 +17,11 @@ func Connect(l *slog.Logger, DSN string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	l.Info("generating migrates...")
 	err = con.AutoMigrate(&entity.User{})
 	if err != nil {
 		return nil, err
 	}
-	l.Info("migrates generated...")
+	l.Info("database connected")
 
-	l.Info("database connected successfully")
 	return con, nil
 }
