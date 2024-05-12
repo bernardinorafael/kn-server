@@ -41,3 +41,14 @@ func (r *userRepo) FindByID(id string) (*entity.User, error) {
 
 	return &user, nil
 }
+
+func (r *userRepo) FindByEmail(email string) (*entity.User, error) {
+	var user entity.User
+
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
