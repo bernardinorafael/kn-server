@@ -1,7 +1,10 @@
 package routes
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
-func InitRoutes() {
+func InitRoutes(r *http.ServeMux) {
 	fmt.Println("new routes here")
 }

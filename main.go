@@ -9,12 +9,18 @@ import (
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
+	routes "github.com/bernardinorafael/kn-server/internal/infra/http"
+	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 )
 
 func main() {
+	l := slog.New(logger.NewLog(nil))
 	router := http.NewServeMux()
 
-	l := slog.New(logger.NewLog(nil))
+	router.HandleFunc("GET /user/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		w.Write([]byte(id))
+	})
 
 	env, err := config.GetConfigEnv()
 	if err != nil {
@@ -23,14 +29,18 @@ func main() {
 	}
 
 	// init database
-	_, err = db.Connect(l, env.DSN)
+	con, err := db.Connect(l, env.DSN)
 	if err != nil {
 		l.Error("error connecting db", err)
 		panic(err)
 	}
 
+	repository.NewUserRepo(con)
+
 	// init services
 	_ = service.New(service.GetLogger(l))
+
+	routes.InitRoutes(router)
 
 	err = http.ListenAndServe(":"+env.Port, router)
 	if err != nil {
