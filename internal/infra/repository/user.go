@@ -16,7 +16,7 @@ func NewUserRepo(db *gorm.DB) contract.UserRepository {
 	}
 }
 
-func (r *userRepo) Create(u entity.User) (*entity.User, error) {
+func (r *userRepo) Create(u entity.User) error {
 	user := entity.User{
 		Name:     u.Name,
 		Email:    u.Email,
@@ -25,16 +25,16 @@ func (r *userRepo) Create(u entity.User) (*entity.User, error) {
 
 	err := r.db.Create(&user).Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &user, nil
+	return nil
 }
 
 func (r *userRepo) FindByID(id string) (*entity.User, error) {
 	var user entity.User
 
-	err := r.db.First(&user, id).Error
+	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
