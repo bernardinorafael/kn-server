@@ -54,4 +54,9 @@ func TestUser_New(t *testing.T) {
 		_, err = entity.NewUser("john doe ", email, password)
 		assert.EqualError(t, err, "invalid name, must contain name and full name")
 	})
+
+	t.Run("should password have at least 6 char", func(t *testing.T) {
+		_, err := entity.NewUser(name, email, "123")
+		assert.EqualError(t, err, "password must contain at least 6 char")
+	})
 }
