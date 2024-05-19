@@ -59,6 +59,8 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: return authenticated token
+
 	// TODO: transform success response into a fn
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

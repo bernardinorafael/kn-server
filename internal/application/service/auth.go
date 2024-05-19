@@ -17,10 +17,7 @@ type authService struct {
 }
 
 func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.AuthService {
-	return &authService{
-		l:        l,
-		userRepo: userRepo,
-	}
+	return &authService{l, userRepo}
 }
 
 func (s *authService) Login(email, password string) error {

@@ -2,9 +2,11 @@ package service
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/golang-jwt/jwt"
 )
 
 type jwtService struct {
@@ -17,5 +19,16 @@ func NewJWTService(log *slog.Logger, env *config.EnvFile) contract.JWTService {
 }
 
 func (j *jwtService) CreateToken() (string, error) {
-	panic("unimplemented")
+	// TODO: add user id in token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"issued_at":  time.Now(),
+		"expires_at": time.Now().Add(j.env.AccessTokenDuration),
+	})
+
+	tokenString, err := token.SignedString([]byte(j.env.JWTSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, err
 }
