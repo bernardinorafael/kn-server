@@ -11,14 +11,16 @@ import (
 )
 
 type Handler struct {
-	authService contract.AuthService
 	l           *slog.Logger
+	authService contract.AuthService
+	jwtService  contract.JWTService
 }
 
-func NewHandler(l *slog.Logger, authService contract.AuthService) *Handler {
+func NewHandler(l *slog.Logger, authService contract.AuthService, jwtService contract.JWTService) *Handler {
 	return &Handler{
-		authService: authService,
 		l:           l,
+		authService: authService,
+		jwtService:  jwtService,
 	}
 }
 

@@ -34,10 +34,11 @@ func main() {
 	userRepo := repository.NewUserRepo(con)
 
 	// init services
-	authService := service.NewAuthService(userRepo, l)
+	authService := service.NewAuthService(l, userRepo)
+	jwtService := service.NewJWTService(l, env)
 
 	// init handlers
-	authHandler := auth.NewHandler(l, authService)
+	authHandler := auth.NewHandler(l, authService, jwtService)
 
 	// register routes
 	authHandler.RegisterRoute(mux)
