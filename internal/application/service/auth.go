@@ -2,13 +2,16 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"strings"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrEmailAlreadyTaken = errors.New("email already taken")
 )
 
 type authService struct {
@@ -21,9 +24,6 @@ func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.A
 }
 
 func (s *authService) Login(email, password string) error {
-	s.l.Info("Start service process")
-	defer s.l.Info("End service process")
-
 	_, err := s.userRepo.FindByEmail(email)
 	if err != nil {
 		return err
@@ -33,9 +33,6 @@ func (s *authService) Login(email, password string) error {
 }
 
 func (s *authService) Register(name, email, password string) error {
-	s.l.Info("Start service process")
-	defer s.l.Info("End service process")
-
 	// TODO: remove gorm dependency in this checking
 	_, err := s.userRepo.FindByEmail(email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -44,14 +41,14 @@ func (s *authService) Register(name, email, password string) error {
 
 	user, err := entity.NewUser(name, email, password)
 	if err != nil {
-		s.l.Error("error creating user", err)
+		s.l.Error("error creating user entity", err)
 		return err
 	}
 
-	// TODO: verify best way to check sql error
-	if err = s.userRepo.Create(*user); err != nil {
+	err = s.userRepo.Create(*user)
+	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			return fmt.Errorf("email %v is already taken", email)
+			return ErrEmailAlreadyTaken
 		}
 		return err
 	}

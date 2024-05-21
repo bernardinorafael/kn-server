@@ -42,7 +42,7 @@ func NewBadRequestError(w http.ResponseWriter, message string) {
 	})
 }
 
-func NewUnauthorizedError(w http.ResponseWriter, message string, validator []ValidationField) {
+func NewUnauthorizedError(w http.ResponseWriter, message string) {
 	statusCode := http.StatusUnauthorized
 
 	w.Header().Add("Content-Type", "application/json")

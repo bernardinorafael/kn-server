@@ -6,5 +6,6 @@ type AuthService interface {
 }
 
 type JWTService interface {
-	CreateToken() (string, error)
+	CreateToken(id string) (string, error)
+	VerifyToken(token string) error
 }

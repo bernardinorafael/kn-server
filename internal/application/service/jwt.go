@@ -18,9 +18,10 @@ func NewJWTService(log *slog.Logger, env *config.EnvFile) contract.JWTService {
 	return &jwtService{log, env}
 }
 
-func (j *jwtService) CreateToken() (string, error) {
+func (j *jwtService) CreateToken(id string) (string, error) {
 	// TODO: add user id in token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":         id,
 		"issued_at":  time.Now(),
 		"expires_at": time.Now().Add(j.env.AccessTokenDuration),
 	})
@@ -31,4 +32,9 @@ func (j *jwtService) CreateToken() (string, error) {
 	}
 
 	return tokenString, err
+}
+
+// TODO: implement this one
+func (j *jwtService) VerifyToken(token string) error {
+	return nil
 }
