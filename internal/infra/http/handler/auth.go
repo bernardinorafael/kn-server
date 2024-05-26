@@ -30,17 +30,13 @@ func (h *Handler) RegisterRoute(mux *http.ServeMux) {
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
-	// [] - parse payload
-	// [] - verify user exists by email
-	// [] - check password match
-	// [] - generate token
-	// [] - response the token
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	var payload dto.Register
 
-	// TODO: transform body verification into a helper fn and make ir better
 	if r.Body == nil {
 		resterror.NewBadRequestError(w, "cannot parse body")
 		return
@@ -53,15 +49,23 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.authService.Register(payload.Name, payload.Email, payload.Password)
+	user, err := h.authService.Register(payload.Name, payload.Email, payload.Password)
 	if err != nil {
 		resterror.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	// TODO: return authenticated token
+	token, err := h.jwtService.CreateToken(user.ID)
+	if err != nil {
+		resterror.NewInternalServerError(w, err.Error())
+		return
+	}
 
-	// TODO: transform success response into a fn
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"user_id": user.ID,
+		"token":   token,
+	})
 }

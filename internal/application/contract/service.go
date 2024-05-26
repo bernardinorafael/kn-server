@@ -1,11 +1,13 @@
 package contract
 
+import "github.com/bernardinorafael/kn-server/internal/domain/entity"
+
 type AuthService interface {
-	Login(email, password string) error
-	Register(name, email, password string) error
+	Login(email, password string) (*entity.User, error)
+	Register(name, email, password string) (*entity.User, error)
 }
 
 type JWTService interface {
-	CreateToken(id string) (string, error)
+	CreateToken(id uint) (string, error)
 	VerifyToken(token string) error
 }

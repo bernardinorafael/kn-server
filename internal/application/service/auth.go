@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -23,35 +24,35 @@ func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.A
 	return &authService{l, userRepo}
 }
 
-func (s *authService) Login(email, password string) error {
-	_, err := s.userRepo.FindByEmail(email)
+func (s *authService) Login(email, password string) (*entity.User, error) {
+	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return user, nil
 }
 
-func (s *authService) Register(name, email, password string) error {
-	// TODO: remove gorm dependency in this checking
+func (s *authService) Register(name, email, password string) (*entity.User, error) {
 	_, err := s.userRepo.FindByEmail(email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+		return nil, err
 	}
 
-	user, err := entity.NewUser(name, email, password)
+	newUser, err := entity.NewUser(name, email, password)
 	if err != nil {
 		s.l.Error("error creating user entity", err)
-		return err
+		return nil, err
 	}
 
-	err = s.userRepo.Create(*user)
+	user, err := s.userRepo.Create(*newUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			return ErrEmailAlreadyTaken
+			s.l.Error(fmt.Sprintf("email %s is already taken", email))
+			return nil, ErrEmailAlreadyTaken
 		}
-		return err
+		return nil, err
 	}
 
-	return nil
+	return user, nil
 }
