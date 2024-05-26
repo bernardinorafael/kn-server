@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ import (
 
 var (
 	ErrEmailAlreadyTaken = errors.New("email already taken")
+	ErrInvalidCredential = errors.New("invalid credentials")
 )
 
 type authService struct {
@@ -24,11 +26,24 @@ func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.A
 	return &authService{l, userRepo}
 }
 
+// TODO: implements lockout and rate limiting
 func (s *authService) Login(email, password string) (*entity.User, error) {
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
-		return nil, err
+		s.l.Error(fmt.Sprintf("user with email %s does not exist", email))
+		return nil, ErrInvalidCredential
 	}
+
+	err = crypto.Compare(user.Password, password)
+	if err != nil {
+		s.l.Error("the password provided is incorrect")
+		return nil, ErrInvalidCredential
+	}
+
+	s.l.Info(
+		"user attempts to login",
+		"name", user.Name, "email", email,
+	)
 
 	return user, nil
 }
@@ -44,6 +59,11 @@ func (s *authService) Register(name, email, password string) (*entity.User, erro
 		s.l.Error("error creating user entity", err)
 		return nil, err
 	}
+
+	s.l.Info(
+		"registering new user",
+		"name", name, "email", email,
+	)
 
 	user, err := s.userRepo.Create(*newUser)
 	if err != nil {
