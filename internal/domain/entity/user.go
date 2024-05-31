@@ -15,7 +15,6 @@ var (
 	ErrShortPassword       = errors.New("password must contain at least 6 char")
 )
 
-// TODO: removes gorm dependecy and create a model layer
 type User struct {
 	gorm.Model
 	Name     string `json:"name"`

@@ -1,6 +1,9 @@
 package contract
 
-import "github.com/bernardinorafael/kn-server/internal/domain/entity"
+import (
+	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/golang-jwt/jwt"
+)
 
 type AuthService interface {
 	Login(email, password string) (*entity.User, error)
@@ -9,5 +12,5 @@ type AuthService interface {
 
 type JWTService interface {
 	CreateToken(id uint) (string, error)
-	VerifyToken(token string) error
+	ValidateToken(token string) (*jwt.Token, error)
 }

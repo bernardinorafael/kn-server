@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log/slog"
 	"time"
 
@@ -33,7 +34,11 @@ func (j *jwtService) CreateToken(id uint) (string, error) {
 	return tokenString, err
 }
 
-// TODO: implement this one
-func (j *jwtService) VerifyToken(token string) error {
-	return nil
+func (j *jwtService) ValidateToken(t string) (*jwt.Token, error) {
+	return jwt.Parse(t, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid jwt token")
+		}
+		return []byte(j.env.JWTSecret), nil
+	})
 }

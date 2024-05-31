@@ -12,6 +12,7 @@ import (
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	auth "github.com/bernardinorafael/kn-server/internal/infra/http/handler"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -44,7 +45,9 @@ func main() {
 	authHandler.RegisterRoute(mux)
 
 	l.Info(fmt.Sprintf("server lintening on port %v", env.Port))
-	err = http.ListenAndServe(":"+env.Port, mux)
+
+	c := cors.Default().Handler(mux)
+	err = http.ListenAndServe(":"+env.Port, c)
 	if err != nil {
 		l.Error("error connecting web server", err)
 		os.Exit(1)
