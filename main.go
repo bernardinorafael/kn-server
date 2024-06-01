@@ -10,7 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
-	auth "github.com/bernardinorafael/kn-server/internal/infra/http/handler"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/handler"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 	"github.com/rs/cors"
 )
@@ -39,7 +39,7 @@ func main() {
 	jwtService := service.NewJWTService(l, env)
 
 	// init handlers
-	authHandler := auth.NewHandler(l, authService, jwtService)
+	authHandler := handler.NewAuthHandler(l, authService, jwtService)
 
 	// register routes
 	authHandler.RegisterRoute(mux)

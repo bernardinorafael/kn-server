@@ -1,4 +1,4 @@
-package auth
+package handler
 
 import (
 	"encoding/json"
@@ -10,26 +10,26 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/http/resterror"
 )
 
-type Handler struct {
+type authHandler struct {
 	l           *slog.Logger
 	authService contract.AuthService
 	jwtService  contract.JWTService
 }
 
-func NewHandler(l *slog.Logger, authService contract.AuthService, jwtService contract.JWTService) *Handler {
-	return &Handler{
+func NewAuthHandler(l *slog.Logger, authService contract.AuthService, jwtService contract.JWTService) *authHandler {
+	return &authHandler{
 		l:           l,
 		authService: authService,
 		jwtService:  jwtService,
 	}
 }
 
-func (h *Handler) RegisterRoute(mux *http.ServeMux) {
+func (h *authHandler) RegisterRoute(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/login", h.login)
 	mux.HandleFunc("POST /auth/register", h.register)
 }
 
-func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
+func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var payload dto.Login
 
 	if r.Body == nil {
@@ -65,7 +65,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
+func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var payload dto.Register
 
 	if r.Body == nil {

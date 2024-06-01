@@ -29,7 +29,7 @@ func (r *userRepo) Create(u entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) FindByID(id string) (*entity.User, error) {
+func (r *userRepo) FindByID(id uint) (*entity.User, error) {
 	var user entity.User
 
 	err := r.DB.Where("id = ?", id).First(&user).Error
