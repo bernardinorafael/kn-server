@@ -10,3 +10,9 @@ type Register struct {
 	Email    string
 	Password string
 }
+
+type CreateProduct struct {
+	Name     string
+	Price    float64
+	Quantity int32
+}
