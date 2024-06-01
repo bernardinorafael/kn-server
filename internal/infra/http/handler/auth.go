@@ -7,7 +7,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/resterror"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/httperror"
 )
 
 type authHandler struct {
@@ -33,26 +33,26 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var payload dto.Login
 
 	if r.Body == nil {
-		resterror.NewBadRequestError(w, "cannot parse body")
+		httperror.NewBadRequestError(w, "cannot parse body")
 		return
 	}
 	defer r.Body.Close()
 
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		resterror.NewInternalServerError(w, "an unknown error occurred")
+		httperror.NewInternalServerError(w, "an unknown error occurred")
 		return
 	}
 
 	user, err := h.authService.Login(payload.Email, payload.Password)
 	if err != nil {
-		resterror.NewBadRequestError(w, err.Error())
+		httperror.NewBadRequestError(w, err.Error())
 		return
 	}
 
 	token, err := h.jwtService.CreateToken(user.ID)
 	if err != nil {
-		resterror.NewInternalServerError(w, err.Error())
+		httperror.NewInternalServerError(w, err.Error())
 		return
 	}
 
@@ -69,26 +69,26 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var payload dto.Register
 
 	if r.Body == nil {
-		resterror.NewBadRequestError(w, "cannot parse body")
+		httperror.NewBadRequestError(w, "cannot parse body")
 		return
 	}
 	defer r.Body.Close()
 
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		resterror.NewInternalServerError(w, "an unknown error occurred")
+		httperror.NewInternalServerError(w, "an unknown error occurred")
 		return
 	}
 
 	user, err := h.authService.Register(payload.Name, payload.Email, payload.Password)
 	if err != nil {
-		resterror.NewBadRequestError(w, err.Error())
+		httperror.NewBadRequestError(w, err.Error())
 		return
 	}
 
 	token, err := h.jwtService.CreateToken(user.ID)
 	if err != nil {
-		resterror.NewInternalServerError(w, err.Error())
+		httperror.NewInternalServerError(w, err.Error())
 		return
 	}
 

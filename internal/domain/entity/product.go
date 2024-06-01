@@ -13,6 +13,7 @@ var (
 
 type Product struct {
 	gorm.Model
+
 	Slug     string  `json:"slug" gorm:"unique"`
 	Name     string  `json:"name"`
 	Price    float64 `json:"price"`

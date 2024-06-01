@@ -28,3 +28,25 @@ func (p *productRepo) Create(product entity.Product) (*entity.Product, error) {
 
 	return prod, nil
 }
+
+func (p *productRepo) FindByID(id uint) (*entity.Product, error) {
+	var product entity.Product
+
+	err := p.DB.Where("id = ?", id).First(&product).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
+}
+
+func (p *productRepo) FindBySlug(name string) (*entity.Product, error) {
+	var product entity.Product
+
+	err := p.DB.Where("slug = ?", name).First(&product).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
+}

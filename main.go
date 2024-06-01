@@ -31,18 +31,30 @@ func main() {
 		panic(err)
 	}
 
-	// init repositories
+	/*
+	* init repositories
+	 */
 	userRepo := repository.NewUserRepo(con)
+	productRepo := repository.NewProductRepo(con)
 
-	// init services
+	/*
+	* init services
+	 */
+	productService := service.NewProductService(l, productRepo)
 	authService := service.NewAuthService(l, userRepo)
 	jwtService := service.NewJWTService(l, env)
 
-	// init handlers
+	/*
+	* init handlers
+	 */
 	authHandler := handler.NewAuthHandler(l, authService, jwtService)
+	productHandler := handler.NewProductHandler(l, productService)
 
-	// register routes
+	/*
+	* init routes
+	 */
 	authHandler.RegisterRoute(mux)
+	productHandler.RegisterRoute(mux)
 
 	l.Info(fmt.Sprintf("server lintening on port %v", env.Port))
 

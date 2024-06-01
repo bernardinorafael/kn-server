@@ -10,4 +10,6 @@ type UserRepository interface {
 
 type ProductRepository interface {
 	Create(product entity.Product) (*entity.Product, error)
+	FindByID(id uint) (*entity.Product, error)
+	FindBySlug(name string) (*entity.Product, error)
 }
