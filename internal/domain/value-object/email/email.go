@@ -47,7 +47,7 @@ func (a *Address) Validate() error {
 		return ErrEmptyEmailAddress
 	}
 
-	if strings.ContainsAny(email, "\n\t\r") {
+	if strings.ContainsAny(email, "\n\t") {
 		return ErrEmailContainsWhiteSpace
 	}
 
