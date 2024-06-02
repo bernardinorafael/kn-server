@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/bernardinorafael/kn-server/helper/crypto"
+	"github.com/bernardinorafael/kn-server/internal/domain/value-object/email"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +24,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-func NewUser(name, email, password string) (*User, error) {
+func NewUser(name, mail, password string) (*User, error) {
 	if len(name) < 3 {
 		return nil, ErrInvalidNameLength
 	}
@@ -31,6 +32,16 @@ func NewUser(name, email, password string) (*User, error) {
 	ok, _ := regexp.MatchString("^[A-Za-zÀ-ÿ]+(?:\\s[A-Za-zÀ-ÿ]+)+$", name)
 	if !ok {
 		return nil, ErrInvalidFullName
+	}
+
+	address, err := email.New(mail)
+	if err != nil {
+		return nil, err
+	}
+
+	err = address.Validate()
+	if err != nil {
+		return nil, err
 	}
 
 	// TODO: consider changing password rules to improve security
@@ -45,7 +56,7 @@ func NewUser(name, email, password string) (*User, error) {
 
 	return &User{
 		Name:     name,
-		Email:    email,
+		Email:    address.GetString(),
 		Password: encrypted,
 	}, nil
 }
