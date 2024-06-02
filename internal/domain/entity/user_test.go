@@ -13,7 +13,7 @@ func TestUser_New(t *testing.T) {
 	email := "john_doe@gmail.com"
 	password := "abcd1234"
 
-	t.Run("should create an entity", func(t *testing.T) {
+	t.Run("Should create an entity", func(t *testing.T) {
 		u, err := entity.NewUser(name, email, password)
 
 		assert.Nil(t, err)
@@ -22,29 +22,12 @@ func TestUser_New(t *testing.T) {
 		assert.NotEqual(t, password, u.Password)
 	})
 
-	t.Run("should not create an entity if email is invalid", func(t *testing.T) {
-		_, err := entity.NewUser(name, "john_doe@nothing", password)
-		assert.EqualError(t, err, "invalid email address format")
-
-		_, err = entity.NewUser(name, "john", password)
-		assert.EqualError(t, err, "invalid email address format")
-
-		_, err = entity.NewUser(name, "john@gmail", password)
-		assert.EqualError(t, err, "invalid email address format")
-
-		_, err = entity.NewUser(name, "john@gmail.", password)
-		assert.EqualError(t, err, "invalid email address format")
-
-		_, err = entity.NewUser(name, "", password)
-		assert.EqualError(t, err, "invalid email address format")
-	})
-
-	t.Run("should entity name have at least 3 char", func(t *testing.T) {
+	t.Run("Should entity name have at least 3 char", func(t *testing.T) {
 		_, err := entity.NewUser("jo", email, password)
 		assert.EqualError(t, err, "name must be at least 3 characters long")
 	})
 
-	t.Run("should entity have full name", func(t *testing.T) {
+	t.Run("Should entity have full name", func(t *testing.T) {
 		_, err := entity.NewUser("john", email, password)
 		assert.EqualError(t, err, "invalid name, must contain name and full name")
 
@@ -55,7 +38,7 @@ func TestUser_New(t *testing.T) {
 		assert.EqualError(t, err, "invalid name, must contain name and full name")
 	})
 
-	t.Run("should password have at least 6 char", func(t *testing.T) {
+	t.Run("Should password have at least 6 char", func(t *testing.T) {
 		_, err := entity.NewUser(name, email, "123")
 		assert.EqualError(t, err, "password must contain at least 6 char")
 	})

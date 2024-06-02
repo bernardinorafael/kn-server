@@ -7,4 +7,4 @@ run:
 build:
 	@go build -o $(APP_NAME) main.go
 test:
-	@go test ./test -v
+	@go test ./... -v
