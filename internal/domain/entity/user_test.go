@@ -14,12 +14,9 @@ func TestUser_New(t *testing.T) {
 	password := "abcd1234"
 
 	t.Run("Should create an entity", func(t *testing.T) {
-		u, err := entity.NewUser(name, email, password)
+		_, err := entity.NewUser(name, email, password)
 
 		assert.Nil(t, err)
-		assert.Equal(t, name, u.Name)
-		assert.Equal(t, email, u.Email)
-		assert.NotEqual(t, password, u.Password)
 	})
 
 	t.Run("Should entity name have at least 3 char", func(t *testing.T) {

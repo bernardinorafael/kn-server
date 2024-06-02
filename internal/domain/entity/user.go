@@ -19,9 +19,9 @@ var (
 type User struct {
 	gorm.Model
 
-	Name     string `json:"name"`
-	Email    string `json:"email" gorm:"unique"`
-	Password string `json:"password"`
+	Name     string      `json:"name"`
+	Email    email.Email `json:"email" gorm:"unique"`
+	Password string      `json:"password"`
 }
 
 func NewUser(name, mail, password string) (*User, error) {
@@ -39,11 +39,6 @@ func NewUser(name, mail, password string) (*User, error) {
 		return nil, err
 	}
 
-	err = address.Validate()
-	if err != nil {
-		return nil, err
-	}
-
 	// TODO: consider changing password rules to improve security
 	if len(password) < 6 {
 		return nil, ErrShortPassword
@@ -56,7 +51,7 @@ func NewUser(name, mail, password string) (*User, error) {
 
 	return &User{
 		Name:     name,
-		Email:    address.GetString(),
+		Email:    address.ToEmail(),
 		Password: encrypted,
 	}, nil
 }
