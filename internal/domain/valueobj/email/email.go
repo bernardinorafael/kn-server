@@ -65,8 +65,8 @@ func (a *Address) validate() error {
 		return ErrEmailTooShort
 	}
 
-	localPartRegexp := `^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$`
-	matched, _ := regexp.MatchString(localPartRegexp, a.local)
+	localPartPattern := `^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$`
+	matched, _ := regexp.MatchString(localPartPattern, a.local)
 	if !matched {
 		return ErrInvalidEmailChar
 	}
@@ -75,8 +75,8 @@ func (a *Address) validate() error {
 		return ErrInvalidEmailFormat
 	}
 
-	domainPartRegexp := `^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$`
-	matched, _ = regexp.MatchString(domainPartRegexp, a.domain)
+	domainPartPattern := `^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$`
+	matched, _ = regexp.MatchString(domainPartPattern, a.domain)
 	if !matched {
 		return ErrInvalidEmailChar
 	}
