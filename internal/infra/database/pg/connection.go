@@ -2,11 +2,11 @@ package db
 
 import (
 	"log/slog"
-	"os/user"
 
 	"gorm.io/driver/postgres"
 
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 )
