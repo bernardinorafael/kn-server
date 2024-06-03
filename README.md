@@ -2,7 +2,7 @@
 
 ## Descrição
 
-O **kn** é um sistema em desenvolvimento que visa se tornar uma plataforma completa para e-commerce. Atualmente, o projeto possui apenas a funcionalidade de autenticação de produtos pronta, mas futuras atualizações incluirão diversas funcionalidades para gerenciar uma loja online. O projeto está sendo construído com o menor número de pacotes externos possível, focando em uma base de código limpa e de fácil manutenção.
+O **kn** é um sistema em desenvolvimento que visa se tornar uma plataforma completa para e-commerce. Atualmente, o projeto possui o sistema de autenticação, onde está recebendo updates, futuras atualizações incluirão diversas funcionalidades para gerenciar uma loja online. O projeto está sendo construído com o menor número de pacotes externos possível, focando em uma base de código limpa e de fácil manutenção.
 
 ## Instalação
 
