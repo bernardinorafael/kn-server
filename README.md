@@ -48,14 +48,10 @@ Instruções básicas de como usar o projeto após a instalação:
    make test
    ```
 
-## Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE.md](LICENSE.md) para mais detalhes.
-
 ## Recursos
 
 Recursos adicionais podem ser adicionados aqui no futuro.
 
 ## Autores
 
-- **Rafael Bernardino** - [https://github.com/bernardinorafael](https://github.com/bernardinorafael)
+- **Rafael Bernardino**
