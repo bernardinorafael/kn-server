@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +14,8 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 	return &userRepo{DB: DB}
 }
 
-func (r *userRepo) Create(u entity.User) (*entity.User, error) {
-	user := &entity.User{
+func (r *userRepo) Create(u user.User) (*user.User, error) {
+	user := &user.User{
 		Name:     u.Name,
 		Email:    u.Email,
 		Password: u.Password,
@@ -29,8 +29,8 @@ func (r *userRepo) Create(u entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) FindByID(id uint) (*entity.User, error) {
-	var user entity.User
+func (r *userRepo) FindByID(id uint) (*user.User, error) {
+	var user user.User
 
 	err := r.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -40,8 +40,8 @@ func (r *userRepo) FindByID(id uint) (*entity.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) FindByEmail(email string) (*entity.User, error) {
-	var user entity.User
+func (r *userRepo) FindByEmail(email string) (*user.User, error) {
+	var user user.User
 
 	err := r.DB.Where("email = ?", email).First(&user).Error
 	if err != nil {

@@ -1,4 +1,4 @@
-package entity
+package product
 
 import (
 	"errors"
@@ -14,7 +14,6 @@ var (
 
 type Product struct {
 	gorm.Model
-
 	Slug     slug.Slug `json:"slug" gorm:"unique"`
 	Name     string    `json:"name"`
 	Price    float64   `json:"price"`
@@ -22,7 +21,7 @@ type Product struct {
 	Status   bool      `json:"status" gorm:"default:true"`
 }
 
-func NewProduct(name string, price float64, quantity int32) (*Product, error) {
+func New(name string, price float64, quantity int32) (*Product, error) {
 	if len(name) <= 3 {
 		return nil, ErrShortProductName
 	}

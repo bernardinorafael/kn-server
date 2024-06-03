@@ -2,10 +2,11 @@ package db
 
 import (
 	"log/slog"
+	"os/user"
 
 	"gorm.io/driver/postgres"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -18,7 +19,7 @@ func Connect(l *slog.Logger, DSN string) (*gorm.DB, error) {
 	}
 
 	l.Info("generating migrations...")
-	err = con.AutoMigrate(&entity.User{}, &entity.Product{})
+	err = con.AutoMigrate(&user.User{}, &product.Product{})
 	if err != nil {
 		return nil, err
 	}

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +26,7 @@ func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.A
 }
 
 // TODO: implements lockout and rate limiting
-func (s *authService) Login(email, password string) (*entity.User, error) {
+func (s *authService) Login(email, password string) (*user.User, error) {
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
 		s.l.Error(fmt.Sprintf("user with email %s does not exist", email))
@@ -47,13 +47,13 @@ func (s *authService) Login(email, password string) (*entity.User, error) {
 	return user, nil
 }
 
-func (s *authService) Register(name, email, password string) (*entity.User, error) {
+func (s *authService) Register(name, email, password string) (*user.User, error) {
 	_, err := s.userRepo.FindByEmail(email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	newUser, err := entity.NewUser(name, email, password)
+	newUser, err := user.New(name, email, password)
 	if err != nil {
 		s.l.Error("error creating user entity", err.Error(), err)
 		return nil, err

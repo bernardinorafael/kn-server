@@ -2,7 +2,8 @@ package repository
 
 import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
+
 	"gorm.io/gorm"
 )
 
@@ -14,11 +15,11 @@ func NewProductRepo(DB *gorm.DB) contract.ProductRepository {
 	return &productRepo{DB}
 }
 
-func (p *productRepo) Create(product entity.Product) (*entity.Product, error) {
-	prod := &entity.Product{
-		Name:     product.Name,
-		Price:    product.Price,
-		Quantity: product.Quantity,
+func (p *productRepo) Create(prod product.Product) (*product.Product, error) {
+	newProduct := product.Product{
+		Name:     prod.Name,
+		Price:    prod.Price,
+		Quantity: prod.Quantity,
 	}
 
 	err := p.DB.Create(&prod).Error
@@ -26,11 +27,11 @@ func (p *productRepo) Create(product entity.Product) (*entity.Product, error) {
 		return nil, err
 	}
 
-	return prod, nil
+	return &newProduct, nil
 }
 
-func (p *productRepo) FindByID(id uint) (*entity.Product, error) {
-	var product entity.Product
+func (p *productRepo) FindByID(id uint) (*product.Product, error) {
+	var product product.Product
 
 	err := p.DB.Where("id = ?", id).First(&product).Error
 	if err != nil {
@@ -40,8 +41,8 @@ func (p *productRepo) FindByID(id uint) (*entity.Product, error) {
 	return &product, nil
 }
 
-func (p *productRepo) FindBySlug(name string) (*entity.Product, error) {
-	var product entity.Product
+func (p *productRepo) FindBySlug(name string) (*product.Product, error) {
+	var product product.Product
 
 	err := p.DB.Where("slug = ?", name).First(&product).Error
 	if err != nil {

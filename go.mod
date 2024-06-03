@@ -3,6 +3,7 @@ module github.com/bernardinorafael/kn-server
 go 1.22.2
 
 require (
+	github.com/google/uuid v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4

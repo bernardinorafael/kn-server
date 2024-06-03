@@ -5,7 +5,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
 )
 
 type productService struct {
@@ -18,7 +18,7 @@ func NewProductService(l *slog.Logger, productRepo contract.ProductRepository) c
 }
 
 func (p *productService) Create(data dto.CreateProduct) error {
-	product, err := entity.NewProduct(data.Name, data.Price, data.Quantity)
+	product, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {
 		return err
 	}
