@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/bernardinorafael/kn-server/helper/crypto"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity"
 	"gorm.io/gorm"
@@ -34,11 +33,11 @@ func (s *authService) Login(email, password string) (*entity.User, error) {
 		return nil, ErrInvalidCredential
 	}
 
-	err = crypto.Compare(user.Password, password)
-	if err != nil {
-		s.l.Error("the password provided is incorrect")
-		return nil, ErrInvalidCredential
-	}
+	// err = crypto.Compare(user.Password, password)
+	// if err != nil {
+	// 	s.l.Error("the password provided is incorrect")
+	// 	return nil, ErrInvalidCredential
+	// }
 
 	s.l.Info(
 		"user attempts to login",

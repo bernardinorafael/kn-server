@@ -38,7 +38,7 @@ func New(address string) (*Address, error) {
 
 	addr := Address{local: splitted[0], domain: splitted[1]}
 
-	err := addr.Validate()
+	err := addr.validate()
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func New(address string) (*Address, error) {
 	return &addr, nil
 }
 
-func (a *Address) Validate() error {
+func (a *Address) validate() error {
 	email := a.ToEmail()
 
 	if strings.TrimSpace(string(email)) == "" {

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"regexp"
 
-	"github.com/bernardinorafael/kn-server/helper/crypto"
-	"github.com/bernardinorafael/kn-server/internal/domain/value-object/email"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 
 	"gorm.io/gorm"
 )
@@ -19,12 +19,12 @@ var (
 type User struct {
 	gorm.Model
 
-	Name     string      `json:"name"`
-	Email    email.Email `json:"email" gorm:"unique"`
-	Password string      `json:"password"`
+	Name     string                     `json:"name"`
+	Email    email.Email                `json:"email" gorm:"unique"`
+	Password password.EncryptedPassword `json:"password"`
 }
 
-func NewUser(name, mail, password string) (*User, error) {
+func NewUser(name, e, p string) (*User, error) {
 	if len(name) < 3 {
 		return nil, ErrInvalidNameLength
 	}
@@ -34,17 +34,17 @@ func NewUser(name, mail, password string) (*User, error) {
 		return nil, ErrInvalidFullName
 	}
 
-	address, err := email.New(mail)
+	address, err := email.New(e)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: consider changing password rules to improve security
-	if len(password) < 6 {
-		return nil, ErrShortPassword
+	pass, err := password.New(p)
+	if err != nil {
+		return nil, err
 	}
 
-	encrypted, err := crypto.Make(password)
+	encrypted, err := pass.ToEncrypted()
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -12,14 +14,17 @@ const (
 )
 
 var (
-	ErrEmptyPassword          = errors.New("password cannot be empty")
 	ErrPasswordTooShort       = fmt.Errorf("password must be at least %d characters long", minPasswordLength)
 	ErrPasswordTooLong        = fmt.Errorf("password must not exceed %d characters", maxPasswordLength)
 	ErrMissingSpecialChar     = errors.New("password must contain at least one special character")
 	ErrMissingUppercaseLetter = errors.New("password must contain at least one uppercase letter")
 	ErrMissingLowercaseLetter = errors.New("password must contain at least one lowercase letter")
+	ErrPasswordDoesNotMatch   = errors.New("provided password does not match")
 	ErrMissingDigit           = errors.New("password must contain at least one digit")
+	ErrEmptyPassword          = errors.New("password cannot be empty")
 )
+
+type EncryptedPassword string
 
 type Password struct {
 	password string
@@ -32,7 +37,7 @@ func New(rawPassword string) (*Password, error) {
 
 	password := Password{password: rawPassword}
 
-	err := password.Validate()
+	err := password.validate()
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +45,7 @@ func New(rawPassword string) (*Password, error) {
 	return &password, nil
 }
 
-func (p *Password) Validate() error {
+func (p *Password) validate() error {
 	if len(p.password) < minPasswordLength {
 		return ErrPasswordTooShort
 	}
@@ -70,5 +75,21 @@ func (p *Password) Validate() error {
 		return ErrMissingSpecialChar
 	}
 
+	return nil
+}
+
+func (p *Password) ToEncrypted() (EncryptedPassword, error) {
+	encrypted, err := bcrypt.GenerateFromPassword([]byte(p.password), 10)
+	if err != nil {
+		return "", err
+	}
+	return EncryptedPassword(encrypted), nil
+}
+
+func (p *Password) Compare(encrypted EncryptedPassword) error {
+	err := bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(p.password))
+	if err != nil {
+		return ErrPasswordDoesNotMatch
+	}
 	return nil
 }

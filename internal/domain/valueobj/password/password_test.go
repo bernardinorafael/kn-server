@@ -3,14 +3,13 @@ package password_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/value-object/password"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPasswordValueObject(t *testing.T) {
 	t.Run("Should create a password instance successfully", func(t *testing.T) {
 		_, err := password.New("@MyPassword123")
-
 		assert.Nil(t, err)
 	})
 
@@ -55,5 +54,34 @@ func TestPasswordValueObject(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, password.ErrPasswordTooLong.Error())
+	})
+
+	t.Run("Should password be encrypted correctly", func(t *testing.T) {
+		pass, _ := password.New("@MyPassword123")
+		encrypted, err := pass.ToEncrypted()
+
+		assert.Nil(t, err)
+		assert.NotEqual(t, encrypted, "@MyPassword123")
+	})
+
+	t.Run("Should compare passwords correctly", func(t *testing.T) {
+		encryptedPassword := "$2a$10$mTrfubJ5HjIci00eP/fCzuZOe/2YOYP9PGWLOh6y/E/YCtvRlOylO"
+
+		pass, err := password.New("@MyPassword123")
+		matched := pass.Compare(password.EncryptedPassword(encryptedPassword))
+
+		assert.Nil(t, err)
+		assert.Nil(t, matched)
+	})
+
+	t.Run("Should throw an error if compare fails", func(t *testing.T) {
+		wrongEncrypted := "$2a$70$mTrfubJ5HjIci00eP/fCzuZOe/21OYP9PGWLOh6y/E/YCtvR3lOylO"
+
+		pass, err := password.New("@MyPassword123")
+		matched := pass.Compare(password.EncryptedPassword(wrongEncrypted))
+
+		assert.Nil(t, err)
+		assert.NotNil(t, matched)
+		assert.EqualError(t, matched, "provided password does not match")
 	})
 }

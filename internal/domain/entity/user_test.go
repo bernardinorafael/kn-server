@@ -11,11 +11,10 @@ import (
 func TestUser_New(t *testing.T) {
 	name := "john doe"
 	email := "john_doe@gmail.com"
-	password := "abcd1234"
+	password := "@MyPassword123"
 
 	t.Run("Should create an entity", func(t *testing.T) {
 		_, err := entity.NewUser(name, email, password)
-
 		assert.Nil(t, err)
 	})
 
@@ -33,10 +32,5 @@ func TestUser_New(t *testing.T) {
 
 		_, err = entity.NewUser("john doe ", email, password)
 		assert.EqualError(t, err, "invalid name, must contain name and full name")
-	})
-
-	t.Run("Should password have at least 6 char", func(t *testing.T) {
-		_, err := entity.NewUser(name, email, "123")
-		assert.EqualError(t, err, "password must contain at least 6 char")
 	})
 }
