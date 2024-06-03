@@ -68,7 +68,7 @@ func TestPasswordValueObject(t *testing.T) {
 		encryptedPassword := "$2a$10$mTrfubJ5HjIci00eP/fCzuZOe/2YOYP9PGWLOh6y/E/YCtvRlOylO"
 
 		pass, err := password.New("@MyPassword123")
-		matched := pass.Compare(password.EncryptedPassword(encryptedPassword))
+		matched := pass.Compare(password.Password(encryptedPassword))
 
 		assert.Nil(t, err)
 		assert.Nil(t, matched)
@@ -78,7 +78,7 @@ func TestPasswordValueObject(t *testing.T) {
 		wrongEncrypted := "$2a$70$mTrfubJ5HjIci00eP/fCzuZOe/21OYP9PGWLOh6y/E/YCtvR3lOylO"
 
 		pass, err := password.New("@MyPassword123")
-		matched := pass.Compare(password.EncryptedPassword(wrongEncrypted))
+		matched := pass.Compare(password.Password(wrongEncrypted))
 
 		assert.Nil(t, err)
 		assert.NotNil(t, matched)

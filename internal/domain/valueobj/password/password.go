@@ -24,18 +24,18 @@ var (
 	ErrEmptyPassword          = errors.New("password cannot be empty")
 )
 
-type EncryptedPassword string
+type Password string
 
-type Password struct {
+type password struct {
 	password string
 }
 
-func New(rawPassword string) (*Password, error) {
+func New(rawPassword string) (*password, error) {
 	if len(rawPassword) == 0 {
 		return nil, ErrEmptyPassword
 	}
 
-	password := Password{password: rawPassword}
+	password := password{password: rawPassword}
 
 	err := password.validate()
 	if err != nil {
@@ -45,7 +45,7 @@ func New(rawPassword string) (*Password, error) {
 	return &password, nil
 }
 
-func (p *Password) validate() error {
+func (p *password) validate() error {
 	if len(p.password) < minPasswordLength {
 		return ErrPasswordTooShort
 	}
@@ -78,15 +78,15 @@ func (p *Password) validate() error {
 	return nil
 }
 
-func (p *Password) ToEncrypted() (EncryptedPassword, error) {
+func (p *password) ToEncrypted() (Password, error) {
 	encrypted, err := bcrypt.GenerateFromPassword([]byte(p.password), 10)
 	if err != nil {
 		return "", err
 	}
-	return EncryptedPassword(encrypted), nil
+	return Password(encrypted), nil
 }
 
-func (p *Password) Compare(encrypted EncryptedPassword) error {
+func (p *password) Compare(encrypted Password) error {
 	err := bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(p.password))
 	if err != nil {
 		return ErrPasswordDoesNotMatch

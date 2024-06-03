@@ -19,9 +19,9 @@ var (
 type User struct {
 	gorm.Model
 
-	Name     string                     `json:"name"`
-	Email    email.Email                `json:"email" gorm:"unique"`
-	Password password.EncryptedPassword `json:"password"`
+	Name     string            `json:"name"`
+	Email    email.Email       `json:"email" gorm:"unique"`
+	Password password.Password `json:"password"`
 }
 
 func NewUser(name, e, p string) (*User, error) {
