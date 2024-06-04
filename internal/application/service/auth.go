@@ -18,19 +18,19 @@ var (
 )
 
 type authService struct {
-	l        *slog.Logger
+	log      *slog.Logger
 	userRepo contract.UserRepository
 }
 
-func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.AuthService {
-	return &authService{l, userRepo}
+func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract.AuthService {
+	return &authService{log, userRepo}
 }
 
 // TODO: implements lockout and rate limiting
 func (s *authService) Login(email, pass string) (*user.User, error) {
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
-		s.l.Error(fmt.Sprintf("user with email %s does not exist", email))
+		s.log.Error(fmt.Sprintf("user with email %s does not exist", email))
 		return nil, ErrInvalidCredential
 	}
 
@@ -41,11 +41,11 @@ func (s *authService) Login(email, pass string) (*user.User, error) {
 
 	err = passw.Compare(user.Password)
 	if err != nil {
-		s.l.Error("the password provided is incorrect")
+		s.log.Error("the password provided is incorrect")
 		return nil, ErrInvalidCredential
 	}
 
-	s.l.Info(
+	s.log.Info(
 		"user attempts to login",
 		"name", user.Name, "email", email,
 	)
@@ -61,11 +61,11 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 
 	newUser, err := user.New(name, email, password)
 	if err != nil {
-		s.l.Error("error creating user entity", err.Error(), err)
+		s.log.Error("error creating user entity", err.Error(), err)
 		return nil, err
 	}
 
-	s.l.Info(
+	s.log.Info(
 		"registering new user",
 		"name", name, "email", email,
 	)
@@ -73,7 +73,7 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 	user, err := s.userRepo.Create(*newUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			s.l.Error(fmt.Sprintf("email %s is already taken", email))
+			s.log.Error(fmt.Sprintf("email %s is already taken", email))
 			return nil, ErrEmailAlreadyTaken
 		}
 		return nil, err

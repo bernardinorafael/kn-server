@@ -9,12 +9,12 @@ import (
 )
 
 type productService struct {
-	l           *slog.Logger
+	log         *slog.Logger
 	productRepo contract.ProductRepository
 }
 
-func NewProductService(l *slog.Logger, productRepo contract.ProductRepository) contract.ProductService {
-	return &productService{l, productRepo}
+func NewProductService(log *slog.Logger, productRepo contract.ProductRepository) contract.ProductService {
+	return &productService{log, productRepo}
 }
 
 func (p *productService) Create(data dto.CreateProduct) error {
