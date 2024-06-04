@@ -12,7 +12,7 @@ type AuthService interface {
 }
 
 type JWTService interface {
-	CreateToken(id uint) (string, error)
+	CreateToken(id string) (string, error)
 	ValidateToken(token string) (*jwt.Token, error)
 }
 

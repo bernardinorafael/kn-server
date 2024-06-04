@@ -50,7 +50,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.jwtService.CreateToken(user.ID)
+	token, err := h.jwtService.CreateToken(user.PublicID)
 	if err != nil {
 		httperror.NewInternalServerError(w, err.Error())
 		return
@@ -86,7 +86,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.jwtService.CreateToken(user.ID)
+	token, err := h.jwtService.CreateToken(user.PublicID)
 	if err != nil {
 		httperror.NewInternalServerError(w, err.Error())
 		return
