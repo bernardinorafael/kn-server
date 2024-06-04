@@ -60,7 +60,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"user_id": user.ID,
+		"user_id": user.PublicID,
 		"token":   token,
 	})
 }
@@ -96,7 +96,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"user_id": user.ID,
+		"user_id": user.PublicID,
 		"token":   token,
 	})
 }
