@@ -8,6 +8,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 	"gorm.io/gorm"
 )
 
@@ -26,18 +27,23 @@ func NewAuthService(l *slog.Logger, userRepo contract.UserRepository) contract.A
 }
 
 // TODO: implements lockout and rate limiting
-func (s *authService) Login(email, password string) (*user.User, error) {
+func (s *authService) Login(email, pass string) (*user.User, error) {
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
 		s.l.Error(fmt.Sprintf("user with email %s does not exist", email))
 		return nil, ErrInvalidCredential
 	}
 
-	// err = crypto.Compare(user.Password, password)
-	// if err != nil {
-	// 	s.l.Error("the password provided is incorrect")
-	// 	return nil, ErrInvalidCredential
-	// }
+	passw, err := password.New(pass)
+	if err != nil {
+		return nil, err
+	}
+
+	err = passw.Compare(user.Password)
+	if err != nil {
+		s.l.Error("the password provided is incorrect")
+		return nil, ErrInvalidCredential
+	}
 
 	s.l.Info(
 		"user attempts to login",
