@@ -21,11 +21,13 @@ var (
 
 type Product struct {
 	gorm.Model
+
+	ID       int       `json:"id" gorm:"primaryKey"`
 	Slug     slug.Slug `json:"slug" gorm:"unique"`
 	Name     string    `json:"name"`
 	Price    float64   `json:"price"`
 	Quantity int32     `json:"quantity"`
-	Status   bool      `json:"status" gorm:"default:true"`
+	Enabled  bool      `json:"enabled"`
 }
 
 func New(name string, price float64, quantity int32) (*Product, error) {
@@ -39,6 +41,7 @@ func New(name string, price float64, quantity int32) (*Product, error) {
 		Price:    price,
 		Quantity: quantity,
 		Slug:     s.GetSlug(),
+		Enabled:  true,
 	}
 
 	if err = product.validate(); err != nil {

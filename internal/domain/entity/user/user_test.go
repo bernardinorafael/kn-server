@@ -16,6 +16,7 @@ func TestUserEntity(t *testing.T) {
 		assert.Equal(t, u.Name, "john doe")
 		assert.Equal(t, string(u.Email), "john_doe@email.com")
 		assert.NotEqual(t, u.Password, "@Password123")
+		assert.False(t, u.Enabled)
 
 		_, err = uuid.Parse(u.PublicID)
 		assert.Nil(t, err)

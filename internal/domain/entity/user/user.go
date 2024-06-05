@@ -23,9 +23,12 @@ var (
 
 type User struct {
 	gorm.Model
+
+	ID       int               `json:"id" gorm:"primaryKey"`
 	Name     string            `json:"name"`
 	Email    email.Email       `json:"email" gorm:"unique"`
 	PublicID string            `json:"public_id" gorm:"unique"`
+	Enabled  bool              `json:"enabled"`
 	Password password.Password `json:"password"`
 }
 
@@ -50,6 +53,7 @@ func New(userName, userEmail, userPass string) (*User, error) {
 		PublicID: uuid.New().String(),
 		Email:    address.ToEmail(),
 		Password: encrypted,
+		Enabled:  false,
 	}
 
 	if err = user.validate(); err != nil {
