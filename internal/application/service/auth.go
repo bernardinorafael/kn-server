@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 	"gorm.io/gorm"
@@ -15,6 +16,8 @@ import (
 var (
 	ErrEmailAlreadyTaken = errors.New("email already taken")
 	ErrInvalidCredential = errors.New("invalid credentials")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUpdatingPassword  = errors.New("error while updating password")
 )
 
 type authService struct {
@@ -36,18 +39,20 @@ func (s *authService) Login(email, pass string) (*user.User, error) {
 
 	passw, err := password.New(pass)
 	if err != nil {
+		s.log.Error(err.Error())
 		return nil, err
 	}
 
-	err = passw.Compare(user.Password)
+	err = passw.Compare(user.Password, pass)
 	if err != nil {
 		s.log.Error("the password provided is incorrect")
 		return nil, ErrInvalidCredential
 	}
 
 	s.log.Info(
-		"user attempts to login",
-		"name", user.Name, "email", email,
+		"login user",
+		"name", user.Name,
+		"email", email,
 	)
 
 	return user, nil
@@ -66,8 +71,9 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 	}
 
 	s.log.Info(
-		"registering new user",
-		"name", name, "email", email,
+		"creating user",
+		"name", name,
+		"email", email,
 	)
 
 	user, err := s.userRepo.Create(*newUser)
@@ -80,4 +86,39 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 	}
 
 	return user, nil
+}
+
+func (s *authService) RecoverPassword(id uint, data dto.UpdatePassword) error {
+	u, err := s.userRepo.FindByID(id)
+	if err != nil {
+		s.log.Error(fmt.Sprintf("not found user with ID: %d", u.ID))
+		return ErrUserNotFound
+	}
+
+	pass, err := password.New(data.NewPassword)
+	if err != nil {
+		s.log.Error(err.Error())
+		return err
+	}
+
+	err = pass.Compare(u.Password, data.OldPassword)
+	if err != nil {
+		s.log.Error(err.Error())
+		return err
+	}
+
+	hashed, err := pass.ToEncrypted()
+	if err != nil {
+		s.log.Error(err.Error())
+		return err
+	}
+
+	updatedPassword := user.User{Model: gorm.Model{ID: id}, Password: hashed}
+
+	_, err = s.userRepo.Update(updatedPassword)
+	if err != nil {
+		return ErrUpdatingPassword
+	}
+
+	return nil
 }

@@ -16,3 +16,8 @@ type CreateProduct struct {
 	Price    float64
 	Quantity int32
 }
+
+type UpdatePassword struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}

@@ -86,8 +86,8 @@ func (p *password) ToEncrypted() (Password, error) {
 	return Password(encrypted), nil
 }
 
-func (p *password) Compare(encrypted Password) error {
-	err := bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(p.password))
+func (p *password) Compare(hashed Password, password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
 	if err != nil {
 		return ErrPasswordDoesNotMatch
 	}

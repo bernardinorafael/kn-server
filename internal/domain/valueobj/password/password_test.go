@@ -65,20 +65,22 @@ func TestPasswordValueObject(t *testing.T) {
 	})
 
 	t.Run("Should compare passwords correctly", func(t *testing.T) {
-		encryptedPassword := "$2a$10$mTrfubJ5HjIci00eP/fCzuZOe/2YOYP9PGWLOh6y/E/YCtvRlOylO"
+		hashed := "$2a$10$mTrfubJ5HjIci00eP/fCzuZOe/2YOYP9PGWLOh6y/E/YCtvRlOylO"
+		p := "@MyPassword123"
 
-		pass, err := password.New("@MyPassword123")
-		matched := pass.Compare(password.Password(encryptedPassword))
+		pass, err := password.New(p)
+		matched := pass.Compare(password.Password(hashed), p)
 
 		assert.Nil(t, err)
 		assert.Nil(t, matched)
 	})
 
 	t.Run("Should throw an error if compare fails", func(t *testing.T) {
-		wrongEncrypted := "$2a$70$mTrfubJ5HjIci00eP/fCzuZOe/21OYP9PGWLOh6y/E/YCtvR3lOylO"
+		wrongHashed := "$2a$70$mTrfubJ5HjIci00eP/fCzuZOe/21OYP9PGWLOh6y/E/YCtvR3lOylO"
+		p := "@MyPassword123"
 
-		pass, err := password.New("@MyPassword123")
-		matched := pass.Compare(password.Password(wrongEncrypted))
+		pass, err := password.New(p)
+		matched := pass.Compare(password.Password(wrongHashed), p)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, matched)

@@ -51,3 +51,25 @@ func (r *userRepo) FindByEmail(email string) (*user.User, error) {
 
 	return &user, nil
 }
+
+func (r *userRepo) Update(u user.User) (*user.User, error) {
+	user := user.User{}
+
+	updated := map[string]interface{}{
+		"Name":     u.Name,
+		"Password": u.Password,
+	}
+
+	err := r.DB.
+		Model(&user).
+		Where("id = ?", u.ID).
+		Updates(updated).
+		First(&user).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

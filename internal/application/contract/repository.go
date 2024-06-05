@@ -9,6 +9,7 @@ type UserRepository interface {
 	Create(u user.User) (*user.User, error)
 	FindByID(id uint) (*user.User, error)
 	FindByEmail(email string) (*user.User, error)
+	Update(u user.User) (*user.User, error)
 }
 
 type ProductRepository interface {
