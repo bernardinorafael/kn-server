@@ -10,8 +10,8 @@ import (
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/handler"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/route"
 	"github.com/rs/cors"
 )
 
@@ -47,8 +47,8 @@ func main() {
 	/*
 	* init handlers
 	 */
-	authHandler := handler.NewAuthHandler(l, authService, jwtService)
-	productHandler := handler.NewProductHandler(l, productService)
+	authHandler := route.NewAuthHandler(l, authService, jwtService)
+	productHandler := route.NewProductHandler(l, productService)
 
 	/*
 	* init routes

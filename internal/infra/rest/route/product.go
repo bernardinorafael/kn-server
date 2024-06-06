@@ -1,13 +1,12 @@
-package handler
+package route
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/httperror"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 )
 
 type productHandler struct {
@@ -20,29 +19,24 @@ func NewProductHandler(l *slog.Logger, productService contract.ProductService) *
 }
 
 func (h *productHandler) RegisterRoute(mux *http.ServeMux) {
-	mux.HandleFunc("POST /product", h.create)
+	mux.HandleFunc("POST /products", h.create)
 }
 
 func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	var payload dto.CreateProduct
 
-	if r.Body == nil {
-		httperror.NewBadRequestError(w, "cannot parse body")
-		return
-	}
-	defer r.Body.Close()
-
-	err := json.NewDecoder(r.Body).Decode(&payload)
+	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		httperror.NewInternalServerError(w, "an unknown error occurred")
+		restutil.NewBadRequestError(w, "cannot parse body")
 		return
 	}
 
 	err = h.productService.Create(payload)
 	if err != nil {
-		httperror.NewInternalServerError(w, "cannot create resource")
+		restutil.NewInternalServerError(w, "cannot create resource")
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
+		"message": "success",
+	})
 }

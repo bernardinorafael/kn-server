@@ -9,7 +9,7 @@ import (
 type AuthService interface {
 	Login(email, password string) (*user.User, error)
 	Register(name, email, password string) (*user.User, error)
-	RecoverPassword(id uint, data dto.UpdatePassword) error
+	RecoverPassword(id int, data dto.UpdatePassword) error
 }
 
 type JWTService interface {

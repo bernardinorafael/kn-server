@@ -30,7 +30,7 @@ func (p *productRepo) Create(prod product.Product) (*product.Product, error) {
 	return &newProduct, nil
 }
 
-func (p *productRepo) FindByID(id uint) (*product.Product, error) {
+func (p *productRepo) FindByID(id int) (*product.Product, error) {
 	var product product.Product
 
 	err := p.DB.Where("id = ?", id).First(&product).Error

@@ -88,7 +88,7 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 	return user, nil
 }
 
-func (s *authService) RecoverPassword(id uint, data dto.UpdatePassword) error {
+func (s *authService) RecoverPassword(id int, data dto.UpdatePassword) error {
 	u, err := s.userRepo.FindByID(id)
 	if err != nil {
 		s.log.Error(fmt.Sprintf("not found user with ID: %d", u.ID))
@@ -113,7 +113,7 @@ func (s *authService) RecoverPassword(id uint, data dto.UpdatePassword) error {
 		return err
 	}
 
-	updatedPassword := user.User{Model: gorm.Model{ID: id}, Password: hashed}
+	updatedPassword := user.User{ID: id, Password: hashed}
 
 	_, err = s.userRepo.Update(updatedPassword)
 	if err != nil {

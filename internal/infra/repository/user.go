@@ -30,7 +30,7 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) FindByID(id uint) (*user.User, error) {
+func (r *userRepo) FindByID(id int) (*user.User, error) {
 	var user user.User
 
 	err := r.DB.Where("id = ?", id).First(&user).Error

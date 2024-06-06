@@ -1,4 +1,4 @@
-package httperror
+package restutil
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ type ValidationField struct {
 	Message string `json:"message"`
 }
 
-type HttpError struct {
+type RestError struct {
 	Error       string            `json:"error"`
 	Code        int               `json:"code"`
 	Message     string            `json:"message"`
@@ -22,7 +22,7 @@ func NewFieldsErrorValidation(w http.ResponseWriter, message string, validator [
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(HttpError{
+	_ = json.NewEncoder(w).Encode(RestError{
 		Error:       http.StatusText(statusCode),
 		Code:        statusCode,
 		Message:     message,
@@ -35,7 +35,7 @@ func NewBadRequestError(w http.ResponseWriter, message string) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(HttpError{
+	_ = json.NewEncoder(w).Encode(RestError{
 		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
 		Message: message,
@@ -47,7 +47,7 @@ func NewUnauthorizedError(w http.ResponseWriter, message string) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(HttpError{
+	_ = json.NewEncoder(w).Encode(RestError{
 		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
 		Message: message,
@@ -59,7 +59,7 @@ func NewInternalServerError(w http.ResponseWriter, message string) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(HttpError{
+	_ = json.NewEncoder(w).Encode(RestError{
 		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
 		Message: message,
@@ -71,7 +71,7 @@ func NewNotFoundError(w http.ResponseWriter, message string) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(HttpError{
+	_ = json.NewEncoder(w).Encode(RestError{
 		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
 		Message: message,
