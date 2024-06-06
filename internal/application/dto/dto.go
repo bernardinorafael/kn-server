@@ -1,20 +1,20 @@
 package dto
 
 type Login struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Register struct {
-	Name     string
-	Email    string
-	Password string
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type CreateProduct struct {
-	Name     string
-	Price    float64
-	Quantity int32
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Quantity int32   `json:"quantity"`
 }
 
 type UpdatePassword struct {
