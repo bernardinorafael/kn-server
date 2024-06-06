@@ -1,32 +1,32 @@
 # kn
 
-## Descrição
+## Description
 
-O **kn** é um sistema em desenvolvimento que visa se tornar uma plataforma completa para e-commerce. Atualmente, o projeto possui o sistema de autenticação, onde está recebendo updates, futuras atualizações incluirão diversas funcionalidades para gerenciar uma loja online. O projeto está sendo construído com o menor número de pacotes externos possível, focando em uma base de código limpa e de fácil manutenção.
+**kn** is a system under development that aims to become a complete platform for e-commerce. Currently, the project has the authentication system, which is receiving updates, future updates will include several features for managing an online store. The project is being built with as few external packages as possible, focusing on a clean and maintainable code base.
 
-## Instalação
+## Install
 
-Passos para instalar e configurar o projeto:
+Steps to install and configure the project:
 
-1. Clone o repositório:
+1. Clone repo:
 
    ```bash
    git clone https://github.com/seu-usuario/kn-server.git
    ```
 
-2. Entre no diretório do projeto:
+2. Enter the project directory:
 
    ```bash
    cd kn-server
    ```
 
-3. Copie o arquivo de exemplo `.env.example` para `.env` e preencha com suas configurações:
+3. Copy the example file `.env.example` to `.env` and fill in your settings:
 
    ```bash
    cp .env.example .env
    ```
 
-4. Inicie o banco de dados via Container Docker:
+4. Start the database via Docker Container:
 
    ```bash
    docker-compose up
@@ -34,24 +34,15 @@ Passos para instalar e configurar o projeto:
 
 ## Uso
 
-Instruções básicas de como usar o projeto após a instalação:
+Basic instructions on how to use the project after installation:
 
-1. Para iniciar o projeto:
+1. To start the project:
 
    ```bash
    make run
    ```
 
-2. Para rodar os testes:
-
+2. To run the tests:
    ```bash
    make test
    ```
-
-## Recursos
-
-Recursos adicionais podem ser adicionados aqui no futuro.
-
-## Autores
-
-- **Rafael Bernardino**
