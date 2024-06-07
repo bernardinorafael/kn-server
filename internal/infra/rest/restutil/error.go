@@ -77,3 +77,15 @@ func NewNotFoundError(w http.ResponseWriter, message string) {
 		Message: message,
 	})
 }
+
+func NewConflictError(w http.ResponseWriter, message string) {
+	statusCode := http.StatusConflict
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	_ = json.NewEncoder(w).Encode(RestError{
+		Error:   http.StatusText(statusCode),
+		Code:    statusCode,
+		Message: message,
+	})
+}

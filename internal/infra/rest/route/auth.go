@@ -1,12 +1,14 @@
 package route
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 )
 
@@ -35,7 +37,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, "cannot parse body")
+		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -46,6 +48,10 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.authService.Login(payload.Email, payload.Password)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidCredential) {
+			restutil.NewConflictError(w, err.Error())
+			return
+		}
 		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
@@ -67,7 +73,12 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, "cannot parse body")
+		restutil.NewBadRequestError(w, err.Error())
+		return
+	}
+
+	if payload.Email == "" || payload.Password == "" || payload.Name == "" {
+		restutil.NewBadRequestError(w, "missing body request")
 		return
 	}
 
@@ -94,7 +105,12 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, "cannot parse body")
+		restutil.NewBadRequestError(w, err.Error())
+		return
+	}
+
+	if payload.NewPassword == "" || payload.OldPassword == "" {
+		restutil.NewBadRequestError(w, "missing body request")
 		return
 	}
 

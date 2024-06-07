@@ -10,12 +10,12 @@ import (
 )
 
 type productHandler struct {
-	l              *slog.Logger
+	log            *slog.Logger
 	productService contract.ProductService
 }
 
-func NewProductHandler(l *slog.Logger, productService contract.ProductService) *productHandler {
-	return &productHandler{l: l, productService: productService}
+func NewProductHandler(log *slog.Logger, productService contract.ProductService) *productHandler {
+	return &productHandler{log: log, productService: productService}
 }
 
 func (h *productHandler) RegisterRoute(mux *http.ServeMux) {
@@ -27,7 +27,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, "cannot parse body")
+		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
 
