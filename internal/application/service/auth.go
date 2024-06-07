@@ -9,6 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 	"gorm.io/gorm"
 )
@@ -30,10 +31,16 @@ func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract
 }
 
 // TODO: implements lockout and rate limiting
-func (s *authService) Login(email, pass string) (*user.User, error) {
-	user, err := s.userRepo.FindByEmail(email)
+func (s *authService) Login(mail, pass string) (*user.User, error) {
+	address, err := email.New(mail)
 	if err != nil {
-		s.log.Error(fmt.Sprintf("user with email %s does not exist", email))
+		s.log.Error(err.Error())
+		return nil, err
+	}
+
+	user, err := s.userRepo.FindByEmail(string(address.ToEmail()))
+	if err != nil {
+		s.log.Error(fmt.Sprintf("user with email %s does not exist", address.ToEmail()))
 		return nil, ErrInvalidCredential
 	}
 
@@ -52,19 +59,25 @@ func (s *authService) Login(email, pass string) (*user.User, error) {
 	s.log.Info(
 		"login user",
 		"name", user.Name,
-		"email", email,
+		"email", address.ToEmail(),
 	)
 
 	return user, nil
 }
 
-func (s *authService) Register(name, email, password string) (*user.User, error) {
-	_, err := s.userRepo.FindByEmail(email)
+func (s *authService) Register(name, mail, password string) (*user.User, error) {
+	address, err := email.New(mail)
+	if err != nil {
+		s.log.Error(err.Error())
+		return nil, err
+	}
+
+	_, err = s.userRepo.FindByEmail(string(address.ToEmail()))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	newUser, err := user.New(name, email, password)
+	newUser, err := user.New(name, string(address.ToEmail()), password)
 	if err != nil {
 		s.log.Error("error creating user entity", err.Error(), err)
 		return nil, err
@@ -73,13 +86,13 @@ func (s *authService) Register(name, email, password string) (*user.User, error)
 	s.log.Info(
 		"creating user",
 		"name", name,
-		"email", email,
+		"email", address.ToEmail(),
 	)
 
 	user, err := s.userRepo.Create(*newUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			s.log.Error(fmt.Sprintf("email %s is already taken", email))
+			s.log.Error(fmt.Sprintf("email %s is already taken", string(address.ToEmail())))
 			return nil, ErrEmailAlreadyTaken
 		}
 		return nil, err
@@ -117,6 +130,7 @@ func (s *authService) RecoverPassword(id int, data dto.UpdatePassword) error {
 
 	_, err = s.userRepo.Update(updatedPassword)
 	if err != nil {
+		s.log.Error(err.Error())
 		return ErrUpdatingPassword
 	}
 

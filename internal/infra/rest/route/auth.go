@@ -39,6 +39,11 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if payload.Email == "" || payload.Password == "" {
+		restutil.NewBadRequestError(w, "missing body request")
+		return
+	}
+
 	user, err := h.authService.Login(payload.Email, payload.Password)
 	if err != nil {
 		restutil.NewBadRequestError(w, err.Error())
