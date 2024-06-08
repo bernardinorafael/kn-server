@@ -16,6 +16,7 @@ const (
 var (
 	ErrInvalidQuantity    = errors.New("product quantity cannot be zero")
 	ErrInvalidPrice       = errors.New("product price must be greater than zero")
+	ErrEmptyProductName   = errors.New("product name is a required field")
 	ErrInvalidProductName = fmt.Errorf("name length must be between %d and %d characters", minNameLength, maxNameLength)
 )
 
@@ -31,6 +32,10 @@ type Product struct {
 }
 
 func New(name string, price float64, quantity int32) (*Product, error) {
+	if len(name) == 0 {
+		return nil, ErrEmptyProductName
+	}
+
 	s, err := slug.New(name)
 	if err != nil {
 		return nil, err

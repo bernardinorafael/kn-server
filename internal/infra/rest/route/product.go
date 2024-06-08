@@ -1,11 +1,14 @@
 package route
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/application/service"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 )
 
@@ -33,7 +36,24 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	err = h.productService.Create(payload)
 	if err != nil {
+		if errors.Is(err, product.ErrInvalidPrice) {
+			restutil.NewUnprocessableEntityError(w, err.Error())
+			return
+		}
+		if errors.Is(err, product.ErrInvalidQuantity) {
+			restutil.NewUnprocessableEntityError(w, err.Error())
+			return
+		}
+		if errors.Is(err, product.ErrEmptyProductName) {
+			restutil.NewUnprocessableEntityError(w, err.Error())
+			return
+		}
+		if errors.Is(err, service.ErrProductNameAlreadyTaken) {
+			restutil.NewConflictError(w, err.Error())
+			return
+		}
 		restutil.NewInternalServerError(w, "cannot create resource")
+		return
 	}
 
 	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{

@@ -92,7 +92,7 @@ func (s *authService) Register(name, mail, password string) (*user.User, error) 
 	user, err := s.userRepo.Create(*newUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			s.log.Error(fmt.Sprintf("email %s already exist", string(address.ToEmail())))
+			s.log.Error(fmt.Sprintf("email [%s] already exist", string(address.ToEmail())))
 			return nil, ErrEmailAlreadyTaken
 		}
 		return nil, err

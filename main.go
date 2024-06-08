@@ -52,6 +52,7 @@ func main() {
 
 	/*
 	* init routes
+	* TODO: implement grouping routes
 	 */
 	authHandler.RegisterRoute(mux)
 	productHandler.RegisterRoute(mux)
