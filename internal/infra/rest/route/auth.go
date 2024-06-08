@@ -82,21 +82,18 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.authService.Register(payload.Name, payload.Email, payload.Password)
+	_, err = h.authService.Register(payload.Name, payload.Email, payload.Password)
 	if err != nil {
+		if errors.Is(err, service.ErrEmailAlreadyTaken) {
+			restutil.NewConflictError(w, err.Error())
+			return
+		}
 		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	token, err := h.jwtService.CreateToken(user.PublicID)
-	if err != nil {
-		restutil.NewInternalServerError(w, err.Error())
-		return
-	}
-
 	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
-		"public_id": user.PublicID,
-		"token":     token,
+		"message": "success",
 	})
 }
 

@@ -89,3 +89,15 @@ func NewConflictError(w http.ResponseWriter, message string) {
 		Message: message,
 	})
 }
+
+func NewUnprocessableEntityError(w http.ResponseWriter, message string) {
+	statusCode := http.StatusUnprocessableEntity
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	_ = json.NewEncoder(w).Encode(RestError{
+		Error:   http.StatusText(statusCode),
+		Code:    statusCode,
+		Message: message,
+	})
+}
