@@ -6,7 +6,15 @@ import (
 	"net/http"
 )
 
-func WriteSuccess(w http.ResponseWriter, code int, v any) {
+func WriteSuccess(w http.ResponseWriter, code int) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "success",
+	})
+}
+
+func WriteJSON(w http.ResponseWriter, code int, v any) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)

@@ -58,9 +58,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
-		"message": "success",
-	})
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
 func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +75,5 @@ func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
-		"message": "success",
-	})
+	restutil.WriteSuccess(w, http.StatusOK)
 }

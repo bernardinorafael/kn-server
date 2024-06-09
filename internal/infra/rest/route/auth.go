@@ -62,7 +62,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
+	restutil.WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"public_id": user.PublicID,
 		"token":     token,
 	})
@@ -92,9 +92,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
-		"message": "success",
-	})
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
 func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +118,5 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
-		"message": "success",
-	})
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
