@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
@@ -23,6 +24,7 @@ func NewProductHandler(log *slog.Logger, productService contract.ProductService)
 
 func (h *productHandler) RegisterRoute(mux *http.ServeMux) {
 	mux.HandleFunc("POST /products", h.create)
+	mux.HandleFunc("DELETE /products/{id}", h.delete)
 }
 
 func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +55,25 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		restutil.NewInternalServerError(w, "cannot create resource")
+		return
+	}
+
+	restutil.WriteSuccess(w, http.StatusCreated, map[string]interface{}{
+		"message": "success",
+	})
+}
+
+func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	parsedID, _ := strconv.ParseInt(id, 10, 64)
+
+	err := h.productService.Delete(int(parsedID))
+	if err != nil {
+		if errors.Is(err, service.ErrProductNotFound) {
+			restutil.NewBadRequestError(w, err.Error())
+			return
+		}
+		restutil.NewInternalServerError(w, "cannot delete resource")
 		return
 	}
 

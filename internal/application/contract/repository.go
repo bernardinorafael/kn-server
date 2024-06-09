@@ -16,4 +16,5 @@ type ProductRepository interface {
 	Create(product product.Product) (*product.Product, error)
 	FindByID(id int) (*product.Product, error)
 	FindBySlug(name string) (*product.Product, error)
+	Delete(id int) error
 }

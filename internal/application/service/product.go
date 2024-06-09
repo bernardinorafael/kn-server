@@ -13,6 +13,7 @@ import (
 
 var (
 	ErrProductNameAlreadyTaken = errors.New("given product name is already in use")
+	ErrProductNotFound         = errors.New("product not found")
 )
 
 type productService struct {
@@ -38,6 +39,20 @@ func (p *productService) Create(data dto.CreateProduct) error {
 			return ErrProductNameAlreadyTaken
 		}
 		p.log.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (p *productService) Delete(id int) error {
+	_, err := p.productRepo.FindByID(id)
+	if err != nil {
+		p.log.Error(fmt.Sprintf("product with ID [%d] not found", id))
+		return ErrProductNotFound
+	}
+
+	if err = p.productRepo.Delete(id); err != nil {
 		return err
 	}
 

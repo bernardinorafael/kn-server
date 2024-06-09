@@ -51,3 +51,12 @@ func (p *productRepo) FindBySlug(name string) (*product.Product, error) {
 
 	return &product, nil
 }
+
+func (p *productRepo) Delete(id int) error {
+	err := p.DB.Delete(&product.Product{}, id).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -19,4 +19,5 @@ type JWTService interface {
 
 type ProductService interface {
 	Create(data dto.CreateProduct) error
+	Delete(id int) error
 }
