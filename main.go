@@ -45,6 +45,11 @@ func main() {
 	jwtService := service.NewJWTService(l, env)
 
 	/*
+	* init middleware
+	 */
+	// withAuth := middleware.NewWithAuth(jwtService)
+
+	/*
 	* init handlers
 	 */
 	authHandler := route.NewAuthHandler(l, authService, jwtService)
