@@ -26,7 +26,6 @@ func (p *productRepo) Create(prod product.Product) (*product.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &newProduct, nil
 }
 
@@ -37,7 +36,6 @@ func (p *productRepo) FindByID(id int) (*product.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &product, nil
 }
 
@@ -48,7 +46,6 @@ func (p *productRepo) FindBySlug(name string) (*product.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &product, nil
 }
 
@@ -57,6 +54,5 @@ func (p *productRepo) Delete(id int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

@@ -26,7 +26,6 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return user, nil
 }
 
@@ -37,7 +36,6 @@ func (r *userRepo) FindByID(id int) (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &user, nil
 }
 
@@ -48,7 +46,6 @@ func (r *userRepo) FindByEmail(email string) (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &user, nil
 }
 
@@ -70,6 +67,5 @@ func (r *userRepo) Update(u user.User) (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &user, nil
 }
