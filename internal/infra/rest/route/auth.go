@@ -10,6 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
 )
 
 type authHandler struct {
@@ -26,10 +27,12 @@ func NewAuthHandler(log *slog.Logger, authService contract.AuthService, jwtServi
 	}
 }
 
-func (h *authHandler) RegisterRoute(mux *http.ServeMux) {
-	mux.HandleFunc("POST /auth/login", h.login)
-	mux.HandleFunc("POST /auth/register", h.register)
-	mux.HandleFunc("PATCH /auth/{id}/password", h.recoverPassword)
+func (h *authHandler) RegisterRoute(s *server.Server) {
+	s.Group(func(s *server.Server) {
+		s.Post("/auth/login", h.login)
+		s.Post("/auth/register", h.register)
+		s.Patch("/auth/{id}/password", h.recoverPassword)
+	})
 }
 
 func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {

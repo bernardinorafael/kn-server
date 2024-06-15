@@ -30,7 +30,6 @@ func (j *jwtService) CreateToken(id string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return tokenString, err
 }
 
