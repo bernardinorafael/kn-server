@@ -4,13 +4,13 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/middleware"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
 )
@@ -30,11 +30,14 @@ func NewProductHandler(log *slog.Logger, productService contract.ProductService,
 }
 
 func (h *productHandler) RegisterRoute(s *server.Server) {
-	mx := middleware.New(h.jwtService, h.log)
+	mid := middleware.New(h.jwtService, h.log)
 
-	s.Use(mx.WithAuth)
+	s.Use(mid.WithAuth)
 	s.Group(func(s *server.Server) {
 		s.Post("/products", h.create)
+		s.Get("/products", h.getAll)
+		s.Get("/products/{id}", h.getByID)
+		s.Get("/products/slug/{slug}", h.getBySlug)
 		s.Delete("/products/{id}", h.delete)
 	})
 }
@@ -75,10 +78,9 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	parsedID, _ := strconv.ParseInt(id, 10, 64)
+	publicID := r.PathValue("id")
 
-	err := h.productService.Delete(int(parsedID))
+	err := h.productService.Delete(publicID)
 	if err != nil {
 		if errors.Is(err, service.ErrProductNotFound) {
 			restutil.NewBadRequestError(w, err.Error())
@@ -89,4 +91,76 @@ func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	restutil.WriteSuccess(w, http.StatusOK)
+}
+
+func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+
+	p, err := h.productService.GetBySlug(slug)
+	if err != nil {
+		restutil.NewBadRequestError(w, err.Error())
+		return
+	}
+	product := response.Product{
+		PublicID:  p.PublicID,
+		Slug:      p.Slug,
+		Name:      p.Name,
+		Price:     p.Price,
+		Quantity:  p.Quantity,
+		Enabled:   p.Enabled,
+		CreatedAt: p.CreatedAt,
+	}
+
+	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"product": product,
+	})
+}
+
+func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
+	ps, err := h.productService.GetAll()
+	if err != nil {
+		restutil.NewBadRequestError(w, err.Error())
+		return
+	}
+
+	products := []response.Product{}
+	for _, p := range ps {
+		product := response.Product{
+			PublicID:  p.PublicID,
+			Slug:      p.Slug,
+			Name:      p.Name,
+			Price:     p.Price,
+			Quantity:  p.Quantity,
+			Enabled:   p.Enabled,
+			CreatedAt: p.CreatedAt,
+		}
+		products = append(products, product)
+	}
+
+	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"products": products,
+	})
+}
+
+func (h *productHandler) getByID(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	p, err := h.productService.GetByPublicID(id)
+	if err != nil {
+		restutil.NewBadRequestError(w, err.Error())
+		return
+	}
+	product := response.Product{
+		PublicID:  p.PublicID,
+		Slug:      p.Slug,
+		Name:      p.Name,
+		Price:     p.Price,
+		Quantity:  p.Quantity,
+		Enabled:   p.Enabled,
+		CreatedAt: p.CreatedAt,
+	}
+
+	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"product": product,
+	})
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
@@ -22,14 +23,15 @@ var (
 )
 
 type User struct {
-	gorm.Model
-
-	ID       int               `json:"id" gorm:"primaryKey"`
-	Name     string            `json:"name"`
-	Email    email.Email       `json:"email" gorm:"unique"`
-	PublicID string            `json:"public_id" gorm:"unique"`
-	Enabled  bool              `json:"enabled"`
-	Password password.Password `json:"password"`
+	ID        int               `json:"id" gorm:"primaryKey"`
+	Name      string            `json:"name"`
+	Email     email.Email       `json:"email" gorm:"unique"`
+	PublicID  string            `json:"public_id" gorm:"unique"`
+	Enabled   bool              `json:"enabled"`
+	Password  password.Password `json:"password"`
+	CreatedAt time.Time         `json:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
+	DeletedAt gorm.DeletedAt    `json:"deleted_at"`
 }
 
 func New(userName, userEmail, userPass string) (*User, error) {
@@ -50,7 +52,7 @@ func New(userName, userEmail, userPass string) (*User, error) {
 
 	user := &User{
 		Name:     userName,
-		PublicID: uuid.New().String(),
+		PublicID: uuid.NewString(),
 		Email:    address.ToEmail(),
 		Password: encrypted,
 		Enabled:  false,
