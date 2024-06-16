@@ -7,11 +7,11 @@ import (
 )
 
 type userRepo struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewUserRepo(DB *gorm.DB) contract.UserRepository {
-	return &userRepo{DB: DB}
+	return &userRepo{db: DB}
 }
 
 func (r *userRepo) Create(u user.User) (*user.User, error) {
@@ -22,7 +22,7 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 		PublicID: u.PublicID,
 	}
 
-	err := r.DB.Create(&user).Error
+	err := r.db.Create(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 func (r *userRepo) FindByID(id int) (*user.User, error) {
 	var user user.User
 
-	err := r.DB.Where("id = ?", id).First(&user).Error
+	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *userRepo) FindByID(id int) (*user.User, error) {
 func (r *userRepo) FindByEmail(email string) (*user.User, error) {
 	var user user.User
 
-	err := r.DB.Where("email = ?", email).First(&user).Error
+	err := r.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (r *userRepo) Update(u user.User) (*user.User, error) {
 		"Password": u.Password,
 	}
 
-	err := r.DB.
+	err := r.db.
 		Model(&user).
 		Where("id = ?", u.ID).
 		Updates(updated).
