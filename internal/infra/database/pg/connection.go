@@ -12,19 +12,19 @@ import (
 )
 
 func Connect(l *slog.Logger, DSN string) (*gorm.DB, error) {
-	l.Info("connecting database...")
+	var user user.User
+	var product product.Product
+
 	con, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	l.Info("generating migrations...")
-	err = con.AutoMigrate(&user.User{}, &product.Product{})
+	err = con.AutoMigrate(&user, &product)
 	if err != nil {
 		return nil, err
 	}
 
-	l.Info("database connected successfully")
-
+	l.Info("database connected")
 	return con, nil
 }
