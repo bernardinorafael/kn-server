@@ -2,6 +2,7 @@ package contract
 
 import (
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
 	"github.com/golang-jwt/jwt"
 )
@@ -19,5 +20,8 @@ type JWTService interface {
 
 type ProductService interface {
 	Create(data dto.CreateProduct) error
-	Delete(id int) error
+	Delete(publicID string) error
+	GetByPublicID(publicID string) (*product.Product, error)
+	GetBySlug(slugInput string) (*product.Product, error)
+	GetAll() ([]product.Product, error)
 }

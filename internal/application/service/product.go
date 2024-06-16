@@ -9,6 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/slug"
 )
 
 var (
@@ -41,20 +42,55 @@ func (p *productService) Create(data dto.CreateProduct) error {
 		p.log.Error(err.Error())
 		return err
 	}
-
 	return nil
 }
 
-func (p *productService) Delete(id int) error {
-	_, err := p.productRepo.FindByID(id)
+func (p *productService) Delete(publicID string) error {
+	_, err := p.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		p.log.Error(fmt.Sprintf("product with ID [%d] not found", id))
+		p.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
 		return ErrProductNotFound
 	}
 
-	if err = p.productRepo.Delete(id); err != nil {
+	if err = p.productRepo.Delete(publicID); err != nil {
 		return err
 	}
-
 	return nil
+}
+
+func (p *productService) GetAll() ([]product.Product, error) {
+	products := make([]product.Product, 0)
+
+	allProducts, err := p.productRepo.GetAll()
+	if err != nil {
+		p.log.Error("cannot get products slice")
+		return nil, err
+	}
+	products = allProducts
+
+	return products, nil
+}
+
+func (p *productService) GetByPublicID(publicID string) (*product.Product, error) {
+	product, err := p.productRepo.GetByPublicID(publicID)
+	if err != nil {
+		p.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
+		return nil, err
+	}
+	return product, nil
+}
+
+func (p *productService) GetBySlug(slugInput string) (*product.Product, error) {
+	s, err := slug.New(slugInput)
+	if err != nil {
+		p.log.Error(fmt.Sprintf("invalid slug [%s]", string(s.GetSlug())))
+		return nil, err
+	}
+
+	product, err := p.productRepo.GetBySlug(string(s.GetSlug()))
+	if err != nil {
+		p.log.Error(fmt.Sprintf("product with slug [%s] not found", string(s.GetSlug())))
+		return nil, err
+	}
+	return product, nil
 }

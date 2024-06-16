@@ -29,7 +29,7 @@ func (p *productRepo) Create(prod product.Product) (*product.Product, error) {
 	return &newProduct, nil
 }
 
-func (p *productRepo) FindByID(id int) (*product.Product, error) {
+func (p *productRepo) GetByID(id int) (*product.Product, error) {
 	var product product.Product
 
 	err := p.DB.Where("id = ?", id).First(&product).Error
@@ -39,7 +39,7 @@ func (p *productRepo) FindByID(id int) (*product.Product, error) {
 	return &product, nil
 }
 
-func (p *productRepo) FindBySlug(name string) (*product.Product, error) {
+func (p *productRepo) GetBySlug(name string) (*product.Product, error) {
 	var product product.Product
 
 	err := p.DB.Where("slug = ?", name).First(&product).Error
@@ -49,10 +49,33 @@ func (p *productRepo) FindBySlug(name string) (*product.Product, error) {
 	return &product, nil
 }
 
-func (p *productRepo) Delete(id int) error {
-	err := p.DB.Delete(&product.Product{}, id).Error
+func (p *productRepo) Delete(publicID string) error {
+	var product product.Product
+
+	err := p.DB.Where("public_id = ?", publicID).Delete(&product).Error
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (p *productRepo) GetAll() ([]product.Product, error) {
+	products := make([]product.Product, 0)
+
+	err := p.DB.Find(&products).Error
+	if err != nil {
+		return products, err
+	}
+
+	return products, nil
+}
+
+func (p *productRepo) GetByPublicID(PublicID string) (*product.Product, error) {
+	var product product.Product
+
+	err := p.DB.Where("public_id = ?", PublicID).First(&product).Error
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
 }

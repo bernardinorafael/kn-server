@@ -14,7 +14,9 @@ type UserRepository interface {
 
 type ProductRepository interface {
 	Create(product product.Product) (*product.Product, error)
-	FindByID(id int) (*product.Product, error)
-	FindBySlug(name string) (*product.Product, error)
-	Delete(id int) error
+	GetByID(id int) (*product.Product, error)
+	GetByPublicID(publicID string) (*product.Product, error)
+	GetBySlug(name string) (*product.Product, error)
+	GetAll() ([]product.Product, error)
+	Delete(publicID string) error
 }

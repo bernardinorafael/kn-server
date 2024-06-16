@@ -3,8 +3,10 @@ package product
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/slug"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -21,14 +23,16 @@ var (
 )
 
 type Product struct {
-	gorm.Model
-
-	ID       int       `json:"id" gorm:"primaryKey"`
-	Slug     slug.Slug `json:"slug" gorm:"unique"`
-	Name     string    `json:"name"`
-	Price    float64   `json:"price"`
-	Quantity int32     `json:"quantity"`
-	Enabled  bool      `json:"enabled"`
+	ID        int            `json:"id" gorm:"primaryKey"`
+	Slug      slug.Slug      `json:"slug" gorm:"unique"`
+	PublicID  string         `json:"public_id" gorm:"unique"`
+	Name      string         `json:"name"`
+	Price     float64        `json:"price"`
+	Quantity  int32          `json:"quantity"`
+	Enabled   bool           `json:"enabled"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }
 
 func New(name string, price float64, quantity int32) (*Product, error) {
@@ -45,6 +49,7 @@ func New(name string, price float64, quantity int32) (*Product, error) {
 		Name:     name,
 		Price:    price,
 		Quantity: quantity,
+		PublicID: uuid.NewString(),
 		Slug:     s.GetSlug(),
 		Enabled:  true,
 	}
