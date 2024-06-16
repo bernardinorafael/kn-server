@@ -3,7 +3,7 @@
 include .env
 
 run:
-	@go run main.go
+	@go run cmd/api/main.go
 build:
 	@go build -o $(APP_NAME) main.go
 test:
