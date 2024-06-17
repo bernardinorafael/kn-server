@@ -20,6 +20,7 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 		Email:    u.Email,
 		Password: u.Password,
 		PublicID: u.PublicID,
+		Document: u.Document,
 	}
 
 	err := r.db.Create(&user).Error

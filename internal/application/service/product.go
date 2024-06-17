@@ -59,14 +59,11 @@ func (p *productService) Delete(publicID string) error {
 }
 
 func (p *productService) GetAll() ([]product.Product, error) {
-	products := make([]product.Product, 0)
-
-	allProducts, err := p.productRepo.GetAll()
+	products, err := p.productRepo.GetAll()
 	if err != nil {
 		p.log.Error("cannot get products slice")
 		return nil, err
 	}
-	products = allProducts
 
 	return products, nil
 }

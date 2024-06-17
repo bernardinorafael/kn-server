@@ -9,7 +9,7 @@ import (
 
 type AuthService interface {
 	Login(mail, password string) (*user.User, error)
-	Register(name, mail, password string) (*user.User, error)
+	Register(name, mail, password, document string) (*user.User, error)
 	RecoverPassword(id int, data dto.UpdatePassword) error
 }
 

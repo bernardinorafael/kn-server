@@ -44,11 +44,6 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Email == "" || payload.Password == "" {
-		restutil.NewBadRequestError(w, "missing body request")
-		return
-	}
-
 	user, err := h.authService.Login(payload.Email, payload.Password)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
@@ -64,7 +59,6 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		restutil.NewInternalServerError(w, err.Error())
 		return
 	}
-
 	restutil.WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"public_id": user.PublicID,
 		"token":     token,
@@ -80,21 +74,19 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Email == "" || payload.Password == "" || payload.Name == "" {
-		restutil.NewBadRequestError(w, "missing body request")
-		return
-	}
-
-	_, err = h.authService.Register(payload.Name, payload.Email, payload.Password)
+	_, err = h.authService.Register(payload.Name, payload.Email, payload.Password, payload.Document)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
+			restutil.NewConflictError(w, err.Error())
+			return
+		}
+		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
 			restutil.NewConflictError(w, err.Error())
 			return
 		}
 		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
-
 	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
@@ -107,11 +99,6 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.NewPassword == "" || payload.OldPassword == "" {
-		restutil.NewBadRequestError(w, "missing body request")
-		return
-	}
-
 	id := r.PathValue("id")
 	parsedID, _ := strconv.ParseInt(id, 10, 8)
 
@@ -120,6 +107,5 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		restutil.NewInternalServerError(w, "an unknown error occurred")
 		return
 	}
-
 	restutil.WriteSuccess(w, http.StatusCreated)
 }

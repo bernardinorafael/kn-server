@@ -8,6 +8,7 @@ type Login struct {
 type Register struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
+	Document string `json:"document"`
 	Password string `json:"password"`
 }
 

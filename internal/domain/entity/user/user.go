@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
 	"github.com/google/uuid"
@@ -27,6 +28,7 @@ type User struct {
 	Name      string            `json:"name"`
 	Email     email.Email       `json:"email" gorm:"unique"`
 	PublicID  string            `json:"public_id" gorm:"unique"`
+	Document  cpf.CPF           `json:"document" gorm:"unique"`
 	Enabled   bool              `json:"enabled"`
 	Password  password.Password `json:"password"`
 	CreatedAt time.Time         `json:"created_at"`
@@ -34,7 +36,7 @@ type User struct {
 	DeletedAt gorm.DeletedAt    `json:"deleted_at"`
 }
 
-func New(userName, userEmail, userPass string) (*User, error) {
+func New(userName, userEmail, userPass, userDoc string) (*User, error) {
 	address, err := email.New(userEmail)
 	if err != nil {
 		return nil, err
@@ -50,10 +52,16 @@ func New(userName, userEmail, userPass string) (*User, error) {
 		return nil, err
 	}
 
+	document, err := cpf.New(userDoc)
+	if err != nil {
+		return nil, err
+	}
+
 	user := &User{
 		Name:     userName,
 		PublicID: uuid.NewString(),
 		Email:    address.ToEmail(),
+		Document: document.ToCPF(),
 		Password: encrypted,
 		Enabled:  false,
 	}
