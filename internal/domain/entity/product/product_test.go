@@ -128,7 +128,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 
 		err = p.IncPrice(0)
 		assert.NotNil(t, err)
-		assert.EqualError(t, err, "cannot increase price with a zero value")
+		assert.EqualError(t, err, "product price must be greater than zero")
 	})
 
 	t.Run("Should not be possible to increase price if product is disabled", func(t *testing.T) {
