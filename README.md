@@ -43,6 +43,12 @@ Basic instructions on how to use the project after installation:
    ```
 
 2. To run the tests:
+
    ```bash
    make test
+   ```
+
+3. To enter the database inside Docker container:
+   ```bash
+   make pg
    ```
