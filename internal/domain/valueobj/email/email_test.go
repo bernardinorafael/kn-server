@@ -73,4 +73,10 @@ func TestEmailValueObject(t *testing.T) {
 		assert.NotContains(t, string(localPart), "@")
 		assert.Equal(t, localPart, email.Email("john_doe"))
 	})
+
+	t.Run("Should DomainPart ends with . plus domain", func(t *testing.T) {
+		_, err := email.New("john_doe@email")
+
+		assert.NotNil(t, err)
+	})
 }

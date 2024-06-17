@@ -39,7 +39,7 @@ func (s *authService) Login(mail, pass string) (*user.User, error) {
 		return nil, err
 	}
 
-	user, err := s.userRepo.FindByEmail(string(address.ToEmail()))
+	user, err := s.userRepo.GetByEmail(string(address.ToEmail()))
 	if err != nil {
 		s.log.Error(fmt.Sprintf("user with email %s does not exist", address.ToEmail()))
 		return nil, ErrInvalidCredential
@@ -66,7 +66,7 @@ func (s *authService) Register(name, emailAddr, password, document string) (*use
 		return nil, err
 	}
 
-	_, err = s.userRepo.FindByEmail(string(nu.Email))
+	_, err = s.userRepo.GetByEmail(string(nu.Email))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -86,8 +86,8 @@ func (s *authService) Register(name, emailAddr, password, document string) (*use
 	return user, nil
 }
 
-func (s *authService) RecoverPassword(id int, data dto.UpdatePassword) error {
-	u, err := s.userRepo.FindByID(id)
+func (s *authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
+	u, err := s.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		s.log.Error(fmt.Sprintf("not found user with ID: %d", u.ID))
 		return ErrUserNotFound
@@ -111,7 +111,7 @@ func (s *authService) RecoverPassword(id int, data dto.UpdatePassword) error {
 		return err
 	}
 
-	updatedPassword := user.User{ID: id, Password: hashed}
+	updatedPassword := user.User{PublicID: publicID, Password: hashed}
 
 	_, err = s.userRepo.Update(updatedPassword)
 	if err != nil {

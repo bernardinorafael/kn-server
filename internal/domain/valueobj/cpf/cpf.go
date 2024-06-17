@@ -46,7 +46,7 @@ func (c *cpf) validate() error {
 	validated := fmt.Sprintf("%v%v%v", c.value[:9], d1, d2)
 
 	if validated != c.value {
-		return fmt.Errorf("invalid cpf [%v]", c.value)
+		return fmt.Errorf("invalid cpf")
 	}
 	return nil
 }

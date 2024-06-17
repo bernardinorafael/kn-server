@@ -7,8 +7,9 @@ import (
 
 type UserRepository interface {
 	Create(u user.User) (*user.User, error)
-	FindByID(id int) (*user.User, error)
-	FindByEmail(email string) (*user.User, error)
+	GetByID(id int) (*user.User, error)
+	GetByPublicID(publicID string) (*user.User, error)
+	GetByEmail(email string) (*user.User, error)
 	Update(u user.User) (*user.User, error)
 }
 

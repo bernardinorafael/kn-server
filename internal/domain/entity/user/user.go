@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
@@ -19,7 +20,7 @@ const (
 
 var (
 	ErrInvalidNameLength = fmt.Errorf("name must be at least %d characters long", minNameLength)
-	ErrInvalidFullName   = errors.New("name must contain both first name and last name")
+	ErrInvalidFullName   = errors.New("incorrect name, must contain valid first and last name")
 	ErrShortPassword     = errors.New("password must be at least 6 characters long")
 )
 
@@ -77,6 +78,8 @@ func (u *User) validate() error {
 	if len(u.Name) < minNameLength {
 		return ErrInvalidNameLength
 	}
+
+	u.Name = strings.TrimSpace(u.Name)
 
 	fullNamePattern := "^[A-Za-zÀ-ÿ]+(?:\\s[A-Za-zÀ-ÿ]+)+$"
 	matched, _ := regexp.MatchString(fullNamePattern, u.Name)

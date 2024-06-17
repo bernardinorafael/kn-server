@@ -17,7 +17,6 @@ var (
 	ErrInvalidEmailFormat      = errors.New("invalid email address")
 	ErrEmailTooLong            = errors.New("email address is too long")
 	ErrEmailContainsWhiteSpace = errors.New("email cannot contain whitespace")
-	ErrInvalidEmailChar        = errors.New("email has some invalid special characters")
 	ErrEmailTooShort           = errors.New("local part of the email must have at least 3 characters")
 	ErrDomainPartTooShort      = errors.New("domain part email must have at least 3 characters")
 )
@@ -68,7 +67,7 @@ func (a *Address) validate() error {
 	localPartPattern := `^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$`
 	matched, _ := regexp.MatchString(localPartPattern, a.local)
 	if !matched {
-		return ErrInvalidEmailChar
+		return ErrInvalidEmailFormat
 	}
 
 	if strings.Contains(a.local, "..") {
@@ -78,12 +77,16 @@ func (a *Address) validate() error {
 	domainPartPattern := `^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$`
 	matched, _ = regexp.MatchString(domainPartPattern, a.domain)
 	if !matched {
-		return ErrInvalidEmailChar
+		return ErrInvalidEmailFormat
 	}
 
 	splittedDomainPart := strings.Split(a.domain, ".")
 	if len(splittedDomainPart[0]) < minDomainPartLengh {
 		return ErrDomainPartTooShort
+	}
+
+	if len(splittedDomainPart) < 2 {
+		return ErrInvalidEmailFormat
 	}
 
 	return nil

@@ -30,7 +30,17 @@ func (r *userRepo) Create(u user.User) (*user.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) FindByID(id int) (*user.User, error) {
+func (r *userRepo) GetByPublicID(publicID string) (*user.User, error) {
+	var user user.User
+
+	err := r.db.Where("public_id = ?", publicID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepo) GetByID(id int) (*user.User, error) {
 	var user user.User
 
 	err := r.db.Where("id = ?", id).First(&user).Error
@@ -40,7 +50,7 @@ func (r *userRepo) FindByID(id int) (*user.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) FindByEmail(email string) (*user.User, error) {
+func (r *userRepo) GetByEmail(email string) (*user.User, error) {
 	var user user.User
 
 	err := r.db.Where("email = ?", email).First(&user).Error
@@ -60,7 +70,7 @@ func (r *userRepo) Update(u user.User) (*user.User, error) {
 
 	err := r.db.
 		Model(&user).
-		Where("id = ?", u.ID).
+		Where("public_id = ?", u.PublicID).
 		Updates(updated).
 		First(&user).
 		Error

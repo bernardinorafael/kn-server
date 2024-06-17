@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
@@ -99,12 +98,15 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.PathValue("id")
-	parsedID, _ := strconv.ParseInt(id, 10, 8)
+	publicID := r.PathValue("id")
 
-	err = h.authService.RecoverPassword(int(parsedID), payload)
+	err = h.authService.RecoverPassword(publicID, payload)
 	if err != nil {
-		restutil.NewInternalServerError(w, "an unknown error occurred")
+		if errors.Is(err, service.ErrUpdatingPassword) {
+			restutil.NewConflictError(w, err.Error())
+			return
+		}
+		restutil.NewBadRequestError(w, err.Error())
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)
