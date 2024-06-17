@@ -16,10 +16,12 @@ const (
 )
 
 var (
-	ErrInvalidQuantity    = errors.New("product quantity cannot be zero")
-	ErrInvalidPrice       = errors.New("product price must be greater than zero")
-	ErrEmptyProductName   = errors.New("product name is a required field")
-	ErrInvalidProductName = fmt.Errorf("name length must be between %d and %d characters", minNameLength, maxNameLength)
+	ErrInvalidQuantity           = errors.New("product quantity cannot be zero")
+	ErrManipulateDisabledProduct = errors.New("cannot manipulate a disabled product")
+	ErrPercentageOutOfRange      = errors.New("percentage value is out of range(1-100)")
+	ErrInvalidPrice              = errors.New("product price must be greater than zero")
+	ErrEmptyProductName          = errors.New("product name is a required field")
+	ErrInvalidProductName        = fmt.Errorf("name length must be between %d and %d characters", minNameLength, maxNameLength)
 )
 
 type Product struct {
@@ -57,7 +59,6 @@ func New(name string, price float64, quantity int32) (*Product, error) {
 	if err = product.validate(); err != nil {
 		return nil, err
 	}
-
 	return &product, nil
 }
 
@@ -75,6 +76,51 @@ func (p *Product) validate() error {
 	if p.Price < 1 {
 		return ErrInvalidPrice
 	}
-
 	return nil
+}
+
+func (p *Product) IncPriceByPercentage(percentage int) error {
+	if percentage < 1 || percentage >= 100 {
+		return ErrPercentageOutOfRange
+	}
+
+	if !p.Enabled {
+		return ErrManipulateDisabledProduct
+	}
+
+	p.Price += (p.Price * float64(percentage)) / 100
+	return nil
+}
+
+func (p *Product) IncPrice(price float64) error {
+	if price < 1 {
+		return ErrInvalidPrice
+	}
+
+	if !p.Enabled {
+		return ErrManipulateDisabledProduct
+	}
+
+	p.Price += price
+	return nil
+}
+
+func (p *Product) IncQuantity(quantity int32) error {
+	if quantity < 1 {
+		return ErrInvalidQuantity
+	}
+	if !p.Enabled {
+		return ErrManipulateDisabledProduct
+	}
+
+	p.Quantity += quantity
+	return nil
+}
+
+func (p *Product) Disable() {
+	p.Enabled = false
+}
+
+func (p *Product) Enable() {
+	p.Enabled = true
 }
