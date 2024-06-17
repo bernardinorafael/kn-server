@@ -1,7 +1,6 @@
 package cpf_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
@@ -22,7 +21,7 @@ func TestCPFValueObject_New(t *testing.T) {
 		_, err := cpf.New(invalid)
 
 		assert.NotNil(t, err)
-		assert.EqualError(t, err, fmt.Sprintf("invalid cpf [%v]", invalid))
+		assert.EqualError(t, err, "invalid cpf")
 	})
 
 	t.Run("Should throw error if document do not have exact 11 digits", func(t *testing.T) {
