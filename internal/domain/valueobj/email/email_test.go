@@ -20,7 +20,7 @@ func TestEmailValueObject(t *testing.T) {
 		_, err := email.New("**!) !&#%^&*()+=[]{}|;:'\",<>?/\\~`@email.com")
 
 		assert.NotNil(t, err)
-		assert.EqualError(t, err, "email has some invalid special characters")
+		assert.EqualError(t, err, "invalid email address")
 	})
 
 	t.Run("Should local part have at least 3 characters", func(t *testing.T) {
