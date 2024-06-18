@@ -22,6 +22,7 @@ var (
 	ErrInvalidNameLength = fmt.Errorf("name must be at least %d characters long", minNameLength)
 	ErrInvalidFullName   = errors.New("incorrect name, must contain valid first and last name")
 	ErrShortPassword     = errors.New("password must be at least 6 characters long")
+	ErrEmptyUserName     = errors.New("name is a required field")
 )
 
 type User struct {
@@ -75,6 +76,10 @@ func New(userName, userEmail, userPass, userDoc string) (*User, error) {
 }
 
 func (u *User) validate() error {
+	if len(u.Name) == 0 {
+		return ErrEmptyUserName
+	}
+
 	if len(u.Name) < minNameLength {
 		return ErrInvalidNameLength
 	}

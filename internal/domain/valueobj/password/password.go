@@ -21,7 +21,6 @@ var (
 	ErrMissingLowercaseLetter = errors.New("password must contain at least one lowercase letter")
 	ErrPasswordDoesNotMatch   = errors.New("provided password does not match")
 	ErrMissingDigit           = errors.New("password must contain at least one digit")
-	ErrEmptyPassword          = errors.New("password cannot be empty")
 )
 
 type Password string
@@ -32,7 +31,7 @@ type password struct {
 
 func New(rawPassword string) (*password, error) {
 	if len(rawPassword) == 0 {
-		return nil, ErrEmptyPassword
+		return nil, errors.New("password is a required field")
 	}
 
 	password := password{password: rawPassword}
