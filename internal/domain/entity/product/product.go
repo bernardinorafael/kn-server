@@ -63,9 +63,7 @@ func New(name string, price float64, quantity int32) (*Product, error) {
 }
 
 func (p *Product) validate() error {
-	invalidProdName := len(p.Name) < minNameLength || len(p.Name) >= maxNameLength
-
-	if invalidProdName {
+	if len(p.Name) < minNameLength || len(p.Name) >= maxNameLength {
 		return ErrInvalidProductName
 	}
 
@@ -114,6 +112,30 @@ func (p *Product) IncQuantity(quantity int32) error {
 	}
 
 	p.Quantity += quantity
+	return nil
+}
+
+func (p *Product) ChangeName(name string) error {
+	if !p.Enabled {
+		return ErrManipulateDisabledProduct
+	}
+
+	if len(name) == 0 {
+		return ErrEmptyProductName
+	}
+
+	if len(p.Name) < minNameLength || len(p.Name) >= maxNameLength {
+		return ErrInvalidProductName
+	}
+
+	s, err := slug.New(name)
+	if err != nil {
+		return err
+	}
+
+	p.Name = name
+	p.Slug = s.GetSlug()
+
 	return nil
 }
 

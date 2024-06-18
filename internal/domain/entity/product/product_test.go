@@ -171,3 +171,35 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 		assert.EqualError(t, err, "cannot manipulate a disabled product")
 	})
 }
+
+func TestProductEntity_ChangeName(t *testing.T) {
+	t.Run("Should change product name", func(t *testing.T) {
+		p, _ := product.New("my product name", 100, 10)
+
+		err := p.ChangeName("other product name")
+		assert.Nil(t, err)
+		assert.Equal(t, p.Name, "other product name")
+		assert.Equal(t, string(p.Slug), "other-product-name")
+	})
+
+	t.Run("Should not possible to change name of a disabled product", func(t *testing.T) {
+		p, _ := product.New("my product name", 100, 10)
+		p.Disable()
+
+		err := p.ChangeName("other product name")
+
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "cannot manipulate a disabled product")
+		assert.Equal(t, p.Name, "my product name")
+	})
+
+	t.Run("Should not possible to change the name is name attribute is empty", func(t *testing.T) {
+		p, _ := product.New("my product name", 100, 10)
+
+		err := p.ChangeName("")
+
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "product name is a required field")
+		assert.Equal(t, p.Name, "my product name")
+	})
+}
