@@ -29,6 +29,10 @@ type Address struct {
 }
 
 func New(address string) (*Address, error) {
+	if len(address) == 0 {
+		return nil, errors.New("email is a required field")
+	}
+
 	splitted := strings.Split(address, "@")
 
 	if len(splitted) != 2 {

@@ -1,6 +1,7 @@
 package cpf
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -12,6 +13,10 @@ type cpf struct {
 }
 
 func New(document string) (*cpf, error) {
+	if len(document) == 0 {
+		return nil, errors.New("document is a required field")
+	}
+
 	doc := cpf{value: document}
 
 	if err := doc.validate(); err != nil {

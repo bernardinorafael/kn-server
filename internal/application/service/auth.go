@@ -62,7 +62,7 @@ func (s *authService) Login(mail, pass string) (*user.User, error) {
 func (s *authService) Register(name, emailAddr, password, document string) (*user.User, error) {
 	nu, err := user.New(name, emailAddr, password, document)
 	if err != nil {
-		s.log.Error("error creating user entity", err.Error(), err)
+		s.log.Error("error creating user entity", "error", err.Error())
 		return nil, err
 	}
 
