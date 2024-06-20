@@ -21,7 +21,6 @@ const (
 var (
 	ErrInvalidNameLength = fmt.Errorf("name must be at least %d characters long", minNameLength)
 	ErrInvalidFullName   = errors.New("incorrect name, must contain valid first and last name")
-	ErrShortPassword     = errors.New("password must be at least 6 characters long")
 	ErrEmptyUserName     = errors.New("name is a required field")
 )
 
@@ -38,18 +37,18 @@ type User struct {
 	DeletedAt gorm.DeletedAt    `json:"deleted_at"`
 }
 
-func New(userName, userEmail, userPass, userDoc string) (*User, error) {
+func New(userName, userEmail, userPassword, userDoc string) (*User, error) {
 	address, err := email.New(userEmail)
 	if err != nil {
 		return nil, err
 	}
 
-	passw, err := password.New(userPass)
+	p, err := password.New(userPassword)
 	if err != nil {
 		return nil, err
 	}
 
-	encrypted, err := passw.ToEncrypted()
+	hashed, err := p.ToEncrypted()
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +63,7 @@ func New(userName, userEmail, userPass, userDoc string) (*User, error) {
 		PublicID: uuid.NewString(),
 		Email:    address.ToEmail(),
 		Document: document.ToCPF(),
-		Password: encrypted,
+		Password: hashed,
 		Enabled:  false,
 	}
 

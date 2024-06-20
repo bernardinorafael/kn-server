@@ -9,7 +9,7 @@ import (
 func WriteSuccess(w http.ResponseWriter, code int) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "success",
 	})
 }

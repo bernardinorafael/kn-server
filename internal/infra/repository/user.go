@@ -14,69 +14,69 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 	return &userRepo{db: DB}
 }
 
-func (r *userRepo) Create(u user.User) (*user.User, error) {
-	user := &user.User{
-		Name:     u.Name,
-		Email:    u.Email,
-		Password: u.Password,
-		PublicID: u.PublicID,
-		Document: u.Document,
+func (r *userRepo) Create(usr user.User) (*user.User, error) {
+	u := &user.User{
+		Name:     usr.Name,
+		Email:    usr.Email,
+		Password: usr.Password,
+		PublicID: usr.PublicID,
+		Document: usr.Document,
 	}
 
-	err := r.db.Create(&user).Error
+	err := r.db.Create(&u).Error
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return u, nil
 }
 
 func (r *userRepo) GetByPublicID(publicID string) (*user.User, error) {
-	var user user.User
+	var u user.User
 
-	err := r.db.Where("public_id = ?", publicID).First(&user).Error
+	err := r.db.Where("public_id = ?", publicID).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &u, nil
 }
 
 func (r *userRepo) GetByID(id int) (*user.User, error) {
-	var user user.User
+	var u user.User
 
-	err := r.db.Where("id = ?", id).First(&user).Error
+	err := r.db.Where("id = ?", id).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &u, nil
 }
 
 func (r *userRepo) GetByEmail(email string) (*user.User, error) {
-	var user user.User
+	var u user.User
 
-	err := r.db.Where("email = ?", email).First(&user).Error
+	err := r.db.Where("email = ?", email).First(&u).Error
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &u, nil
 }
 
-func (r *userRepo) Update(u user.User) (*user.User, error) {
-	user := user.User{}
+func (r *userRepo) Update(usr user.User) (*user.User, error) {
+	u := user.User{}
 
 	updated := map[string]interface{}{
-		"Name":     u.Name,
-		"Password": u.Password,
+		"Name":     usr.Name,
+		"Password": usr.Password,
 	}
 
 	err := r.db.
-		Model(&user).
+		Model(&u).
 		Where("public_id = ?", u.PublicID).
 		Updates(updated).
-		First(&user).
+		First(&u).
 		Error
 
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &u, nil
 }

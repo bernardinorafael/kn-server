@@ -9,6 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/config/logger"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/route"
@@ -32,18 +33,26 @@ func main() {
 		panic(err)
 	}
 
+	jwtAuth, err := auth.NewJWTAuth(l, env.JWTSecret)
+
+	// Repositories
 	userRepo := repository.NewUserRepo(con)
 	productRepo := repository.NewProductRepo(con)
 
-	jwtService := service.NewJWTService(l, env)
+	// Services
 	authService := service.NewAuthService(l, userRepo)
 	productService := service.NewProductService(l, productRepo)
+	userService := service.NewUserService(l, userRepo)
 
-	authHandler := route.NewAuthHandler(l, authService, jwtService)
-	productHandler := route.NewProductHandler(l, productService, jwtService)
+	// Handlers
+	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
+	productHandler := route.NewProductHandler(l, productService, jwtAuth)
+	userHandler := route.NewUserHandler(userService, jwtAuth)
 
+	// Registering routes
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
+	userHandler.RegisterRoute(router)
 
 	l.Info(fmt.Sprintf("server lintening on port %v", env.Port))
 

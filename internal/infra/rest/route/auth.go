@@ -5,25 +5,30 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/internal/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
 )
 
 type authHandler struct {
 	log         *slog.Logger
+	env         *config.EnvFile
 	authService contract.AuthService
-	jwtService  contract.JWTService
+	jwtAuth     auth.TokenAuthInterface
 }
 
-func NewAuthHandler(log *slog.Logger, authService contract.AuthService, jwtService contract.JWTService) *authHandler {
-	return &authHandler{
-		log:         log,
-		authService: authService,
-		jwtService:  jwtService,
-	}
+func NewAuthHandler(
+	log *slog.Logger,
+	authService contract.AuthService,
+	jwtAuth auth.TokenAuthInterface,
+	env *config.EnvFile,
+) *authHandler {
+	return &authHandler{log, env, authService, jwtAuth}
 }
 
 func (h *authHandler) RegisterRoute(s *server.Server) {
@@ -35,55 +40,55 @@ func (h *authHandler) RegisterRoute(s *server.Server) {
 }
 
 func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
-	var payload dto.Login
+	var input dto.Login
 
-	err := restutil.ParseBody(r, &payload)
+	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	user, err := h.authService.Login(payload.Email, payload.Password)
+	user, err := h.authService.Login(input.Email, input.Password)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
-			restutil.NewConflictError(w, err.Error())
+			error.NewConflictError(w, err.Error())
 			return
 		}
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	token, err := h.jwtService.CreateToken(user.PublicID)
+	token, payload, err := h.jwtAuth.CreateAccessToken(user.PublicID, h.env.AccessTokenDuration)
 	if err != nil {
-		restutil.NewInternalServerError(w, err.Error())
+		error.NewInternalServerError(w, err.Error())
 		return
 	}
 	restutil.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"public_id": user.PublicID,
-		"token":     token,
+		"token":   token,
+		"payload": payload,
 	})
 }
 
 func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
-	var payload dto.Register
+	var input dto.Register
 
-	err := restutil.ParseBody(r, &payload)
+	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	_, err = h.authService.Register(payload.Name, payload.Email, payload.Password, payload.Document)
+	_, err = h.authService.Register(input.Name, input.Email, input.Password, input.Document)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
-			restutil.NewConflictError(w, err.Error())
+			error.NewConflictError(w, err.Error())
 			return
 		}
 		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
-			restutil.NewConflictError(w, err.Error())
+			error.NewConflictError(w, err.Error())
 			return
 		}
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)
@@ -94,7 +99,7 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -103,10 +108,10 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 	err = h.authService.RecoverPassword(publicID, payload)
 	if err != nil {
 		if errors.Is(err, service.ErrUpdatingPassword) {
-			restutil.NewConflictError(w, err.Error())
+			error.NewConflictError(w, err.Error())
 			return
 		}
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)

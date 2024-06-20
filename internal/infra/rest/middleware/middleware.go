@@ -4,39 +4,34 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 )
 
 type middleware struct {
-	jwtService contract.JWTService
-	log        *slog.Logger
+	log     *slog.Logger
+	jwtAuth auth.TokenAuthInterface
 }
 
-func New(jwtService contract.JWTService, log *slog.Logger) *middleware {
-	return &middleware{
-		jwtService: jwtService,
-		log:        log,
-	}
+func New(jwtAuth auth.TokenAuthInterface, log *slog.Logger) *middleware {
+	return &middleware{log, jwtAuth}
 }
 
-// TODO: implement more robust token validation
 func (m *middleware) WithAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken := r.Header.Get("Authorization")
 		if len(accessToken) == 0 {
 			m.log.Error("authorization header not found")
-			restutil.NewUnauthorizedError(w, "unauthorized user")
+			error.NewUnauthorizedError(w, "unauthorized user")
 			return
 		}
 
-		_, err := m.jwtService.ValidateToken(accessToken)
+		_, err := m.jwtAuth.VerifyToken(accessToken)
 		if err != nil {
 			m.log.Error("invalid token")
-			restutil.NewUnauthorizedError(w, "unauthorized user")
+			error.NewUnauthorizedError(w, "unauthorized user")
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }

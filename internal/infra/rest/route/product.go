@@ -9,6 +9,8 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/application/service"
 	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
@@ -18,22 +20,19 @@ import (
 type productHandler struct {
 	log            *slog.Logger
 	productService contract.ProductService
-	jwtService     contract.JWTService
+	jwtAuth        auth.TokenAuthInterface
 }
 
-func NewProductHandler(log *slog.Logger, productService contract.ProductService, jwtService contract.JWTService) *productHandler {
-	return &productHandler{
-		log:            log,
-		productService: productService,
-		jwtService:     jwtService,
-	}
+func NewProductHandler(log *slog.Logger, productService contract.ProductService, jwtAuth auth.TokenAuthInterface) *productHandler {
+	return &productHandler{log, productService, jwtAuth}
 }
 
 func (h *productHandler) RegisterRoute(s *server.Server) {
-	mid := middleware.New(h.jwtService, h.log)
+	mid := middleware.New(h.jwtAuth, h.log)
 
-	s.Use(mid.WithAuth)
 	s.Group(func(s *server.Server) {
+		s.Use(mid.WithAuth)
+
 		s.Post("/products", h.create)
 		s.Get("/products", h.getAll)
 		s.Get("/products/{id}", h.getByID)
@@ -47,7 +46,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -55,22 +54,22 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	err = h.productService.Create(payload)
 	if err != nil {
 		if errors.Is(err, product.ErrInvalidPrice) {
-			restutil.NewUnprocessableEntityError(w, err.Error())
+			error.NewUnprocessableEntityError(w, err.Error())
 			return
 		}
 		if errors.Is(err, product.ErrInvalidQuantity) {
-			restutil.NewUnprocessableEntityError(w, err.Error())
+			error.NewUnprocessableEntityError(w, err.Error())
 			return
 		}
 		if errors.Is(err, product.ErrEmptyProductName) {
-			restutil.NewUnprocessableEntityError(w, err.Error())
+			error.NewUnprocessableEntityError(w, err.Error())
 			return
 		}
 		if errors.Is(err, service.ErrProductNameAlreadyTaken) {
-			restutil.NewConflictError(w, err.Error())
+			error.NewConflictError(w, err.Error())
 			return
 		}
-		restutil.NewInternalServerError(w, "cannot create resource")
+		error.NewInternalServerError(w, "cannot create resource")
 		return
 	}
 
@@ -83,10 +82,10 @@ func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
 	err := h.productService.Delete(publicID)
 	if err != nil {
 		if errors.Is(err, service.ErrProductNotFound) {
-			restutil.NewBadRequestError(w, err.Error())
+			error.NewBadRequestError(w, err.Error())
 			return
 		}
-		restutil.NewInternalServerError(w, "cannot delete resource")
+		error.NewInternalServerError(w, "cannot delete resource")
 		return
 	}
 
@@ -98,7 +97,7 @@ func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.productService.GetBySlug(slug)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 	product := response.Product{
@@ -119,13 +118,13 @@ func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	ps, err := h.productService.GetAll()
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
-	products := []response.Product{}
+	var products []response.Product
 	for _, p := range ps {
-		product := response.Product{
+		products = append(products, response.Product{
 			PublicID:  p.PublicID,
 			Slug:      p.Slug,
 			Name:      p.Name,
@@ -133,10 +132,8 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 			Quantity:  p.Quantity,
 			Enabled:   p.Enabled,
 			CreatedAt: p.CreatedAt,
-		}
-		products = append(products, product)
+		})
 	}
-
 	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"products": products,
 	})
@@ -147,7 +144,7 @@ func (h *productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.productService.GetByPublicID(id)
 	if err != nil {
-		restutil.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, err.Error())
 		return
 	}
 	product := response.Product{

@@ -1,4 +1,4 @@
-package restutil
+package error
 
 import (
 	"encoding/json"

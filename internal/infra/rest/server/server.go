@@ -49,7 +49,7 @@ func (s *Server) handle(method, path string, fn http.HandlerFunc, midds []middle
 }
 
 func (s *Server) wrapper(fn http.Handler, midds []middleware) http.Handler {
-	output := http.Handler(fn)
+	output := fn
 	midds = append(slices.Clone(s.chain), midds...)
 
 	slices.Reverse(midds)

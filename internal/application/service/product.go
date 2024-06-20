@@ -26,68 +26,68 @@ func NewProductService(log *slog.Logger, productRepo contract.ProductRepository)
 	return &productService{log, productRepo}
 }
 
-func (p *productService) Create(data dto.CreateProduct) error {
-	product, err := product.New(data.Name, data.Price, data.Quantity)
+func (svc *productService) Create(data dto.CreateProduct) error {
+	p, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {
-		p.log.Error(err.Error())
+		svc.log.Error(err.Error())
 		return err
 	}
 
-	_, err = p.productRepo.Create(*product)
+	_, err = svc.productRepo.Create(*p)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
-			p.log.Error(fmt.Sprintf("the product name [%s] is already in use", product.Name))
+			svc.log.Error(fmt.Sprintf("the product name [%s] is already in use", p.Name))
 			return ErrProductNameAlreadyTaken
 		}
-		p.log.Error(err.Error())
+		svc.log.Error(err.Error())
 		return err
 	}
 	return nil
 }
 
-func (p *productService) Delete(publicID string) error {
-	_, err := p.productRepo.GetByPublicID(publicID)
+func (svc *productService) Delete(publicID string) error {
+	_, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		p.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
+		svc.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
 		return ErrProductNotFound
 	}
 
-	if err = p.productRepo.Delete(publicID); err != nil {
+	if err = svc.productRepo.Delete(publicID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *productService) GetAll() ([]product.Product, error) {
-	products, err := p.productRepo.GetAll()
+func (svc *productService) GetAll() ([]product.Product, error) {
+	products, err := svc.productRepo.GetAll()
 	if err != nil {
-		p.log.Error("cannot get products slice")
+		svc.log.Error("cannot get products slice")
 		return nil, err
 	}
 
 	return products, nil
 }
 
-func (p *productService) GetByPublicID(publicID string) (*product.Product, error) {
-	product, err := p.productRepo.GetByPublicID(publicID)
+func (svc *productService) GetByPublicID(publicID string) (*product.Product, error) {
+	p, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		p.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
+		svc.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))
 		return nil, err
 	}
-	return product, nil
+	return p, nil
 }
 
-func (p *productService) GetBySlug(slugInput string) (*product.Product, error) {
+func (svc *productService) GetBySlug(slugInput string) (*product.Product, error) {
 	s, err := slug.New(slugInput)
 	if err != nil {
-		p.log.Error(fmt.Sprintf("invalid slug [%s]", string(s.GetSlug())))
+		svc.log.Error(fmt.Sprintf("invalid slug [%s]", string(s.GetSlug())))
 		return nil, err
 	}
 
-	product, err := p.productRepo.GetBySlug(string(s.GetSlug()))
+	p, err := svc.productRepo.GetBySlug(string(s.GetSlug()))
 	if err != nil {
-		p.log.Error(fmt.Sprintf("product with slug [%s] not found", string(s.GetSlug())))
+		svc.log.Error(fmt.Sprintf("product with slug [%s] not found", string(s.GetSlug())))
 		return nil, err
 	}
-	return product, nil
+	return p, nil
 }
