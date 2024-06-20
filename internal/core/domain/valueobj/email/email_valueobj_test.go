@@ -3,7 +3,7 @@ package email_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/stretchr/testify/assert"
 )
 

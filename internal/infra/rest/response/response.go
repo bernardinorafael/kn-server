@@ -3,9 +3,9 @@ package response
 import (
 	"time"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/slug"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 )
 
 type Product struct {

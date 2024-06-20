@@ -8,7 +8,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/config"
 	"github.com/bernardinorafael/kn-server/config/logger"
-	"github.com/bernardinorafael/kn-server/internal/application/service"
+	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"

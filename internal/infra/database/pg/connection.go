@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/driver/postgres"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 )

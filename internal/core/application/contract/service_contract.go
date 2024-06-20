@@ -1,9 +1,9 @@
 package contract
 
 import (
-	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 )
 
 type AuthService interface {

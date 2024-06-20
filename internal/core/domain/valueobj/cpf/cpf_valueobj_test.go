@@ -3,7 +3,7 @@ package cpf_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
 	"github.com/stretchr/testify/assert"
 )
 

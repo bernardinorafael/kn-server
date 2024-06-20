@@ -3,7 +3,7 @@ package user_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

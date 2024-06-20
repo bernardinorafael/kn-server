@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/slug"
+	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 )
 
 var (

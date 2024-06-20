@@ -3,7 +3,7 @@ package route
 import (
 	"net/http"
 
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"

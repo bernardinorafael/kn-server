@@ -3,7 +3,7 @@ package product_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/stretchr/testify/assert"
 )
 

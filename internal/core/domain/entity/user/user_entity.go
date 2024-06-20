@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/cpf"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

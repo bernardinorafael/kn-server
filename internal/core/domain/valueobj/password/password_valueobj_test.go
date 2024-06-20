@@ -3,7 +3,7 @@ package password_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/stretchr/testify/assert"
 )
 

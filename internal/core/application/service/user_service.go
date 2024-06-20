@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 )
 
 type userService struct {

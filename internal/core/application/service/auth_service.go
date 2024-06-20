@@ -6,11 +6,11 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/application/dto"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/email"
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"gorm.io/gorm"
 )
 

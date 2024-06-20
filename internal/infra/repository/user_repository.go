@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/bernardinorafael/kn-server/internal/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	"gorm.io/gorm"
 )
 

@@ -3,7 +3,7 @@ package slug_test
 import (
 	"testing"
 
-	"github.com/bernardinorafael/kn-server/internal/domain/valueobj/slug"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 	"github.com/stretchr/testify/assert"
 )
 
