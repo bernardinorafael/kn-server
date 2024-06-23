@@ -30,21 +30,21 @@ type password struct {
 }
 
 func New(rawPassword string) (*password, error) {
-	if len(rawPassword) == 0 {
-		return nil, errors.New("password is a required field")
-	}
+	p := password{password: rawPassword}
 
-	password := password{password: rawPassword}
-
-	err := password.validate()
+	err := p.validate()
 	if err != nil {
 		return nil, err
 	}
 
-	return &password, nil
+	return &p, nil
 }
 
 func (p *password) validate() error {
+	if len(p.password) == 0 {
+		return errors.New("password is a required field")
+	}
+
 	if len(p.password) < minPasswordLength {
 		return ErrPasswordTooShort
 	}

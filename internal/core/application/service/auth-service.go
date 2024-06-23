@@ -31,9 +31,8 @@ func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract
 	return &authService{log, userRepo}
 }
 
-// TODO: implements lockout and rate limiting
-func (svc *authService) Login(mail, pass string) (*user.User, error) {
-	address, err := email.New(mail)
+func (svc *authService) Login(userEmail, userPassword string) (*user.User, error) {
+	address, err := email.New(userEmail)
 	if err != nil {
 		svc.log.Error("error creating email value object", err.Error(), err)
 		return nil, err
@@ -45,13 +44,13 @@ func (svc *authService) Login(mail, pass string) (*user.User, error) {
 		return nil, ErrInvalidCredential
 	}
 
-	passw, err := password.New(pass)
+	p, err := password.New(userPassword)
 	if err != nil {
 		svc.log.Error("error creating password value object", err.Error(), err)
 		return nil, err
 	}
 
-	err = passw.Compare(user.Password, pass)
+	err = p.Compare(user.Password, userPassword)
 	if err != nil {
 		svc.log.Error("the password provided is incorrect")
 		return nil, ErrInvalidCredential
@@ -93,19 +92,19 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		return ErrUserNotFound
 	}
 
-	pass, err := password.New(data.NewPassword)
+	p, err := password.New(data.NewPassword)
 	if err != nil {
 		svc.log.Error("error creating password value object", err.Error(), err)
 		return err
 	}
 
-	err = pass.Compare(u.Password, data.OldPassword)
+	err = p.Compare(u.Password, data.OldPassword)
 	if err != nil {
 		svc.log.Error("failed to compare password", err.Error(), err)
 		return err
 	}
 
-	hashed, err := pass.ToEncrypted()
+	hashed, err := p.ToEncrypted()
 	if err != nil {
 		svc.log.Error("failed to encrypt password", err.Error(), err)
 		return err

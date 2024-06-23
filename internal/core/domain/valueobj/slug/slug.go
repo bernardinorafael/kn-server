@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-var (
-	ErrInvalidName = errors.New("invalid entrypoint slug")
-)
-
 type Slug string
 
 type slug struct {
@@ -18,7 +14,7 @@ type slug struct {
 
 func New(name string) (*slug, error) {
 	if len(name) == 0 {
-		return nil, ErrInvalidName
+		return nil, errors.New("invalid entrypoint slug")
 	}
 
 	slug := slug{value: name}

@@ -139,6 +139,10 @@ func (p *Product) ChangeName(name string) error {
 	return nil
 }
 
+func (p *Product) GetStatus() bool {
+	return p.Enabled
+}
+
 func (p *Product) Disable() {
 	p.Enabled = false
 }

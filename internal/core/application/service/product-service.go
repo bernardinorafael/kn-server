@@ -64,7 +64,6 @@ func (svc *productService) GetAll() ([]product.Product, error) {
 		svc.log.Error("cannot get products slice")
 		return nil, err
 	}
-
 	return products, nil
 }
 

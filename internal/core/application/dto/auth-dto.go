@@ -12,12 +12,6 @@ type Register struct {
 	Password string `json:"password"`
 }
 
-type CreateProduct struct {
-	Name     string  `json:"name"`
-	Price    float64 `json:"price"`
-	Quantity int32   `json:"quantity"`
-}
-
 type UpdatePassword struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`

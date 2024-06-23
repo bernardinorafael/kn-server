@@ -69,10 +69,10 @@ func (p *productRepo) GetAll() ([]product.Product, error) {
 	return products, nil
 }
 
-func (p *productRepo) GetByPublicID(PublicID string) (*product.Product, error) {
+func (p *productRepo) GetByPublicID(publicID string) (*product.Product, error) {
 	var product product.Product
 
-	err := p.db.Where("public_id = ?", PublicID).First(&product).Error
+	err := p.db.Where("public_id = ?", publicID).First(&product).Error
 	if err != nil {
 		return nil, err
 	}

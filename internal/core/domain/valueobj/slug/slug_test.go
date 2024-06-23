@@ -15,4 +15,11 @@ func TestSlugifyString(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, string(slug.GetSlug()), "este-e-um-teste-da-funcao-slugify")
 	})
+
+	t.Run("Should throw error if name does not exist", func(t *testing.T) {
+		_, err := slug.New("")
+
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "invalid entrypoint slug")
+	})
 }
