@@ -9,3 +9,6 @@ type CreateProduct struct {
 type UpdatePrice struct {
 	Amount float64 `json:"amount"`
 }
+type UpdateQuantity struct {
+	Amount int32 `json:"amount"`
+}

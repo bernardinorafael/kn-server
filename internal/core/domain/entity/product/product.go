@@ -89,7 +89,7 @@ func (p *Product) ChangePrice(price float64) error {
 	return nil
 }
 
-func (p *Product) IncrementQuantity(quantity int32) error {
+func (p *Product) IncreaseQuantity(quantity int32) error {
 	if quantity < 1 {
 		return ErrInvalidQuantity
 	}

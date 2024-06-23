@@ -106,7 +106,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 	t.Run("Should increment product quantity", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 
-		err := p.IncrementQuantity(10)
+		err := p.IncreaseQuantity(10)
 
 		assert.Nil(t, err)
 		assert.Equal(t, p.Quantity, int32(20))
@@ -115,7 +115,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 	t.Run("Should not be able to inc a product quantity with zero value", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 
-		err := p.IncrementQuantity(0)
+		err := p.IncreaseQuantity(0)
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "product quantity cannot be zero")
@@ -125,7 +125,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 		p.Disable()
 
-		err := p.IncrementQuantity(10)
+		err := p.IncreaseQuantity(10)
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "cannot manipulate a disabled product")

@@ -34,7 +34,9 @@ func (h *productHandler) RegisterRoute(s *server.Server) {
 		s.Use(m.WithAuth)
 
 		s.Post("/products", h.create)
+
 		s.Patch("/products/{id}/price", h.updatePrice)
+		s.Patch("/products/{id}/quantity", h.increaseQuantity)
 
 		s.Get("/products", h.getAll)
 		s.Get("/products/{id}", h.getByID)
@@ -42,6 +44,25 @@ func (h *productHandler) RegisterRoute(s *server.Server) {
 
 		s.Delete("/products/{id}", h.delete)
 	})
+}
+
+func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
+	var input dto.UpdateQuantity
+	publicID := r.PathValue("id")
+
+	err := restutil.ParseBody(r, &input)
+	if err != nil {
+		error.NewBadRequestError(w, "error parsing body request")
+		return
+	}
+
+	err = h.productService.IncreaseQuantity(publicID, input.Amount)
+	if err != nil {
+		error.NewBadRequestError(w, err.Error())
+		return
+	}
+
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
 func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
@@ -156,6 +177,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 			CreatedAt: p.CreatedAt,
 		})
 	}
+
 	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"products": products,
 	})

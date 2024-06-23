@@ -19,6 +19,7 @@ type ProductService interface {
 	GetBySlug(slugInput string) (*product.Product, error)
 	GetAll() ([]product.Product, error)
 	UpdatePrice(publicID string, price float64) error
+	IncreaseQuantity(publicID string, quantity int32) error
 }
 
 type UserService interface {
