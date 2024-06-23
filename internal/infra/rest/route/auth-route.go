@@ -44,7 +44,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		error.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, "error parsing body request")
 		return
 	}
 
@@ -74,7 +74,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		error.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, "error parsing body request")
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		error.NewBadRequestError(w, err.Error())
+		error.NewBadRequestError(w, "error parsing body request")
 		return
 	}
 

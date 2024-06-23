@@ -1,7 +1,9 @@
-.PHONY: run build test clean pg
+.PHONY: run build test clean pg vet
 
 include .env
 
+vet:
+	@go vet ./...
 pg:
 	@docker exec -it db_kn_server psql -U $(DB_USER) -d $(DB_NAME)
 run:

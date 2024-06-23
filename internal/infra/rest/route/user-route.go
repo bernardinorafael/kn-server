@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
@@ -22,18 +21,7 @@ func NewUserHandler(userService contract.UserService, jwtAuth auth.TokenAuthInte
 }
 
 func (h *userHandler) RegisterRoute(s *server.Server) {
-	s.Get("/me", h.getSigned)
-	s.Post("/users", h.create)
-}
-
-func (h *userHandler) create(w http.ResponseWriter, r *http.Request) {
-	var input dto.Login
-
-	err := restutil.ParseBody(r, &input)
-	if err != nil {
-		error.NewConflictError(w, "error")
-		return
-	}
+	s.Get("/users/me", h.getSigned)
 }
 
 func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {

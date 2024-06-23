@@ -18,7 +18,6 @@ const (
 var (
 	ErrInvalidQuantity           = errors.New("product quantity cannot be zero")
 	ErrManipulateDisabledProduct = errors.New("cannot manipulate a disabled product")
-	ErrPercentageOutOfRange      = errors.New("percentage value is out of range(1-100)")
 	ErrInvalidPrice              = errors.New("product price must be greater than zero")
 	ErrEmptyProductName          = errors.New("product name is a required field")
 	ErrInvalidProductName        = fmt.Errorf("name length must be between %d and %d characters", minNameLength, maxNameLength)
@@ -77,20 +76,7 @@ func (p *Product) validate() error {
 	return nil
 }
 
-func (p *Product) IncPriceByPercentage(percentage int) error {
-	if percentage < 1 || percentage >= 100 {
-		return ErrPercentageOutOfRange
-	}
-
-	if !p.Enabled {
-		return ErrManipulateDisabledProduct
-	}
-
-	p.Price += (p.Price * float64(percentage)) / 100
-	return nil
-}
-
-func (p *Product) IncPrice(price float64) error {
+func (p *Product) ChangePrice(price float64) error {
 	if price < 1 {
 		return ErrInvalidPrice
 	}
@@ -99,11 +85,11 @@ func (p *Product) IncPrice(price float64) error {
 		return ErrManipulateDisabledProduct
 	}
 
-	p.Price += price
+	p.Price = price
 	return nil
 }
 
-func (p *Product) IncQuantity(quantity int32) error {
+func (p *Product) IncrementQuantity(quantity int32) error {
 	if quantity < 1 {
 		return ErrInvalidQuantity
 	}

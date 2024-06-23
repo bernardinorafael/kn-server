@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	"gorm.io/gorm"
@@ -61,12 +63,9 @@ func (r *userRepo) GetByEmail(email string) (*user.User, error) {
 }
 
 func (r *userRepo) Update(usr user.User) (*user.User, error) {
-	u := user.User{}
+	var u user.User
 
-	updated := map[string]interface{}{
-		"Name":     usr.Name,
-		"Password": usr.Password,
-	}
+	updated := user.User{Name: usr.Name, Password: usr.Password, UpdatedAt: time.Now()}
 
 	err := r.db.
 		Model(&u).

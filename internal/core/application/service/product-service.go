@@ -26,6 +26,32 @@ func NewProductService(log *slog.Logger, productRepo contract.ProductRepository)
 	return &productService{log, productRepo}
 }
 
+func (svc *productService) UpdatePrice(publicID string, price float64) error {
+	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error(fmt.Sprintf("product with publicID [%s] not found", publicID))
+		return err
+	}
+
+	p, err := product.New(storedProduct.Name, storedProduct.Price, storedProduct.Quantity)
+	if err != nil {
+		svc.log.Error(err.Error())
+		return err
+	}
+
+	if err = p.ChangePrice(price); err != nil {
+		svc.log.Error(fmt.Sprintf("error changing product price %s", err.Error()))
+		return err
+	}
+
+	err = svc.productRepo.Update(product.Product{PublicID: publicID, Price: p.Price})
+	if err != nil {
+		svc.log.Error(err.Error())
+		return errors.New("cannot increment product price")
+	}
+	return nil
+}
+
 func (svc *productService) Create(data dto.CreateProduct) error {
 	p, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {

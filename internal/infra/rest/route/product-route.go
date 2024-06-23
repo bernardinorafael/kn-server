@@ -28,30 +28,52 @@ func NewProductHandler(log *slog.Logger, productService contract.ProductService,
 }
 
 func (h *productHandler) RegisterRoute(s *server.Server) {
-	mid := middleware.New(h.jwtAuth, h.log)
+	m := middleware.New(h.jwtAuth, h.log)
 
 	s.Group(func(s *server.Server) {
-		s.Use(mid.WithAuth)
+		s.Use(m.WithAuth)
 
 		s.Post("/products", h.create)
+		s.Patch("/products/{id}/price", h.updatePrice)
+
 		s.Get("/products", h.getAll)
 		s.Get("/products/{id}", h.getByID)
 		s.Get("/products/slug/{slug}", h.getBySlug)
+
 		s.Delete("/products/{id}", h.delete)
 	})
 }
 
-func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
-	var payload dto.CreateProduct
+func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
+	var input dto.UpdatePrice
+	publicID := r.PathValue("id")
 
-	err := restutil.ParseBody(r, &payload)
+	err := restutil.ParseBody(r, &input)
+	if err != nil {
+		error.NewBadRequestError(w, "error parsing body request")
+		return
+	}
+
+	err = h.productService.UpdatePrice(publicID, input.Amount)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
+	restutil.WriteSuccess(w, http.StatusCreated)
+}
+
+func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
+	var input dto.CreateProduct
+
+	err := restutil.ParseBody(r, &input)
+	if err != nil {
+		error.NewBadRequestError(w, "error parsing body request")
+		return
+	}
+
 	// TODO: improve error handling
-	err = h.productService.Create(payload)
+	err = h.productService.Create(input)
 	if err != nil {
 		if errors.Is(err, product.ErrInvalidPrice) {
 			error.NewUnprocessableEntityError(w, err.Error())

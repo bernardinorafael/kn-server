@@ -70,55 +70,15 @@ func TestProductEntity_Enable(t *testing.T) {
 	})
 }
 
-func TestProductEntity_IncPriceByPercentage(t *testing.T) {
-	t.Run("Should be possible to increase product price by percentage", func(t *testing.T) {
-		p, err := product.New("my product name", 300, 10)
-		assert.Nil(t, err)
-
-		err = p.IncPriceByPercentage(50)
-		assert.Nil(t, err)
-
-		assert.Equal(t, p.Price, float64(450))
-	})
-
-	t.Run("Should throw error if percentage amount is out of range 1-100", func(t *testing.T) {
-		p, _ := product.New("my product name", 300, 10)
-
-		err := p.IncPriceByPercentage(120)
-		assert.NotNil(t, err)
-
-		assert.EqualError(t, err, "percentage value is out of range(1-100)")
-	})
-
-	t.Run("Should throw error if percentage amount is out of range 1-100", func(t *testing.T) {
-		p, _ := product.New("my product name", 300, 10)
-
-		err := p.IncPriceByPercentage(0)
-		assert.NotNil(t, err)
-
-		assert.EqualError(t, err, "percentage value is out of range(1-100)")
-	})
-
-	t.Run("Should not be possible to increase price if product is disabled", func(t *testing.T) {
-		p, _ := product.New("my product name", 300, 10)
-		p.Disable()
-
-		err := p.IncPriceByPercentage(60)
-		assert.NotNil(t, err)
-
-		assert.EqualError(t, err, "cannot manipulate a disabled product")
-	})
-}
-
 func TestProductEntity_IncreasePrice(t *testing.T) {
 	t.Run("Should be possible to increase product price", func(t *testing.T) {
 		p, err := product.New("my product name", 300, 10)
 
 		assert.Nil(t, err)
 
-		err = p.IncPrice(300)
+		err = p.ChangePrice(100)
 		assert.Nil(t, err)
-		assert.Equal(t, p.Price, float64(600))
+		assert.Equal(t, p.Price, float64(100))
 	})
 
 	t.Run("Should not be able to increase price if the inc number is lesser than zero", func(t *testing.T) {
@@ -126,7 +86,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 
 		assert.Nil(t, err)
 
-		err = p.IncPrice(0)
+		err = p.ChangePrice(0)
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "product price must be greater than zero")
 	})
@@ -135,7 +95,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 		p.Disable()
 
-		err := p.IncPrice(10)
+		err := p.ChangePrice(10)
 		assert.NotNil(t, err)
 
 		assert.EqualError(t, err, "cannot manipulate a disabled product")
@@ -146,7 +106,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 	t.Run("Should increment product quantity", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 
-		err := p.IncQuantity(10)
+		err := p.IncrementQuantity(10)
 
 		assert.Nil(t, err)
 		assert.Equal(t, p.Quantity, int32(20))
@@ -155,7 +115,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 	t.Run("Should not be able to inc a product quantity with zero value", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 
-		err := p.IncQuantity(0)
+		err := p.IncrementQuantity(0)
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "product quantity cannot be zero")
@@ -165,7 +125,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
 		p.Disable()
 
-		err := p.IncQuantity(10)
+		err := p.IncrementQuantity(10)
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, "cannot manipulate a disabled product")
