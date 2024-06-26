@@ -6,14 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var Env *EnvFile
-
-type EnvFile struct {
-	Port      string `mapstructure:"PORT"`
-	Mode      string `mapstructure:"ENVIRONMENT"`
-	Name      string `mapstructure:"NAME"`
-	Debug     bool   `mapstructure:"DEBUG"`
-	LogToFile string `mapstructure:"LOG_TO_FILE"`
+type Env struct {
+	Port string `mapstructure:"PORT"`
+	Mode string `mapstructure:"ENVIRONMENT"`
+	Name string `mapstructure:"NAME"`
 
 	DSN    string `mapstructure:"DB_POSTGRES_DSN"`
 	DBName string `mapstructure:"DB_NAME"`
@@ -22,9 +18,16 @@ type EnvFile struct {
 	JWTSecret           string        `mapstructure:"JWT_SECRET"`
 	JwtExpiresIn        int           `mapstructure:"JWT_EXPIRES"`
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+
+	AWSAccessKey string `mapstructure:"AWS_ACCESS_KEY_ID"`
+	AWSSecretKey string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
+	AWSRegion    string `mapstructure:"AWS_REGION"`
+	AWSBucket    string `mapstructure:"AWS_BUCKET_NAME"`
 }
 
-func GetConfigEnv() (*EnvFile, error) {
+func NewConfig() (*Env, error) {
+	var env Env
+
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
@@ -35,10 +38,10 @@ func GetConfigEnv() (*EnvFile, error) {
 		return nil, err
 	}
 
-	err = viper.Unmarshal(&Env)
+	err = viper.Unmarshal(&env)
 	if err != nil {
 		return nil, err
 	}
 
-	return Env, nil
+	return &env, nil
 }

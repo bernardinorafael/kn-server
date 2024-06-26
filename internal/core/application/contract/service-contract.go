@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"io"
+
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
@@ -13,7 +15,7 @@ type AuthService interface {
 }
 
 type ProductService interface {
-	Create(data dto.CreateProduct) error
+	Create(data dto.CreateProduct, file io.Reader, fileName string) error
 	Delete(publicID string) error
 	GetByPublicID(publicID string) (*product.Product, error)
 	GetBySlug(slugInput string) (*product.Product, error)

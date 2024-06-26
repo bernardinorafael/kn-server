@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/bernardinorafael/kn-server/config"
-	"github.com/bernardinorafael/kn-server/config/logger"
+	"github.com/bernardinorafael/kn-server/internal/config"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/rs/cors"
 )
 
@@ -21,7 +21,7 @@ func main() {
 	l := slog.New(logger.NewLog(nil))
 	router := server.New()
 
-	env, err := config.GetConfigEnv()
+	env, err := config.NewConfig()
 	if err != nil {
 		l.Error("failed load env", err.Error(), err)
 		return
@@ -34,6 +34,10 @@ func main() {
 	}
 
 	jwtAuth, err := auth.NewJWTAuth(l, env.JWTSecret)
+	if err != nil {
+		l.Error("cannot initialize jwt auth")
+		panic(err)
+	}
 
 	// Repositories
 	userRepo := repository.NewUserRepo(con)
@@ -41,7 +45,7 @@ func main() {
 
 	// Services
 	authService := service.NewAuthService(l, userRepo)
-	productService := service.NewProductService(l, productRepo)
+	productService := service.NewProductService(l, env, productRepo)
 	userService := service.NewUserService(l, userRepo)
 
 	// Handlers

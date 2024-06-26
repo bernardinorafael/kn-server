@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
@@ -87,14 +88,29 @@ func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	var input dto.CreateProduct
 
-	err := restutil.ParseBody(r, &input)
+	name := r.FormValue("name")
+	quantity := r.FormValue("quantity")
+	price := r.FormValue("price")
+
+	f, fh, err := r.FormFile("image_url")
 	if err != nil {
-		error.NewBadRequestError(w, "error parsing body request")
+		if errors.Is(err, http.ErrMissingFile) {
+			error.NewBadRequestError(w, "product image file not found")
+			return
+		}
+		error.NewBadRequestError(w, "cannot parse multipart form")
 		return
 	}
+	defer f.Close()
 
-	// TODO: improve error handling
-	err = h.productService.Create(input)
+	parsedPrice, _ := strconv.ParseFloat(price, 64)
+	parsedQuantity, _ := strconv.Atoi(quantity)
+
+	input.Name = name
+	input.Price = parsedPrice
+	input.Quantity = int32(parsedQuantity)
+
+	err = h.productService.Create(input, f, fh.Filename)
 	if err != nil {
 		if errors.Is(err, product.ErrInvalidPrice) {
 			error.NewUnprocessableEntityError(w, err.Error())
@@ -115,8 +131,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 		error.NewInternalServerError(w, "cannot create resource")
 		return
 	}
-
-	restutil.WriteSuccess(w, http.StatusCreated)
+	restutil.WriteSuccess(w, http.StatusOK)
 }
 
 func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
@@ -172,6 +187,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 			Slug:      p.Slug,
 			Name:      p.Name,
 			Price:     p.Price,
+			Image:     p.Image,
 			Quantity:  p.Quantity,
 			Enabled:   p.Enabled,
 			CreatedAt: p.CreatedAt,

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bernardinorafael/kn-server/config"
+	"github.com/bernardinorafael/kn-server/internal/config"
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
@@ -17,7 +17,7 @@ import (
 
 type authHandler struct {
 	log         *slog.Logger
-	env         *config.EnvFile
+	env         *config.Env
 	authService contract.AuthService
 	jwtAuth     auth.TokenAuthInterface
 }
@@ -26,7 +26,7 @@ func NewAuthHandler(
 	log *slog.Logger,
 	authService contract.AuthService,
 	jwtAuth auth.TokenAuthInterface,
-	env *config.EnvFile,
+	env *config.Env,
 ) *authHandler {
 	return &authHandler{log, env, authService, jwtAuth}
 }
