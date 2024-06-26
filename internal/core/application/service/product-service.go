@@ -38,7 +38,7 @@ func NewProductService(log *slog.Logger, env *env.Env, productRepo contract.Prod
 func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
 	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with publicID [%s] not found", publicID))
+		svc.log.Error(fmt.Sprintf("product with publicID %s not found", publicID))
 		return err
 	}
 
@@ -64,7 +64,7 @@ func (svc *productService) IncreaseQuantity(publicID string, quantity int32) err
 func (svc *productService) UpdatePrice(publicID string, price float64) error {
 	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with publicID [%s] not found", publicID))
+		svc.log.Error(fmt.Sprintf("product with publicID %s not found", publicID))
 		return err
 	}
 
@@ -94,15 +94,17 @@ func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileNa
 		return err
 	}
 
+	ext := filepath.Ext(fileName)
+	if len(ext) == 0 {
+		err = errors.New("file has no extension")
+		svc.log.Error(err.Error())
+		return err
+	}
+
 	client, err := s3client.New(svc.env)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("cannot initialize aws s3 service %v", err))
 		return errors.New("cannot initialize aws s3 service")
-	}
-
-	ext := filepath.Ext(fileName)
-	if len(ext) == 0 {
-		return errors.New("file has no extension")
 	}
 
 	uploader := manager.NewUploader(client)
@@ -130,6 +132,7 @@ func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileNa
 		svc.log.Error(err.Error())
 		return err
 	}
+
 	return nil
 }
 
