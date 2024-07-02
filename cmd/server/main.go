@@ -10,9 +10,9 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 	"github.com/bernardinorafael/kn-server/internal/infra/repository"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/route"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/rs/cors"
 )

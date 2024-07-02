@@ -11,11 +11,11 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/middleware"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 )
 
 type productHandler struct {
@@ -146,7 +146,6 @@ func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
 		error.NewInternalServerError(w, "cannot delete resource")
 		return
 	}
-
 	restutil.WriteSuccess(w, http.StatusOK)
 }
 
@@ -187,7 +186,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 			Slug:      p.Slug,
 			Name:      p.Name,
 			Price:     p.Price,
-			Image:     p.Image,
+			ImageURL:  p.ImageURL,
 			Quantity:  p.Quantity,
 			Enabled:   p.Enabled,
 			CreatedAt: p.CreatedAt,

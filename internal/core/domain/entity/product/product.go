@@ -28,7 +28,7 @@ type Product struct {
 	Slug      slug.Slug      `json:"slug" gorm:"unique"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
 	Name      string         `json:"name"`
-	Image     string         `json:"image"`
+	ImageURL  string         `json:"image_url"`
 	Price     float64        `json:"price"`
 	Quantity  int32          `json:"quantity"`
 	Enabled   bool           `json:"enabled"`
@@ -126,8 +126,8 @@ func (p *Product) ChangeName(name string) error {
 	return nil
 }
 
-func (p *Product) SetImageURL(imageURL string) {
-	p.Image = imageURL
+func (p *Product) SetImageURL(url string) {
+	p.ImageURL = url
 }
 
 func (p *Product) GetStatus() bool {

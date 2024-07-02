@@ -10,9 +10,9 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 )
 
 type authHandler struct {
@@ -22,12 +22,7 @@ type authHandler struct {
 	jwtAuth     auth.TokenAuthInterface
 }
 
-func NewAuthHandler(
-	log *slog.Logger,
-	authService contract.AuthService,
-	jwtAuth auth.TokenAuthInterface,
-	env *config.Env,
-) *authHandler {
+func NewAuthHandler(log *slog.Logger, authService contract.AuthService, jwtAuth auth.TokenAuthInterface, env *config.Env) *authHandler {
 	return &authHandler{log, env, authService, jwtAuth}
 }
 

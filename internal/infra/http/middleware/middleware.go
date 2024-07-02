@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
 )
 
 type middleware struct {

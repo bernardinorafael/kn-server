@@ -101,6 +101,9 @@ func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileNa
 		return err
 	}
 
+	// TODO: crop the image tro 800 x 800
+	// TODO: resize image https://github.com/disintegration/imaging
+	// TODO: then send to s3 bucket
 	client, err := s3client.New(svc.env)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("cannot initialize aws s3 service %v", err))
@@ -115,13 +118,12 @@ func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileNa
 		ACL:         "public-read",
 		Body:        file,
 	})
+	if err != nil {
+		svc.log.Error(fmt.Sprintf("cannot upload image to bucket %v", err))
+		return errors.New("cannot upload image to bucket")
+	}
 
 	p.SetImageURL(res.Location)
-
-	if err != nil {
-		svc.log.Error(fmt.Sprintf("cannot initialize aws s3 service %v", err))
-		return errors.New("cannot init s3")
-	}
 
 	_, err = svc.productRepo.Create(*p)
 	if err != nil {

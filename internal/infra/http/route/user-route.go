@@ -5,10 +5,10 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/error"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/response"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/rest/server"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 )
 
 type userHandler struct {

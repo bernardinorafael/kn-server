@@ -75,7 +75,7 @@ func New(userName, userEmail, userPassword, userDoc string) (*User, error) {
 }
 
 func (u *User) validate() error {
-	if len(u.Name) == 0 {
+	if u.Name == "" {
 		return ErrEmptyUserName
 	}
 
