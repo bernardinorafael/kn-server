@@ -12,7 +12,7 @@ import (
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
-	"github.com/bernardinorafael/kn-server/internal/infra/repository"
+	"github.com/bernardinorafael/kn-server/internal/infra/repository/gormrepo"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/rs/cors"
 )
@@ -40,8 +40,8 @@ func main() {
 	}
 
 	// Repositories
-	userRepo := repository.NewUserRepo(con)
-	productRepo := repository.NewProductRepo(con)
+	userRepo := gormrepo.NewUserRepo(con)
+	productRepo := gormrepo.NewProductRepo(con)
 
 	// Services
 	authService := service.NewAuthService(l, userRepo)
