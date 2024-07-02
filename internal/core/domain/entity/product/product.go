@@ -23,7 +23,6 @@ var (
 )
 
 type Product struct {
-	ID        int       `json:"id"`
 	PublicID  string    `json:"public_id"`
 	Slug      slug.Slug `json:"slug"`
 	Name      string    `json:"name"`

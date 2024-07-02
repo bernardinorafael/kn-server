@@ -24,10 +24,9 @@ var (
 )
 
 type User struct {
-	ID        int               `json:"id"`
+	PublicID  string            `json:"public_id"`
 	Name      string            `json:"name"`
 	Email     email.Email       `json:"email"`
-	PublicID  string            `json:"public_id"`
 	Document  cpf.CPF           `json:"document"`
 	Enabled   bool              `json:"enabled"`
 	Password  password.Password `json:"password"`
