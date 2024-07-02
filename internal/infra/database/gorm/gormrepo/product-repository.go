@@ -5,6 +5,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +20,7 @@ func NewProductRepo(db *gorm.DB) contract.ProductRepository {
 func (r *productRepo) Update(prod product.Product) error {
 	var p product.Product
 
-	updated := product.Product{
+	updated := model.Product{
 		Name:      prod.Name,
 		Slug:      prod.Slug,
 		Price:     prod.Price,
@@ -40,8 +41,8 @@ func (r *productRepo) Update(prod product.Product) error {
 	return nil
 }
 
-func (r *productRepo) Create(prod product.Product) (*product.Product, error) {
-	newProduct := &product.Product{
+func (r *productRepo) Create(prod product.Product) (*model.Product, error) {
+	newProduct := &model.Product{
 		Name:     prod.Name,
 		Price:    prod.Price,
 		Quantity: prod.Quantity,
@@ -54,8 +55,8 @@ func (r *productRepo) Create(prod product.Product) (*product.Product, error) {
 	return newProduct, nil
 }
 
-func (r *productRepo) GetByID(id int) (*product.Product, error) {
-	var product product.Product
+func (r *productRepo) GetByID(id int) (*model.Product, error) {
+	var product model.Product
 
 	err := r.db.Where("id = ?", id).First(&product).Error
 	if err != nil {
@@ -64,8 +65,8 @@ func (r *productRepo) GetByID(id int) (*product.Product, error) {
 	return &product, nil
 }
 
-func (r *productRepo) GetBySlug(name string) (*product.Product, error) {
-	var product product.Product
+func (r *productRepo) GetBySlug(name string) (*model.Product, error) {
+	var product model.Product
 
 	err := r.db.Where("slug = ?", name).First(&product).Error
 	if err != nil {
@@ -84,8 +85,8 @@ func (r *productRepo) Delete(publicID string) error {
 	return nil
 }
 
-func (r *productRepo) GetAll() ([]product.Product, error) {
-	products := make([]product.Product, 0)
+func (r *productRepo) GetAll() ([]model.Product, error) {
+	products := make([]model.Product, 0)
 
 	err := r.db.Find(&products).Error
 	if err != nil {
@@ -94,8 +95,8 @@ func (r *productRepo) GetAll() ([]product.Product, error) {
 	return products, nil
 }
 
-func (r *productRepo) GetByPublicID(publicID string) (*product.Product, error) {
-	var product product.Product
+func (r *productRepo) GetByPublicID(publicID string) (*model.Product, error) {
+	var product model.Product
 
 	err := r.db.Where("public_id = ?", publicID).First(&product).Error
 	if err != nil {

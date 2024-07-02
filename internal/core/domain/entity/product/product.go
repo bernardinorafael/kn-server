@@ -7,7 +7,6 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 const (
@@ -24,17 +23,15 @@ var (
 )
 
 type Product struct {
-	ID        int            `json:"id" gorm:"primaryKey"`
-	Slug      slug.Slug      `json:"slug" gorm:"unique"`
-	PublicID  string         `json:"public_id" gorm:"unique"`
-	Name      string         `json:"name"`
-	ImageURL  string         `json:"image_url"`
-	Price     float64        `json:"price"`
-	Quantity  int32          `json:"quantity"`
-	Enabled   bool           `json:"enabled"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	ID        int       `json:"id"`
+	PublicID  string    `json:"public_id"`
+	Slug      slug.Slug `json:"slug"`
+	Name      string    `json:"name"`
+	ImageURL  string    `json:"image_url"`
+	Price     float64   `json:"price"`
+	Quantity  int32     `json:"quantity"`
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func New(name string, price float64, quantity int32) (*Product, error) {

@@ -11,7 +11,6 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 const (
@@ -25,16 +24,14 @@ var (
 )
 
 type User struct {
-	ID        int               `json:"id" gorm:"primaryKey"`
+	ID        int               `json:"id"`
 	Name      string            `json:"name"`
-	Email     email.Email       `json:"email" gorm:"unique"`
-	PublicID  string            `json:"public_id" gorm:"unique"`
-	Document  cpf.CPF           `json:"document" gorm:"unique"`
+	Email     email.Email       `json:"email"`
+	PublicID  string            `json:"public_id"`
+	Document  cpf.CPF           `json:"document"`
 	Enabled   bool              `json:"enabled"`
 	Password  password.Password `json:"password"`
 	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
-	DeletedAt gorm.DeletedAt    `json:"deleted_at"`
 }
 
 func New(userName, userEmail, userPassword, userDoc string) (*User, error) {

@@ -17,6 +17,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 )
 
@@ -151,7 +152,7 @@ func (svc *productService) Delete(publicID string) error {
 	return nil
 }
 
-func (svc *productService) GetAll() ([]product.Product, error) {
+func (svc *productService) GetAll() ([]model.Product, error) {
 	products, err := svc.productRepo.GetAll()
 	if err != nil {
 		svc.log.Error("cannot get products slice")
@@ -160,7 +161,7 @@ func (svc *productService) GetAll() ([]product.Product, error) {
 	return products, nil
 }
 
-func (svc *productService) GetByPublicID(publicID string) (*product.Product, error) {
+func (svc *productService) GetByPublicID(publicID string) (*model.Product, error) {
 	p, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("product with PublicID %s not found", publicID))
@@ -169,7 +170,7 @@ func (svc *productService) GetByPublicID(publicID string) (*product.Product, err
 	return p, nil
 }
 
-func (svc *productService) GetBySlug(slugInput string) (*product.Product, error) {
+func (svc *productService) GetBySlug(slugInput string) (*model.Product, error) {
 	s, err := slug.New(slugInput)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("invalid slug %s", string(s.GetSlug())))

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 )
 
 type userService struct {
@@ -17,7 +17,7 @@ func NewUserService(log *slog.Logger, userRepo contract.UserRepository) contract
 	return &userService{log: log, userRepo: userRepo}
 }
 
-func (svc *userService) GetUser(publicID string) (*user.User, error) {
+func (svc *userService) GetUser(publicID string) (*model.User, error) {
 	u, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("product with PublicID [%s] not found", publicID))

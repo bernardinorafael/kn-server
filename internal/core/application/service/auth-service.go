@@ -11,6 +11,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +32,7 @@ func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract
 	return &authService{log, userRepo}
 }
 
-func (svc *authService) Login(userEmail, userPassword string) (*user.User, error) {
+func (svc *authService) Login(userEmail, userPassword string) (*model.User, error) {
 	address, err := email.New(userEmail)
 	if err != nil {
 		svc.log.Error("error creating email value object", err.Error(), err)
@@ -58,7 +59,7 @@ func (svc *authService) Login(userEmail, userPassword string) (*user.User, error
 	return user, nil
 }
 
-func (svc *authService) Register(name, emailAddr, password, document string) (*user.User, error) {
+func (svc *authService) Register(name, emailAddr, password, document string) (*model.User, error) {
 	nu, err := user.New(name, emailAddr, password, document)
 	if err != nil {
 		svc.log.Error("error creating user entity", "error", err.Error())

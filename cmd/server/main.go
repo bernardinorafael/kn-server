@@ -9,10 +9,10 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/config"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormrepo"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
-	"github.com/bernardinorafael/kn-server/internal/infra/repository/gormrepo"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/rs/cors"
 )

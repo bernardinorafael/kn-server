@@ -3,22 +3,23 @@ package contract
 import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 )
 
 type UserRepository interface {
-	Create(usr user.User) (*user.User, error)
-	GetByID(id int) (*user.User, error)
-	GetByPublicID(publicID string) (*user.User, error)
-	GetByEmail(email string) (*user.User, error)
-	Update(usr user.User) (*user.User, error)
+	Create(usr user.User) (*model.User, error)
+	GetByID(id int) (*model.User, error)
+	GetByPublicID(publicID string) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
+	Update(usr user.User) (*model.User, error)
 }
 
 type ProductRepository interface {
-	Create(prod product.Product) (*product.Product, error)
-	GetByID(id int) (*product.Product, error)
-	GetByPublicID(publicID string) (*product.Product, error)
-	GetBySlug(name string) (*product.Product, error)
-	GetAll() ([]product.Product, error)
+	Create(prod product.Product) (*model.Product, error)
+	GetByID(id int) (*model.Product, error)
+	GetByPublicID(publicID string) (*model.Product, error)
+	GetBySlug(name string) (*model.Product, error)
+	GetAll() ([]model.Product, error)
 	Delete(publicID string) error
 	Update(prod product.Product) error
 }
