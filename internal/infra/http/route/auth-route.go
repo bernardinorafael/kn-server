@@ -43,7 +43,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.authService.Login(input.Email, input.Password)
+	user, err := h.authService.Login(input)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
 			error.NewConflictError(w, err.Error())
@@ -73,7 +73,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.authService.Register(input.Name, input.Email, input.Password, input.Document)
+	_, err = h.authService.Register(input)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			error.NewConflictError(w, err.Error())

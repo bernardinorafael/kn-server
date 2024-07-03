@@ -8,8 +8,8 @@ import (
 )
 
 type AuthService interface {
-	Login(mail, password string) (*model.User, error)
-	Register(name, mail, password, document string) (*model.User, error)
+	Login(data dto.Login) (*model.User, error)
+	Register(data dto.Register) (*model.User, error)
 	RecoverPassword(publicID string, data dto.UpdatePassword) error
 }
 

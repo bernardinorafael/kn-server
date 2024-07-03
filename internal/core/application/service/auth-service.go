@@ -32,8 +32,8 @@ func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract
 	return &authService{log, userRepo}
 }
 
-func (svc *authService) Login(userEmail, userPassword string) (*model.User, error) {
-	address, err := email.New(userEmail)
+func (svc *authService) Login(data dto.Login) (*model.User, error) {
+	address, err := email.New(data.Email)
 	if err != nil {
 		svc.log.Error("error creating email value object", err.Error(), err)
 		return nil, err
@@ -45,13 +45,13 @@ func (svc *authService) Login(userEmail, userPassword string) (*model.User, erro
 		return nil, ErrInvalidCredential
 	}
 
-	p, err := password.New(userPassword)
+	p, err := password.New(data.Password)
 	if err != nil {
 		svc.log.Error("error creating password value object", err.Error(), err)
 		return nil, err
 	}
 
-	err = p.Compare(user.Password, userPassword)
+	err = p.Compare(user.Password, data.Password)
 	if err != nil {
 		svc.log.Error("the password provided is incorrect")
 		return nil, ErrInvalidCredential
@@ -59,8 +59,8 @@ func (svc *authService) Login(userEmail, userPassword string) (*model.User, erro
 	return user, nil
 }
 
-func (svc *authService) Register(name, emailAddr, password, document string) (*model.User, error) {
-	nu, err := user.New(name, emailAddr, password, document)
+func (svc *authService) Register(data dto.Register) (*model.User, error) {
+	nu, err := user.New(data.Name, data.Email, data.Password, data.Document)
 	if err != nil {
 		svc.log.Error("error creating user entity", "error", err.Error())
 		return nil, err
@@ -78,7 +78,7 @@ func (svc *authService) Register(name, emailAddr, password, document string) (*m
 			return nil, ErrEmailAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_document") {
-			svc.log.Error(fmt.Sprintf("document [%s] already taken", document))
+			svc.log.Error(fmt.Sprintf("document [%s] already taken", data.Document))
 			return nil, ErrDocumentAlreadyTaken
 		}
 		return nil, err
