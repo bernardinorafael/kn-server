@@ -24,30 +24,30 @@ func New(name string) (*slug, error) {
 func (s *slug) slugify() {
 	s.value = strings.ToLower(s.value)
 
-	var res strings.Builder
+	var sb strings.Builder
 	for _, char := range s.value {
 		if char == ' ' {
-			res.WriteRune(char)
+			sb.WriteRune(char)
 			continue
 		}
 		switch char {
 		case 'á', 'à', 'ã', 'â', 'ä':
-			res.WriteRune('a')
+			sb.WriteRune('a')
 		case 'é', 'è', 'ê', 'ë':
-			res.WriteRune('e')
+			sb.WriteRune('e')
 		case 'í', 'ì', 'î', 'ï':
-			res.WriteRune('i')
+			sb.WriteRune('i')
 		case 'ó', 'ò', 'õ', 'ô', 'ö':
-			res.WriteRune('o')
+			sb.WriteRune('o')
 		case 'ú', 'ù', 'û', 'ü':
-			res.WriteRune('u')
+			sb.WriteRune('u')
 		case 'ç':
-			res.WriteRune('c')
+			sb.WriteRune('c')
 		default:
-			res.WriteRune(char)
+			sb.WriteRune(char)
 		}
 	}
-	s.value = res.String()
+	s.value = sb.String()
 
 	r := regexp.MustCompile(`[^a-z0-9]+`)
 	s.value = r.ReplaceAllString(s.value, "-")
