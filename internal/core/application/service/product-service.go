@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,16 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	env "github.com/bernardinorafael/kn-server/internal/config"
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
-	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 )
 
 var (
@@ -30,10 +25,11 @@ type productService struct {
 	log         *slog.Logger
 	env         *env.Env
 	productRepo contract.ProductRepository
+	fileService contract.FileManagerService
 }
 
-func NewProductService(log *slog.Logger, env *env.Env, productRepo contract.ProductRepository) contract.ProductService {
-	return &productService{log, env, productRepo}
+func NewProductService(log *slog.Logger, env *env.Env, productRepo contract.ProductRepository, fileService contract.FileManagerService) contract.ProductService {
+	return &productService{log, env, productRepo, fileService}
 }
 
 func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
@@ -101,29 +97,13 @@ func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileNa
 		svc.log.Error(err.Error())
 		return err
 	}
+	fileName = fmt.Sprintf("%s%s", p.PublicID, ext)
 
-	// TODO: crop the image tro 800 x 800
-	// TODO: resize image https://github.com/disintegration/imaging
-	// TODO: then send to s3 bucket
-	client, err := s3client.New(svc.env)
-	if err != nil {
-		svc.log.Error(fmt.Sprintf("cannot initialize aws s3 service %v", err))
-		return errors.New("cannot initialize aws s3 service")
-	}
-
-	uploader := manager.NewUploader(client)
-	res, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
-		Bucket:      aws.String(svc.env.AWSBucket),
-		Key:         aws.String(fmt.Sprintf("%s%s", p.PublicID, ext)),
-		ContentType: aws.String("image/*"),
-		ACL:         "public-read",
-		Body:        file,
-	})
+	res, err := svc.fileService.UploadFile(file, fileName)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("cannot upload image to bucket %v", err))
-		return errors.New("cannot upload image to bucket")
+		return err
 	}
-
 	p.SetImageURL(res.Location)
 
 	_, err = svc.productRepo.Create(*p)

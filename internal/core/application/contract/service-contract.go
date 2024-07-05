@@ -3,6 +3,7 @@ package contract
 import (
 	"io"
 
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
 )
@@ -25,4 +26,8 @@ type ProductService interface {
 
 type UserService interface {
 	GetUser(publicID string) (*model.User, error)
+}
+
+type FileManagerService interface {
+	UploadFile(file io.Reader, fileName string) (*manager.UploadOutput, error)
 }

@@ -13,7 +13,7 @@ type middleware struct {
 	jwtAuth auth.TokenAuthInterface
 }
 
-func New(jwtAuth auth.TokenAuthInterface, log *slog.Logger) *middleware {
+func NewWithAuth(jwtAuth auth.TokenAuthInterface, log *slog.Logger) *middleware {
 	return &middleware{log, jwtAuth}
 }
 

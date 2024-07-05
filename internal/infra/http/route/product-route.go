@@ -29,7 +29,7 @@ func NewProductHandler(log *slog.Logger, productService contract.ProductService,
 }
 
 func (h *productHandler) RegisterRoute(s *server.Server) {
-	m := middleware.New(h.jwtAuth, h.log)
+	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	s.Group(func(s *server.Server) {
 		s.Use(m.WithAuth)

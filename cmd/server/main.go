@@ -13,6 +13,7 @@ import (
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
+	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/rs/cors"
 )
@@ -39,21 +40,24 @@ func main() {
 		panic(err)
 	}
 
-	// Repositories
+	s3, err := s3client.New(env)
+	if err != nil {
+		l.Error("cannot initialize aws s3 clien")
+		panic(err)
+	}
+
 	userRepo := gormrepo.NewUserRepo(con)
 	productRepo := gormrepo.NewProductRepo(con)
 
-	// Services
+	s3Service := service.NewS3Service(s3, env, l)
 	authService := service.NewAuthService(l, userRepo)
-	productService := service.NewProductService(l, env, productRepo)
+	productService := service.NewProductService(l, env, productRepo, s3Service)
 	userService := service.NewUserService(l, userRepo)
 
-	// Handlers
 	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(userService, jwtAuth)
 
-	// Registering routes
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)
