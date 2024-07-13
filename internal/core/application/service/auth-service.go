@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
-	"log/slog"
 	"strings"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
@@ -12,6 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -24,36 +23,36 @@ var (
 )
 
 type authService struct {
-	log      *slog.Logger
+	log      logger.Logger
 	userRepo contract.UserRepository
 }
 
-func NewAuthService(log *slog.Logger, userRepo contract.UserRepository) contract.AuthService {
+func NewAuthService(log logger.Logger, userRepo contract.UserRepository) contract.AuthService {
 	return &authService{log, userRepo}
 }
 
 func (svc *authService) Login(data dto.Login) (*model.User, error) {
 	address, err := email.New(data.Email)
 	if err != nil {
-		svc.log.Error("error creating email value object", err.Error(), err)
+		svc.log.Error("error creating email value object", "error", err.Error())
 		return nil, err
 	}
 
 	user, err := svc.userRepo.GetByEmail(string(address.ToEmail()))
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("user with email %s does not exist", address.ToEmail()))
+		svc.log.Error("cannot find user by the given email", "email", data.Email)
 		return nil, ErrInvalidCredential
 	}
 
 	p, err := password.New(data.Password)
 	if err != nil {
-		svc.log.Error("error creating password value object", err.Error(), err)
+		svc.log.Error("error creating password value object", "error", err.Error())
 		return nil, err
 	}
 
 	err = p.Compare(user.Password, data.Password)
 	if err != nil {
-		svc.log.Error("the password provided is incorrect")
+		svc.log.Error("the password provided is incorrect", "password", data.Password)
 		return nil, ErrInvalidCredential
 	}
 	return user, nil
@@ -74,11 +73,11 @@ func (svc *authService) Register(data dto.Register) (*model.User, error) {
 	u, err := svc.userRepo.Create(*nu)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			svc.log.Error(fmt.Sprintf("email [%s] already exist", string(nu.Email)))
+			svc.log.Error("email already taken", "email", data.Email)
 			return nil, ErrEmailAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_document") {
-			svc.log.Error(fmt.Sprintf("document [%s] already taken", data.Document))
+			svc.log.Error("document already taken", "document", data.Document)
 			return nil, ErrDocumentAlreadyTaken
 		}
 		return nil, err
@@ -89,25 +88,25 @@ func (svc *authService) Register(data dto.Register) (*model.User, error) {
 func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
 	u, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("not found user with ID: %d", u.ID))
+		svc.log.Error("user not found", "id", publicID)
 		return ErrUserNotFound
 	}
 
 	p, err := password.New(data.NewPassword)
 	if err != nil {
-		svc.log.Error("error creating password value object", err.Error(), err)
+		svc.log.Error("error creating password value object", "error", err.Error())
 		return err
 	}
 
 	err = p.Compare(u.Password, data.OldPassword)
 	if err != nil {
-		svc.log.Error("failed to compare password", err.Error(), err)
+		svc.log.Error("failed to compare password", "error", err.Error())
 		return err
 	}
 
 	hashed, err := p.ToEncrypted()
 	if err != nil {
-		svc.log.Error("failed to encrypt password", err.Error(), err)
+		svc.log.Error("failed to encrypt password", "error", err.Error())
 		return err
 	}
 
@@ -115,7 +114,7 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 
 	_, err = svc.userRepo.Update(updatedPassword)
 	if err != nil {
-		svc.log.Error(err.Error())
+		svc.log.Error("error upadting password", "error", err.Error())
 		return ErrUpdatingPassword
 	}
 	return nil

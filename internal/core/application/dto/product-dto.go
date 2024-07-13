@@ -1,15 +1,19 @@
 package dto
 
+import "io"
+
 type CreateProduct struct {
-	Name     string  `json:"name"`
-	Price    float64 `json:"price"`
-	Quantity int32   `json:"quantity"`
+	Name      string
+	Price     float64
+	Quantity  int32
+	Image     io.Reader
+	ImageName string
 }
 
 type UpdatePrice struct {
-	Amount float64 `json:"amount"`
+	Amount float64
 }
 
 type UpdateQuantity struct {
-	Amount int32 `json:"amount"`
+	Amount int32
 }

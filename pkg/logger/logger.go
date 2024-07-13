@@ -11,6 +11,8 @@ import (
 	"sync"
 )
 
+type Logger = *slog.Logger
+
 const (
 	timeFormat = "[15:04:05]"
 

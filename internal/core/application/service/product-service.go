@@ -3,8 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"io"
-	"log/slog"
 	"path/filepath"
 	"strings"
 
@@ -14,6 +12,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
 var (
@@ -22,13 +21,13 @@ var (
 )
 
 type productService struct {
-	log         *slog.Logger
+	log         logger.Logger
 	env         *env.Env
 	productRepo contract.ProductRepository
 	fileService contract.FileManagerService
 }
 
-func NewProductService(log *slog.Logger, env *env.Env, productRepo contract.ProductRepository, fileService contract.FileManagerService) contract.ProductService {
+func NewProductService(log logger.Logger, env *env.Env, productRepo contract.ProductRepository, fileService contract.FileManagerService) contract.ProductService {
 	return &productService{log, env, productRepo, fileService}
 }
 
@@ -84,32 +83,32 @@ func (svc *productService) UpdatePrice(publicID string, price float64) error {
 	return nil
 }
 
-func (svc *productService) Create(data dto.CreateProduct, file io.Reader, fileName string) error {
+func (svc *productService) Create(data dto.CreateProduct) error {
 	p, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {
 		svc.log.Error(err.Error())
 		return err
 	}
 
-	ext := filepath.Ext(fileName)
+	ext := filepath.Ext(data.ImageName)
 	if len(ext) == 0 {
-		err = errors.New("file has no extension")
-		svc.log.Error(err.Error())
-		return err
+		svc.log.Error("image name cannot be empty")
+		return errors.New("cannot reach image name")
 	}
-	fileName = fmt.Sprintf("%s%s", p.PublicID, ext)
 
-	res, err := svc.fileService.UploadFile(file, fileName)
+	filename := fmt.Sprintf("%s.%s", p.PublicID, ext)
+
+	res, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
 	if err != nil {
 		svc.log.Error(fmt.Sprintf("cannot upload image to bucket %v", err))
 		return err
 	}
-	p.SetImageURL(res.Location)
+	p.SetImage(res.Location)
 
 	_, err = svc.productRepo.Create(*p)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
-			svc.log.Error(fmt.Sprintf("the product name %s is already in use", p.Name))
+			svc.log.Error("product name already taken", "name", data.Name)
 			return ErrProductNameAlreadyTaken
 		}
 		svc.log.Error(err.Error())
@@ -153,13 +152,13 @@ func (svc *productService) GetByPublicID(publicID string) (*model.Product, error
 func (svc *productService) GetBySlug(slugInput string) (*model.Product, error) {
 	s, err := slug.New(slugInput)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("invalid slug %s", string(s.GetSlug())))
+		svc.log.Error("cannot init slug value object", "error", err.Error())
 		return nil, err
 	}
 
 	p, err := svc.productRepo.GetBySlug(string(s.GetSlug()))
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with slug %s not found", string(s.GetSlug())))
+		svc.log.Error("not found a product by given slug", "slug", slugInput)
 		return nil, err
 	}
 	return p, nil

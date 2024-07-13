@@ -5,7 +5,7 @@ include .env
 vet:
 	@go vet ./...
 pg:
-	@docker exec -it db_kn_server psql -U $(DB_USER) -d $(DB_NAME)
+	@docker exec -it postgres-kn psql -U $(DB_USER) -d $(DB_NAME)
 run:
 	@go run cmd/server/main.go
 build:

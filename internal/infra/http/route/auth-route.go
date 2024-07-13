@@ -2,7 +2,6 @@ package route
 
 import (
 	"errors"
-	"log/slog"
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/config"
@@ -13,16 +12,17 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
 type authHandler struct {
-	log         *slog.Logger
+	log         logger.Logger
 	env         *config.Env
 	authService contract.AuthService
 	jwtAuth     auth.TokenAuthInterface
 }
 
-func NewAuthHandler(log *slog.Logger, authService contract.AuthService, jwtAuth auth.TokenAuthInterface, env *config.Env) *authHandler {
+func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth auth.TokenAuthInterface, env *config.Env) *authHandler {
 	return &authHandler{log, env, authService, jwtAuth}
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -24,13 +23,13 @@ func main() {
 
 	env, err := config.NewConfig()
 	if err != nil {
-		l.Error("failed load env", err.Error(), err)
+		l.Error("failed load env", "error", err)
 		return
 	}
 
 	con, err := db.Connect(l, env.DSN)
 	if err != nil {
-		l.Error("error connecting db", err.Error(), err)
+		l.Error("error connecting db", "error", err)
 		panic(err)
 	}
 
@@ -49,7 +48,7 @@ func main() {
 	userRepo := gormrepo.NewUserRepo(con)
 	productRepo := gormrepo.NewProductRepo(con)
 
-	s3Service := service.NewS3Service(s3, env, l)
+	s3Service := service.NewS3Service(s3, l)
 	authService := service.NewAuthService(l, userRepo)
 	productService := service.NewProductService(l, env, productRepo, s3Service)
 	userService := service.NewUserService(l, userRepo)
@@ -62,12 +61,12 @@ func main() {
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)
 
-	l.Info(fmt.Sprintf("server lintening on port %v", env.Port))
+	l.Info("server listening", "port", env.Port)
 
 	c := cors.Default().Handler(router)
 	err = http.ListenAndServe(":"+env.Port, c)
 	if err != nil {
-		l.Error("error connecting web server", err.Error(), err)
+		l.Error("error connecting web server", "error", err)
 		os.Exit(1)
 	}
 }

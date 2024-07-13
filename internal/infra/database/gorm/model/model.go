@@ -7,6 +7,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
+
 	"gorm.io/gorm"
 )
 
@@ -28,7 +29,7 @@ type Product struct {
 	Slug      slug.Slug      `json:"slug" gorm:"unique"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
 	Name      string         `json:"name"`
-	ImageURL  string         `json:"image_url"`
+	Image     string         `json:"image"`
 	Price     float64        `json:"price"`
 	Quantity  int32          `json:"quantity"`
 	Enabled   bool           `json:"enabled"`

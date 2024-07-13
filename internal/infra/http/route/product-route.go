@@ -2,7 +2,6 @@ package route
 
 import (
 	"errors"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -16,15 +15,20 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
+)
+
+const (
+	maxImageSize = 5 * 1024 * 1024 // 5mb
 )
 
 type productHandler struct {
-	log            *slog.Logger
+	log            logger.Logger
 	productService contract.ProductService
 	jwtAuth        auth.TokenAuthInterface
 }
 
-func NewProductHandler(log *slog.Logger, productService contract.ProductService, jwtAuth auth.TokenAuthInterface) *productHandler {
+func NewProductHandler(log logger.Logger, productService contract.ProductService, jwtAuth auth.TokenAuthInterface) *productHandler {
 	return &productHandler{log, productService, jwtAuth}
 }
 
@@ -86,8 +90,6 @@ func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
-	var input dto.CreateProduct
-
 	name := r.FormValue("name")
 	quantity := r.FormValue("quantity")
 	price := r.FormValue("price")
@@ -103,32 +105,37 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer f.Close()
 
+	// verify if image size is larger than 5mb
+	if fh.Size > maxImageSize {
+		error.NewBadRequestError(w, "image size too long")
+		return
+	}
+
 	parsedPrice, _ := strconv.ParseFloat(price, 64)
 	parsedQuantity, _ := strconv.Atoi(quantity)
 
-	input.Name = name
-	input.Price = parsedPrice
-	input.Quantity = int32(parsedQuantity)
+	input := dto.CreateProduct{
+		Name:      name,
+		Price:     parsedPrice,
+		Quantity:  int32(parsedQuantity),
+		Image:     f,
+		ImageName: fh.Filename,
+	}
 
-	err = h.productService.Create(input, f, fh.Filename)
+	err = h.productService.Create(input)
 	if err != nil {
-		if errors.Is(err, product.ErrInvalidPrice) {
+		switch {
+		case errors.Is(err, product.ErrInvalidPrice):
 			error.NewUnprocessableEntityError(w, err.Error())
-			return
-		}
-		if errors.Is(err, product.ErrInvalidQuantity) {
+		case errors.Is(err, product.ErrInvalidQuantity):
 			error.NewUnprocessableEntityError(w, err.Error())
-			return
-		}
-		if errors.Is(err, product.ErrEmptyProductName) {
+		case errors.Is(err, product.ErrEmptyProductName):
 			error.NewUnprocessableEntityError(w, err.Error())
-			return
-		}
-		if errors.Is(err, service.ErrProductNameAlreadyTaken) {
+		case errors.Is(err, service.ErrProductNameAlreadyTaken):
 			error.NewConflictError(w, err.Error())
-			return
+		default:
+			error.NewInternalServerError(w, "cannot create resource")
 		}
-		error.NewInternalServerError(w, "cannot create resource")
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusOK)
@@ -186,7 +193,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 			Slug:      p.Slug,
 			Name:      p.Name,
 			Price:     p.Price,
-			ImageURL:  p.ImageURL,
+			Image:     p.Image,
 			Quantity:  p.Quantity,
 			Enabled:   p.Enabled,
 			CreatedAt: p.CreatedAt,

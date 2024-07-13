@@ -5,29 +5,10 @@ import (
 	"net/http"
 )
 
-type ValidationField struct {
-	Field   string `json:"field"`
-	Message string `json:"message"`
-}
-
 type RestError struct {
-	Error       string            `json:"error"`
-	Code        int               `json:"code"`
-	Message     string            `json:"message"`
-	Validations []ValidationField `json:"validations,omitempty"`
-}
-
-func NewFieldsErrorValidation(w http.ResponseWriter, message string, validator []ValidationField) {
-	statusCode := http.StatusUnprocessableEntity
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(RestError{
-		Error:       http.StatusText(statusCode),
-		Code:        statusCode,
-		Message:     message,
-		Validations: validator,
-	})
+	Error   string `json:"error"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func NewBadRequestError(w http.ResponseWriter, message string) {
@@ -36,8 +17,8 @@ func NewBadRequestError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }
@@ -48,8 +29,8 @@ func NewUnauthorizedError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }
@@ -60,8 +41,8 @@ func NewInternalServerError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }
@@ -72,8 +53,8 @@ func NewNotFoundError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }
@@ -84,8 +65,8 @@ func NewConflictError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }
@@ -96,8 +77,8 @@ func NewUnprocessableEntityError(w http.ResponseWriter, message string) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(RestError{
-		Error:   http.StatusText(statusCode),
 		Code:    statusCode,
+		Error:   http.StatusText(statusCode),
 		Message: message,
 	})
 }

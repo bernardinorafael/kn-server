@@ -26,7 +26,7 @@ type Product struct {
 	PublicID  string    `json:"public_id"`
 	Slug      slug.Slug `json:"slug"`
 	Name      string    `json:"name"`
-	ImageURL  string    `json:"image_url"`
+	Image     string    `json:"image"`
 	Price     float64   `json:"price"`
 	Quantity  int32     `json:"quantity"`
 	Enabled   bool      `json:"enabled"`
@@ -122,8 +122,8 @@ func (p *Product) ChangeName(name string) error {
 	return nil
 }
 
-func (p *Product) SetImageURL(url string) {
-	p.ImageURL = url
+func (p *Product) SetImage(url string) {
+	p.Image = url
 }
 
 func (p *Product) GetStatus() bool {

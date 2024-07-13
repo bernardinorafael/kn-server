@@ -15,7 +15,7 @@ type AuthService interface {
 }
 
 type ProductService interface {
-	Create(data dto.CreateProduct, file io.Reader, fileName string) error
+	Create(data dto.CreateProduct) error
 	Delete(publicID string) error
 	GetByPublicID(publicID string) (*model.Product, error)
 	GetBySlug(slugInput string) (*model.Product, error)
@@ -28,6 +28,7 @@ type UserService interface {
 	GetUser(publicID string) (*model.User, error)
 }
 
+// remove s3 deps from this contract
 type FileManagerService interface {
-	UploadFile(file io.Reader, fileName string) (*manager.UploadOutput, error)
+	UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error)
 }

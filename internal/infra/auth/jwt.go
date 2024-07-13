@@ -1,20 +1,20 @@
 package auth
 
 import (
-	"log/slog"
 	"strings"
 	"time"
 
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 type jwtAuth struct {
-	log       *slog.Logger
+	log       logger.Logger
 	secretKey string
 }
 
-func NewJWTAuth(log *slog.Logger, secretKey string) (TokenAuthInterface, error) {
+func NewJWTAuth(log logger.Logger, secretKey string) (TokenAuthInterface, error) {
 	if len(secretKey) != chacha20poly1305.KeySize {
 		return nil, errInvalidSecret
 	}
@@ -48,13 +48,13 @@ func (j *jwtAuth) VerifyToken(t string) (*TokenPayload, error) {
 
 	token, err := jwt.ParseWithClaims(t, &TokenPayload{}, keyFunc)
 	if err != nil {
-		j.log.Error("error validate jwt")
+		j.log.Error("error validate jwt", "error", err.Error())
 		return nil, errUnauthorized
 	}
 
 	payload, ok := token.Claims.(*TokenPayload)
 	if !ok {
-		j.log.Error("could not parse jwt token")
+		j.log.Error("could not parse jwt token", "token", t)
 		return nil, errInvalidToken
 	}
 	return payload, nil
