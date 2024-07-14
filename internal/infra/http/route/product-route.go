@@ -14,8 +14,8 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
+	"github.com/go-chi/chi/v5"
 )
 
 const (
@@ -32,22 +32,22 @@ func NewProductHandler(log logger.Logger, productService contract.ProductService
 	return &productHandler{log, productService, jwtAuth}
 }
 
-func (h *productHandler) RegisterRoute(s *server.Server) {
+func (h *productHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
-	s.Group(func(s *server.Server) {
-		s.Use(m.WithAuth)
+	r.Group(func(r chi.Router) {
+		r.Use(m.WithAuth)
 
-		s.Post("/products", h.create)
+		r.Post("/products", h.create)
 
-		s.Patch("/products/{id}/price", h.updatePrice)
-		s.Patch("/products/{id}/quantity", h.increaseQuantity)
+		r.Patch("/products/{id}/price", h.updatePrice)
+		r.Patch("/products/{id}/quantity", h.increaseQuantity)
 
-		s.Get("/products", h.getAll)
-		s.Get("/products/{id}", h.getByID)
-		s.Get("/products/slug/{slug}", h.getBySlug)
+		r.Get("/products", h.getAll)
+		r.Get("/products/{id}", h.getByID)
+		r.Get("/products/slug/{slug}", h.getBySlug)
 
-		s.Delete("/products/{id}", h.delete)
+		r.Delete("/products/{id}", h.delete)
 	})
 }
 

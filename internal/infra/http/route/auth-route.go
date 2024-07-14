@@ -11,8 +11,8 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
+	"github.com/go-chi/chi/v5"
 )
 
 type authHandler struct {
@@ -26,11 +26,11 @@ func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth
 	return &authHandler{log, env, authService, jwtAuth}
 }
 
-func (h *authHandler) RegisterRoute(s *server.Server) {
-	s.Group(func(s *server.Server) {
-		s.Post("/auth/login", h.login)
-		s.Post("/auth/register", h.register)
-		s.Patch("/auth/{id}/password", h.recoverPassword)
+func (h *authHandler) RegisterRoute(r *chi.Mux) {
+	r.Group(func(r chi.Router) {
+		r.Post("/auth/login", h.login)
+		r.Post("/auth/register", h.register)
+		r.Patch("/auth/{id}/password", h.recoverPassword)
 	})
 }
 
