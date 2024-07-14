@@ -8,7 +8,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
+	"github.com/go-chi/chi/v5"
 )
 
 type userHandler struct {
@@ -20,8 +20,10 @@ func NewUserHandler(userService contract.UserService, jwtAuth auth.TokenAuthInte
 	return &userHandler{userService, jwtAuth}
 }
 
-func (h *userHandler) RegisterRoute(s *server.Server) {
-	s.Get("/users/me", h.getSigned)
+func (h *userHandler) RegisterRoute(r *chi.Mux) {
+	r.Group(func(r chi.Router) {
+		r.Get("/users/me", h.getSigned)
+	})
 }
 
 func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {

@@ -11,15 +11,24 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormrepo"
 	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/server"
 	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
-	"github.com/rs/cors"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func main() {
+	router := chi.NewRouter()
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
 	l := slog.New(logger.NewLog(nil))
-	router := server.New()
 
 	env, err := config.NewConfig()
 	if err != nil {
@@ -63,8 +72,7 @@ func main() {
 
 	l.Info("server listening", "port", env.Port)
 
-	c := cors.Default().Handler(router)
-	err = http.ListenAndServe(":"+env.Port, c)
+	err = http.ListenAndServe(":"+env.Port, router)
 	if err != nil {
 		l.Error("error connecting web server", "error", err)
 		os.Exit(1)

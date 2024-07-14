@@ -96,7 +96,7 @@ func (svc *productService) Create(data dto.CreateProduct) error {
 		return errors.New("cannot reach image name")
 	}
 
-	filename := fmt.Sprintf("%s.%s", p.PublicID, ext)
+	filename := fmt.Sprintf("%s%s", p.PublicID, ext)
 
 	res, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
 	if err != nil {
