@@ -28,10 +28,11 @@ func (m *middleware) WithAuth(next http.Handler) http.Handler {
 
 		_, err := m.jwtAuth.VerifyToken(accessToken)
 		if err != nil {
-			m.log.Error("unauthorized access attemp", "error", "invalid access token")
+			m.log.Error("unauthorized access attempt", "error", "invalid access token")
 			error.NewUnauthorizedError(w, "unauthorized user")
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	})
 }

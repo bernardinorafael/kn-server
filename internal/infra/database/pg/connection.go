@@ -15,10 +15,13 @@ func Connect(log logger.Logger, DSN string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = con.AutoMigrate(&model.Product{}, &model.User{})
-	if err != nil {
+	user := &model.User{}
+	product := &model.Product{}
+
+	if err = con.AutoMigrate(product, user); err != nil {
 		log.Error("migrate: error attempt to exec migrates")
 		return nil, err
 	}
+
 	return con, nil
 }
