@@ -59,7 +59,11 @@ func New(name string, price float64, quantity int32) (*Product, error) {
 }
 
 func (p *Product) validate() error {
-	if len(p.Name) < minNameLength || len(p.Name) >= maxNameLength {
+	if len(p.Name) > maxNameLength {
+		return ErrInvalidProductName
+	}
+
+	if len(p.Name) < minNameLength {
 		return ErrInvalidProductName
 	}
 

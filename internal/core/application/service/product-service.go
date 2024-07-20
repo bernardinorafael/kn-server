@@ -34,7 +34,7 @@ func NewProductService(log logger.Logger, env *env.Env, productRepo contract.Pro
 func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
 	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with publicID %s not found", publicID))
+		svc.log.Error("product not found", "publicID", publicID)
 		return err
 	}
 
@@ -60,7 +60,7 @@ func (svc *productService) IncreaseQuantity(publicID string, quantity int32) err
 func (svc *productService) UpdatePrice(publicID string, price float64) error {
 	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with publicID %s not found", publicID))
+		svc.log.Error("product not found", "publicID", publicID)
 		return err
 	}
 
@@ -71,13 +71,13 @@ func (svc *productService) UpdatePrice(publicID string, price float64) error {
 	}
 
 	if err = p.ChangePrice(price); err != nil {
-		svc.log.Error(fmt.Sprintf("error changing product price %s", err.Error()))
+		svc.log.Error("cannot change product price", "error", err.Error())
 		return err
 	}
 
 	err = svc.productRepo.Update(product.Product{PublicID: publicID, Price: p.Price})
 	if err != nil {
-		svc.log.Error(err.Error())
+		svc.log.Error("error updating product", "error", err.Error())
 		return errors.New("cannot increment product price")
 	}
 	return nil
@@ -86,7 +86,7 @@ func (svc *productService) UpdatePrice(publicID string, price float64) error {
 func (svc *productService) Create(data dto.CreateProduct) error {
 	p, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {
-		svc.log.Error(err.Error())
+		svc.log.Error("invalid product entity", "error", err.Error())
 		return err
 	}
 
@@ -95,12 +95,11 @@ func (svc *productService) Create(data dto.CreateProduct) error {
 		svc.log.Error("image name cannot be empty")
 		return errors.New("cannot reach image name")
 	}
-
 	filename := fmt.Sprintf("%s%s", p.PublicID, ext)
 
 	res, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("cannot upload image to bucket %v", err))
+		svc.log.Error("cannot upload image to s3", "error", err.Error())
 		return err
 	}
 	p.SetImage(res.Location)
@@ -114,7 +113,6 @@ func (svc *productService) Create(data dto.CreateProduct) error {
 		svc.log.Error(err.Error())
 		return err
 	}
-
 	return nil
 }
 
@@ -124,7 +122,6 @@ func (svc *productService) Delete(publicID string) error {
 		svc.log.Error(fmt.Sprintf("product with PublicID %s not found", publicID))
 		return ErrProductNotFound
 	}
-
 	if err = svc.productRepo.Delete(publicID); err != nil {
 		return err
 	}

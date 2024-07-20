@@ -94,10 +94,10 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	quantity := r.FormValue("quantity")
 	price := r.FormValue("price")
 
-	f, fh, err := r.FormFile("image_url")
+	f, fh, err := r.FormFile("image")
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
-			error.NewBadRequestError(w, "product image file not found")
+			error.NewUnprocessableEntityError(w, "product image cannot be empty")
 			return
 		}
 		error.NewBadRequestError(w, "cannot parse multipart form")

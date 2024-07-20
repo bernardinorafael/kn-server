@@ -88,7 +88,7 @@ func (r *productRepo) Delete(publicID string) error {
 func (r *productRepo) GetAll() ([]model.Product, error) {
 	products := make([]model.Product, 0)
 
-	err := r.db.Find(&products).Error
+	err := r.db.Order("created_at desc").Find(&products).Error
 	if err != nil {
 		return products, err
 	}

@@ -59,18 +59,18 @@ func (svc *authService) Login(data dto.Login) (*model.User, error) {
 }
 
 func (svc *authService) Register(data dto.Register) (*model.User, error) {
-	nu, err := user.New(data.Name, data.Email, data.Password, data.Document)
+	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document)
 	if err != nil {
 		svc.log.Error("error creating user entity", "error", err.Error())
 		return nil, err
 	}
 
-	_, err = svc.userRepo.GetByEmail(string(nu.Email))
+	_, err = svc.userRepo.GetByEmail(string(newUser.Email))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	u, err := svc.userRepo.Create(*nu)
+	u, err := svc.userRepo.Create(*newUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", data.Email)
