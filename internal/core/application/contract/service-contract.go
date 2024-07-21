@@ -19,9 +19,10 @@ type ProductService interface {
 	Delete(publicID string) error
 	GetByPublicID(publicID string) (*model.Product, error)
 	GetBySlug(slugInput string) (*model.Product, error)
-	GetAll() ([]model.Product, error)
+	GetAll(disabled bool) ([]model.Product, error)
 	UpdatePrice(publicID string, price float64) error
 	IncreaseQuantity(publicID string, quantity int32) error
+	ChangeStatus(publicID string, status bool) error
 }
 
 type UserService interface {

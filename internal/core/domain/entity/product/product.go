@@ -134,10 +134,6 @@ func (p *Product) GetStatus() bool {
 	return p.Enabled
 }
 
-func (p *Product) Disable() {
-	p.Enabled = false
-}
-
-func (p *Product) Enable() {
-	p.Enabled = true
+func (p *Product) ChangeStatus(status bool) {
+	p.Enabled = status
 }

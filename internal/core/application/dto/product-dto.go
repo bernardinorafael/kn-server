@@ -17,3 +17,7 @@ type UpdatePrice struct {
 type UpdateQuantity struct {
 	Amount int32
 }
+
+type ChangeStatus struct {
+	Status bool
+}

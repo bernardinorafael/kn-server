@@ -31,16 +31,47 @@ func NewProductService(log logger.Logger, env *env.Env, productRepo contract.Pro
 	return &productService{log, env, productRepo, fileService}
 }
 
-func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
-	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
+func (svc *productService) ChangeStatus(publicID string, status bool) error {
+	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "publicID", publicID)
 		return err
 	}
 
-	p, err := product.New(storedProduct.Name, storedProduct.Price, storedProduct.Quantity)
+	p, err := product.New(record.Name, record.Price, record.Quantity)
 	if err != nil {
-		svc.log.Error(err.Error())
+		svc.log.Error("cannot init product entity", "error", err.Error())
+		return err
+	}
+	p.ChangeStatus(status)
+
+	updated := product.Product{
+		PublicID: record.PublicID,
+		Name:     p.Name,
+		Slug:     p.Slug,
+		Price:    p.Price,
+		Quantity: p.Quantity,
+		Enabled:  p.GetStatus(),
+	}
+
+	err = svc.productRepo.Update(updated)
+	if err != nil {
+		svc.log.Error("cannot change product status", "error", err.Error())
+		return errors.New("cannot change product status")
+	}
+	return nil
+}
+
+func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
+	record, err := svc.productRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error("product not found", "publicID", publicID)
+		return err
+	}
+
+	p, err := product.New(record.Name, record.Price, record.Quantity)
+	if err != nil {
+		svc.log.Error("cannot init product entity", "error", err.Error())
 		return err
 	}
 
@@ -58,13 +89,13 @@ func (svc *productService) IncreaseQuantity(publicID string, quantity int32) err
 }
 
 func (svc *productService) UpdatePrice(publicID string, price float64) error {
-	storedProduct, err := svc.productRepo.GetByPublicID(publicID)
+	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "publicID", publicID)
 		return err
 	}
 
-	p, err := product.New(storedProduct.Name, storedProduct.Price, storedProduct.Quantity)
+	p, err := product.New(record.Name, record.Price, record.Quantity)
 	if err != nil {
 		svc.log.Error(err.Error())
 		return err
@@ -84,7 +115,7 @@ func (svc *productService) UpdatePrice(publicID string, price float64) error {
 }
 
 func (svc *productService) Create(data dto.CreateProduct) error {
-	p, err := product.New(data.Name, data.Price, data.Quantity)
+	product, err := product.New(data.Name, data.Price, data.Quantity)
 	if err != nil {
 		svc.log.Error("invalid product entity", "error", err.Error())
 		return err
@@ -95,16 +126,16 @@ func (svc *productService) Create(data dto.CreateProduct) error {
 		svc.log.Error("image name cannot be empty")
 		return errors.New("cannot reach image name")
 	}
-	filename := fmt.Sprintf("%s%s", p.PublicID, ext)
+	filename := fmt.Sprintf("%s%s", product.PublicID, ext)
 
 	res, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
 	if err != nil {
 		svc.log.Error("cannot upload image to s3", "error", err.Error())
 		return err
 	}
-	p.SetImage(res.Location)
+	product.SetImage(res.Location)
 
-	_, err = svc.productRepo.Create(*p)
+	_, err = svc.productRepo.Create(*product)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
 			svc.log.Error("product name already taken", "name", data.Name)
@@ -119,7 +150,7 @@ func (svc *productService) Create(data dto.CreateProduct) error {
 func (svc *productService) Delete(publicID string) error {
 	_, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with PublicID %s not found", publicID))
+		svc.log.Error("product not found", "public_id", publicID)
 		return ErrProductNotFound
 	}
 	if err = svc.productRepo.Delete(publicID); err != nil {
@@ -128,8 +159,8 @@ func (svc *productService) Delete(publicID string) error {
 	return nil
 }
 
-func (svc *productService) GetAll() ([]model.Product, error) {
-	products, err := svc.productRepo.GetAll()
+func (svc *productService) GetAll(disabled bool) ([]model.Product, error) {
+	products, err := svc.productRepo.GetAll(disabled)
 	if err != nil {
 		svc.log.Error("cannot get products slice")
 		return nil, err

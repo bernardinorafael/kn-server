@@ -17,38 +17,41 @@ func NewProductRepo(db *gorm.DB) contract.ProductRepository {
 	return &productRepo{db}
 }
 
-func (r *productRepo) Update(prod product.Product) error {
-	var p product.Product
+func (r *productRepo) Update(p product.Product) error {
+	var product model.Product
 
-	updated := model.Product{
-		Name:      prod.Name,
-		Slug:      prod.Slug,
-		Price:     prod.Price,
-		Quantity:  prod.Quantity,
-		Enabled:   prod.Enabled,
-		UpdatedAt: time.Now(),
+	err := r.db.Where("public_id = ?", p.PublicID).First(&product).Error
+	if err != nil {
+		return err
 	}
 
-	err := r.db.
-		Model(&p).
-		Where("public_id = ?", prod.PublicID).
-		Updates(updated).
-		Error
+	product.Name = p.Name
+	product.Slug = p.Slug
+	product.Price = p.Price
+	product.Quantity = p.Quantity
+	product.Enabled = p.Enabled
+	product.UpdatedAt = time.Now()
 
+	err = r.db.Save(&product).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *productRepo) Create(prod product.Product) (*model.Product, error) {
+func (r *productRepo) Create(p product.Product) (*model.Product, error) {
 	newProduct := &model.Product{
-		Name:     prod.Name,
-		Price:    prod.Price,
-		Quantity: prod.Quantity,
+		Name:      p.Name,
+		Price:     p.Price,
+		Quantity:  p.Quantity,
+		PublicID:  p.PublicID,
+		Slug:      p.Slug,
+		Image:     p.Image,
+		Enabled:   p.Enabled,
+		UpdatedAt: time.Now(),
 	}
 
-	err := r.db.Create(&prod).Error
+	err := r.db.Create(newProduct).Error
 	if err != nil {
 		return nil, err
 	}
@@ -65,10 +68,10 @@ func (r *productRepo) GetByID(id int) (*model.Product, error) {
 	return &product, nil
 }
 
-func (r *productRepo) GetBySlug(name string) (*model.Product, error) {
+func (r *productRepo) GetBySlug(slug string) (*model.Product, error) {
 	var product model.Product
 
-	err := r.db.Where("slug = ?", name).First(&product).Error
+	err := r.db.Where("slug = ?", slug).First(&product).Error
 	if err != nil {
 		return nil, err
 	}
@@ -76,19 +79,27 @@ func (r *productRepo) GetBySlug(name string) (*model.Product, error) {
 }
 
 func (r *productRepo) Delete(publicID string) error {
-	var product product.Product
+	var p model.Product
 
-	err := r.db.Where("public_id = ?", publicID).Delete(&product).Error
+	err := r.db.Where("public_id = ?", publicID).Find(&p).Error
+	if err != nil {
+		return err
+	}
+
+	err = r.db.Where("id = ?", p.ID).Delete(&p).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *productRepo) GetAll() ([]model.Product, error) {
-	products := make([]model.Product, 0)
+func (r *productRepo) GetAll(disabled bool) ([]model.Product, error) {
+	var products []model.Product
 
-	err := r.db.Order("created_at desc").Find(&products).Error
+	err := r.db.
+		Where("enabled = ?", true).
+		Order("created_at desc").
+		Find(&products).Error
 	if err != nil {
 		return products, err
 	}

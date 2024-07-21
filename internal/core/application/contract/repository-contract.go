@@ -15,11 +15,11 @@ type UserRepository interface {
 }
 
 type ProductRepository interface {
-	Create(prod product.Product) (*model.Product, error)
+	Create(p product.Product) (*model.Product, error)
 	GetByID(id int) (*model.Product, error)
 	GetByPublicID(publicID string) (*model.Product, error)
 	GetBySlug(name string) (*model.Product, error)
-	GetAll() ([]model.Product, error)
+	GetAll(disabled bool) ([]model.Product, error)
 	Delete(publicID string) error
-	Update(prod product.Product) error
+	Update(p product.Product) error
 }

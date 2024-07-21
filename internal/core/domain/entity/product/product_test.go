@@ -48,24 +48,20 @@ func TestProductEntity_New(t *testing.T) {
 	})
 }
 
-func TestProductEntity_Disable(t *testing.T) {
+func TestProductEntity_ChangeStatus(t *testing.T) {
 	t.Run("Should disable a product", func(t *testing.T) {
 		p, err := product.New("my product name", 300, 10)
 		assert.Nil(t, err)
 
-		p.Disable()
+		p.ChangeStatus(false)
 		assert.False(t, p.Enabled)
 	})
-}
-func TestProductEntity_Enable(t *testing.T) {
-	t.Run("Should disable a product", func(t *testing.T) {
+
+	t.Run("Should enable a product", func(t *testing.T) {
 		p, err := product.New("my product name", 300, 10)
 		assert.Nil(t, err)
 
-		p.Disable()
-		assert.False(t, p.Enabled)
-
-		p.Enable()
+		p.ChangeStatus(true)
 		assert.True(t, p.Enabled)
 	})
 }
@@ -93,7 +89,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 
 	t.Run("Should not be possible to increase price if product is disabled", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
-		p.Disable()
+		p.ChangeStatus(false)
 
 		err := p.ChangePrice(10)
 		assert.NotNil(t, err)
@@ -123,7 +119,7 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 
 	t.Run("Should not be possible to increase quantity if product is disabled", func(t *testing.T) {
 		p, _ := product.New("my product name", 300, 10)
-		p.Disable()
+		p.ChangeStatus(false)
 
 		err := p.IncreaseQuantity(10)
 
@@ -144,7 +140,7 @@ func TestProductEntity_ChangeName(t *testing.T) {
 
 	t.Run("Should not possible to change name of a disabled product", func(t *testing.T) {
 		p, _ := product.New("my product name", 100, 10)
-		p.Disable()
+		p.ChangeStatus(false)
 
 		err := p.ChangeName("other product name")
 

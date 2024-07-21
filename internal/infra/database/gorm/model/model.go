@@ -21,19 +21,19 @@ type User struct {
 	Password  password.Password `json:"password"`
 	CreatedAt time.Time         `json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
-	DeletedAt gorm.DeletedAt    `json:"deleted_at"`
+	DeletedAt gorm.DeletedAt    `json:"deleted_at gorm:index"`
 }
 
 type Product struct {
 	ID        int            `json:"id" gorm:"primaryKey"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
 	Slug      slug.Slug      `json:"slug" gorm:"unique"`
-	Name      string         `json:"name"`
+	Name      string         `json:"name gorm:index"`
 	Image     string         `json:"image"`
 	Price     float64        `json:"price"`
 	Quantity  int32          `json:"quantity"`
-	Enabled   bool           `json:"enabled"`
+	Enabled   bool           `json:"enabled gorm:index"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at gorm:index"`
 }

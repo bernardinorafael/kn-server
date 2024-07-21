@@ -35,20 +35,40 @@ func NewProductHandler(log logger.Logger, productService contract.ProductService
 func (h *productHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
-	r.Group(func(r chi.Router) {
-		r.Use(m.WithAuth)
+	r.Route("/products", func(r chi.Router) {
+		r.With(m.WithAuth)
 
-		r.Post("/products", h.create)
+		r.Post("/", h.create)
 
-		r.Patch("/products/{id}/price", h.updatePrice)
-		r.Patch("/products/{id}/quantity", h.increaseQuantity)
+		r.Put("/{id}/price", h.updatePrice)
+		r.Put("/{id}/status", h.changeStatus)
+		r.Put("/{id}/quantity", h.increaseQuantity)
 
-		r.Get("/products", h.getAll)
-		r.Get("/products/{id}", h.getByID)
-		r.Get("/products/slug/{slug}", h.getBySlug)
+		r.Get("/", h.getAll)
+		r.Get("/{id}", h.getByID)
+		r.Get("/slug/{slug}", h.getBySlug)
 
-		r.Delete("/products/{id}", h.delete)
+		r.Delete("/{id}", h.delete)
+
 	})
+}
+
+func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
+	var input dto.ChangeStatus
+	publicID := r.PathValue("id")
+
+	err := restutil.ParseBody(r, &input)
+	if err != nil {
+		error.NewBadRequestError(w, "error parsing body request")
+		return
+	}
+
+	err = h.productService.ChangeStatus(publicID, input.Status)
+	if err != nil {
+		error.NewBadRequestError(w, err.Error())
+		return
+	}
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
 func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +200,15 @@ func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
-	ps, err := h.productService.GetAll()
+	query := r.URL.Query()
+
+	disabled, err := strconv.ParseBool(query.Get("disabled"))
+	if err != nil {
+		error.NewBadRequestError(w, "cannot parse `disabled` query params")
+		return
+	}
+
+	ps, err := h.productService.GetAll(disabled)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
@@ -217,6 +245,7 @@ func (h *productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 		PublicID:  p.PublicID,
 		Slug:      p.Slug,
 		Name:      p.Name,
+		Image:     p.Image,
 		Price:     p.Price,
 		Quantity:  p.Quantity,
 		Enabled:   p.Enabled,
