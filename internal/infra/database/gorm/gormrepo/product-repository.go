@@ -1,6 +1,7 @@
 package gormrepo
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
@@ -93,12 +94,13 @@ func (r *productRepo) Delete(publicID string) error {
 	return nil
 }
 
-func (r *productRepo) GetAll(disabled bool) ([]model.Product, error) {
+func (r *productRepo) GetAll(disabled bool, orderBy string) ([]model.Product, error) {
 	var products []model.Product
+	var enabled bool = !disabled
 
 	err := r.db.
-		Where("enabled = ?", true).
-		Order("created_at desc").
+		Where("enabled = ?", enabled).
+		Order(fmt.Sprintf("%v desc", orderBy)).
 		Find(&products).Error
 	if err != nil {
 		return products, err

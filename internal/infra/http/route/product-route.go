@@ -202,13 +202,24 @@ func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
+	// TODO: make a parser method to query params
 	disabled, err := strconv.ParseBool(query.Get("disabled"))
+	if !query.Has("disabled") {
+		error.NewBadRequestError(w, "missing [disabled] query parameter")
+		return
+	}
 	if err != nil {
-		error.NewBadRequestError(w, "cannot parse `disabled` query params")
+		error.NewBadRequestError(w, "cannot parse [disabled] query params")
 		return
 	}
 
-	ps, err := h.productService.GetAll(disabled)
+	orderBy := query.Get("order_by")
+	if !query.Has("order_by") {
+		error.NewBadRequestError(w, "missing [order_by] query parameter")
+		return
+	}
+
+	ps, err := h.productService.GetAll(disabled, orderBy)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return

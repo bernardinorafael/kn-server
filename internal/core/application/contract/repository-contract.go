@@ -19,7 +19,7 @@ type ProductRepository interface {
 	GetByID(id int) (*model.Product, error)
 	GetByPublicID(publicID string) (*model.Product, error)
 	GetBySlug(name string) (*model.Product, error)
-	GetAll(disabled bool) ([]model.Product, error)
+	GetAll(disabled bool, orderBy string) ([]model.Product, error)
 	Delete(publicID string) error
 	Update(p product.Product) error
 }

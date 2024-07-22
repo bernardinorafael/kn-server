@@ -159,8 +159,8 @@ func (svc *productService) Delete(publicID string) error {
 	return nil
 }
 
-func (svc *productService) GetAll(disabled bool) ([]model.Product, error) {
-	products, err := svc.productRepo.GetAll(disabled)
+func (svc *productService) GetAll(disabled bool, orderBy string) ([]model.Product, error) {
+	products, err := svc.productRepo.GetAll(disabled, orderBy)
 	if err != nil {
 		svc.log.Error("cannot get products slice")
 		return nil, err
