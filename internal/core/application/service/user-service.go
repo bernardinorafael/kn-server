@@ -39,19 +39,35 @@ func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
 	}
 
 	if data.Name != "" {
-		userEntity.ChangeName(data.Name)
+		err = userEntity.ChangeName(data.Name)
+		if err != nil {
+			svc.log.Error("erro while changing name", "error", err.Error())
+			return err
+		}
 	}
 
 	if data.Document != "" {
-		userEntity.ChangeDocument(data.Document)
+		err = userEntity.ChangeDocument(data.Document)
+		if err != nil {
+			svc.log.Error("error while changing document", "error", err.Error())
+			return err
+		}
 	}
 
 	if data.Email != "" {
-		userEntity.ChangeEmail(data.Email)
+		err = userEntity.ChangeEmail(data.Email)
+		if err != nil {
+			svc.log.Error("error while changing email", "error", err.Error())
+			return err
+		}
 	}
 
 	if data.Phone != "" {
-		userEntity.ChangePhone(data.Phone)
+		err = userEntity.ChangePhone(data.Phone)
+		if err != nil {
+			svc.log.Error("error while changing phone", "error", err.Error())
+			return err
+		}
 	}
 
 	updated := user.User{
