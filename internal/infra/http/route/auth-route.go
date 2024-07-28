@@ -27,10 +27,10 @@ func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth
 }
 
 func (h *authHandler) RegisterRoute(r *chi.Mux) {
-	r.Group(func(r chi.Router) {
-		r.Post("/auth/login", h.login)
-		r.Post("/auth/register", h.register)
-		r.Patch("/auth/{id}/password", h.recoverPassword)
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", h.login)
+		r.Post("/register", h.register)
+		r.Patch("/{id}/password", h.recoverPassword)
 	})
 }
 
@@ -98,9 +98,7 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publicID := r.PathValue("id")
-
-	err = h.authService.RecoverPassword(publicID, payload)
+	err = h.authService.RecoverPassword(r.PathValue("id"), payload)
 	if err != nil {
 		if errors.Is(err, service.ErrUpdatingPassword) {
 			error.NewConflictError(w, err.Error())

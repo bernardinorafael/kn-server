@@ -21,13 +21,12 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           300,
 	}))
-
 	l := slog.New(logger.NewLog(nil))
 
 	env, err := config.NewConfig()
@@ -50,7 +49,7 @@ func main() {
 
 	s3, err := s3client.New(env)
 	if err != nil {
-		l.Error("cannot initialize aws s3 clien")
+		l.Error("cannot initialize aws s3 client")
 		panic(err)
 	}
 

@@ -14,6 +14,6 @@ type Register struct {
 }
 
 type UpdatePassword struct {
-	OldPassword string
-	NewPassword string
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }
