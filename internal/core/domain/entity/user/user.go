@@ -10,6 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
 	"github.com/google/uuid"
 )
 
@@ -28,18 +29,24 @@ type User struct {
 	Name      string            `json:"name"`
 	Email     email.Email       `json:"email"`
 	Document  cpf.CPF           `json:"document"`
+	Phone     phone.Phone       `json:"phone"`
 	Enabled   bool              `json:"enabled"`
 	Password  password.Password `json:"password"`
 	CreatedAt time.Time         `json:"created_at"`
 }
 
-func New(userName, userEmail, userPassword, userDoc string) (*User, error) {
-	address, err := email.New(userEmail)
+func New(newName, newEmail, newPass, newDoc, newPhone string) (*User, error) {
+	address, err := email.New(newEmail)
 	if err != nil {
 		return nil, err
 	}
 
-	p, err := password.New(userPassword)
+	ph, err := phone.New(newPhone)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := password.New(newPass)
 	if err != nil {
 		return nil, err
 	}
@@ -49,16 +56,17 @@ func New(userName, userEmail, userPassword, userDoc string) (*User, error) {
 		return nil, err
 	}
 
-	document, err := cpf.New(userDoc)
+	document, err := cpf.New(newDoc)
 	if err != nil {
 		return nil, err
 	}
 
-	user := &User{
-		Name:     userName,
+	user := User{
+		Name:     newName,
 		PublicID: uuid.NewString(),
 		Email:    address.ToEmail(),
 		Document: document.ToCPF(),
+		Phone:    ph.ToPhone(),
 		Password: hashed,
 		Enabled:  false,
 	}
@@ -67,7 +75,7 @@ func New(userName, userEmail, userPassword, userDoc string) (*User, error) {
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (u *User) validate() error {
@@ -87,5 +95,43 @@ func (u *User) validate() error {
 		return ErrInvalidFullName
 	}
 
+	return nil
+}
+
+func (u *User) ChangeName(newName string) error {
+	u.Name = newName
+	if err := u.validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) ChangePhone(newPhone string) error {
+	p, err := phone.New(newPhone)
+	if err != nil {
+		return err
+	}
+
+	u.Phone = p.ToPhone()
+	return nil
+}
+
+func (u *User) ChangeDocument(newDocument string) error {
+	doc, err := cpf.New(newDocument)
+	if err != nil {
+		return err
+	}
+
+	u.Document = doc.ToCPF()
+	return nil
+}
+
+func (u *User) ChangeEmail(newEmail string) error {
+	address, err := email.New(newEmail)
+	if err != nil {
+		return err
+	}
+
+	u.Email = address.ToEmail()
 	return nil
 }

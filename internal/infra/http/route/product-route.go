@@ -55,7 +55,6 @@ func (h *productHandler) RegisterRoute(r *chi.Mux) {
 
 func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	var input dto.ChangeStatus
-	publicID := r.PathValue("id")
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
@@ -63,7 +62,7 @@ func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productService.ChangeStatus(publicID, input.Status)
+	err = h.productService.ChangeStatus(r.PathValue("id"), input.Status)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
@@ -73,7 +72,6 @@ func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 
 func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateQuantity
-	publicID := r.PathValue("id")
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
@@ -81,7 +79,7 @@ func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = h.productService.IncreaseQuantity(publicID, input.Amount)
+	err = h.productService.IncreaseQuantity(r.PathValue("id"), input.Amount)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
@@ -92,7 +90,6 @@ func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request
 
 func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdatePrice
-	publicID := r.PathValue("id")
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
@@ -100,7 +97,7 @@ func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productService.UpdatePrice(publicID, input.Amount)
+	err = h.productService.UpdatePrice(r.PathValue("id"), input.Amount)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
@@ -162,9 +159,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
-	publicID := r.PathValue("id")
-
-	err := h.productService.Delete(publicID)
+	err := h.productService.Delete(r.PathValue("id"))
 	if err != nil {
 		if errors.Is(err, service.ErrProductNotFound) {
 			error.NewBadRequestError(w, err.Error())
@@ -219,23 +214,23 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ps, err := h.productService.GetAll(disabled, orderBy)
+	allProducts, err := h.productService.GetAll(disabled, orderBy)
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return
 	}
 
 	var products []response.Product
-	for _, p := range ps {
+	for _, v := range allProducts {
 		products = append(products, response.Product{
-			PublicID:  p.PublicID,
-			Slug:      p.Slug,
-			Name:      p.Name,
-			Price:     p.Price,
-			Image:     p.Image,
-			Quantity:  p.Quantity,
-			Enabled:   p.Enabled,
-			CreatedAt: p.CreatedAt,
+			PublicID:  v.PublicID,
+			Slug:      v.Slug,
+			Name:      v.Name,
+			Price:     v.Price,
+			Image:     v.Image,
+			Quantity:  v.Quantity,
+			Enabled:   v.Enabled,
+			CreatedAt: v.CreatedAt,
 		})
 	}
 
@@ -245,9 +240,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *productHandler) getByID(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-
-	p, err := h.productService.GetByPublicID(id)
+	p, err := h.productService.GetByPublicID(r.PathValue("id"))
 	if err != nil {
 		error.NewBadRequestError(w, err.Error())
 		return

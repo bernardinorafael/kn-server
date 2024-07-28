@@ -1,14 +1,19 @@
-.PHONY: run build test clean pg vet
-
 include .env
+
+.DEFAULT_GOAL := run
 
 vet:
 	@go vet ./...
+.PHONY: vet
+
 pg:
 	@docker exec -it postgres-kn psql -U $(DB_USER) -d $(DB_NAME)
+.PHONY: pg
+
 run:
 	@go run cmd/server/main.go
-build:
-	@go build -o $(APP_NAME) main.go
+.PHONY: run
+
 test:
 	@go test ./...
+.PHONY: test

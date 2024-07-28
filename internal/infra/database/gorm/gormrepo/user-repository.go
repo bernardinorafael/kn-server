@@ -17,20 +17,21 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 	return &userRepo{db: DB}
 }
 
-func (r *userRepo) Create(usr user.User) (*model.User, error) {
-	u := &model.User{
-		Name:     usr.Name,
-		Email:    usr.Email,
-		Password: usr.Password,
-		PublicID: usr.PublicID,
-		Document: usr.Document,
+func (r *userRepo) Create(u user.User) (*model.User, error) {
+	user := model.User{
+		Name:     u.Name,
+		Email:    u.Email,
+		Password: u.Password,
+		PublicID: u.PublicID,
+		Document: u.Document,
+		Phone:    u.Phone,
 	}
 
-	err := r.db.Create(&u).Error
+	err := r.db.Create(&user).Error
 	if err != nil {
 		return nil, err
 	}
-	return u, nil
+	return &user, nil
 }
 
 func (r *userRepo) GetByPublicID(publicID string) (*model.User, error) {
@@ -44,13 +45,13 @@ func (r *userRepo) GetByPublicID(publicID string) (*model.User, error) {
 }
 
 func (r *userRepo) GetByID(id int) (*model.User, error) {
-	var u model.User
+	var user model.User
 
-	err := r.db.Where("id = ?", id).First(&u).Error
+	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return &user, nil
 }
 
 func (r *userRepo) GetByEmail(email string) (*model.User, error) {
@@ -63,20 +64,26 @@ func (r *userRepo) GetByEmail(email string) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *userRepo) Update(usr user.User) (*model.User, error) {
-	var u model.User
+func (r *userRepo) Update(u user.User) (*model.User, error) {
+	var user model.User
 
-	updated := model.User{Name: usr.Name, Password: usr.Password, UpdatedAt: time.Now()}
+	updated := model.User{
+		Name:      u.Name,
+		Password:  u.Password,
+		Document:  u.Document,
+		Phone:     u.Phone,
+		UpdatedAt: time.Now(),
+	}
 
 	err := r.db.
-		Model(&u).
+		Model(&user).
 		Where("public_id = ?", u.PublicID).
 		Updates(updated).
-		First(&u).
+		First(&user).
 		Error
 
 	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return &user, nil
 }

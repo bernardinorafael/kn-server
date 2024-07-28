@@ -27,6 +27,7 @@ type ProductService interface {
 
 type UserService interface {
 	GetUser(publicID string) (*model.User, error)
+	Update(publicID string, data dto.UpdateUser) error
 }
 
 // remove s3 deps from this contract

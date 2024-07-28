@@ -4,26 +4,53 @@ import (
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
+	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 )
 
 type userHandler struct {
+	log         logger.Logger
 	userService contract.UserService
 	jwtAuth     auth.TokenAuthInterface
 }
 
-func NewUserHandler(userService contract.UserService, jwtAuth auth.TokenAuthInterface) *userHandler {
-	return &userHandler{userService, jwtAuth}
+func NewUserHandler(log logger.Logger, userService contract.UserService, jwtAuth auth.TokenAuthInterface) *userHandler {
+	return &userHandler{log, userService, jwtAuth}
 }
 
 func (h *userHandler) RegisterRoute(r *chi.Mux) {
-	r.Group(func(r chi.Router) {
-		r.Get("/users/me", h.getSigned)
+	m := middleware.NewWithAuth(h.jwtAuth, h.log)
+
+	r.Route("/users", func(r chi.Router) {
+		r.With(m.WithAuth)
+
+		r.Get("/me", h.getSigned)
+		r.Put("/{id}", h.updateUser)
 	})
+}
+
+func (h *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
+	var input dto.UpdateUser
+
+	err := restutil.ParseBody(r, &input)
+	if err != nil {
+		h.log.Error(err.Error())
+		error.NewBadRequestError(w, "error parsing body request")
+		return
+	}
+
+	err = h.userService.Update(r.PathValue("id"), input)
+	if err != nil {
+		error.NewBadRequestError(w, "cannot update user")
+		return
+	}
+	restutil.WriteSuccess(w, http.StatusCreated)
 }
 
 func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +72,7 @@ func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 		PublicID:  u.PublicID,
 		Name:      u.Name,
 		Email:     u.Email,
+		Phone:     u.Phone,
 		Document:  u.Document,
 		Enabled:   u.Enabled,
 		CreatedAt: u.CreatedAt,

@@ -7,11 +7,11 @@ import (
 )
 
 type UserRepository interface {
-	Create(usr user.User) (*model.User, error)
+	Create(u user.User) (*model.User, error)
 	GetByID(id int) (*model.User, error)
 	GetByPublicID(publicID string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
-	Update(usr user.User) (*model.User, error)
+	Update(u user.User) (*model.User, error)
 }
 
 type ProductRepository interface {

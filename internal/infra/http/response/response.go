@@ -5,6 +5,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 )
 
@@ -24,6 +25,7 @@ type User struct {
 	Email     email.Email `json:"email"`
 	PublicID  string      `json:"public_id"`
 	Document  cpf.CPF     `json:"document"`
+	Phone     phone.Phone `json:"phone"`
 	Enabled   bool        `json:"enabled"`
 	CreatedAt time.Time   `json:"created_at"`
 }

@@ -10,7 +10,7 @@ import (
 
 func TestUserEntity(t *testing.T) {
 	t.Run("Should create a new user instance successfully", func(t *testing.T) {
-		u, err := user.New("john doe", "john_doe@email.com", "@Password123", "42008790002")
+		u, err := user.New("john doe", "john_doe@email.com", "@Password123", "42008790002", "11978761232")
 
 		assert.Nil(t, err)
 		assert.Equal(t, u.Name, "john doe")
@@ -23,14 +23,14 @@ func TestUserEntity(t *testing.T) {
 	})
 
 	t.Run("Should validate user name length", func(t *testing.T) {
-		_, err := user.New("jo", "john_doe@email.com", "@Password123", "42008790002")
+		_, err := user.New("jo", "john_doe@email.com", "@Password123", "42008790002", "11978761232")
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, user.ErrInvalidNameLength.Error())
 	})
 
 	t.Run("Should user name have first and last name", func(t *testing.T) {
-		_, err := user.New("joe", "john_doe@email.com", "@Password123", "42008790002")
+		_, err := user.New("joe", "john_doe@email.com", "@Password123", "42008790002", "11978761232")
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, user.ErrInvalidFullName.Error())

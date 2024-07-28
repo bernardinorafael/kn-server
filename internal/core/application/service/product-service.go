@@ -34,7 +34,7 @@ func NewProductService(log logger.Logger, env *env.Env, productRepo contract.Pro
 func (svc *productService) ChangeStatus(publicID string, status bool) error {
 	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error("product not found", "publicID", publicID)
+		svc.log.Error("product not found", "public_id", publicID)
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (svc *productService) ChangeStatus(publicID string, status bool) error {
 func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
 	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error("product not found", "publicID", publicID)
+		svc.log.Error("product not found", "public_id", publicID)
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (svc *productService) IncreaseQuantity(publicID string, quantity int32) err
 func (svc *productService) UpdatePrice(publicID string, price float64) error {
 	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error("product not found", "publicID", publicID)
+		svc.log.Error("product not found", "public_id", publicID)
 		return err
 	}
 
@@ -171,7 +171,7 @@ func (svc *productService) GetAll(disabled bool, orderBy string) ([]model.Produc
 func (svc *productService) GetByPublicID(publicID string) (*model.Product, error) {
 	p, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
-		svc.log.Error(fmt.Sprintf("product with PublicID %s not found", publicID))
+		svc.log.Error("product not found", "public_id", publicID)
 		return nil, err
 	}
 	return p, nil

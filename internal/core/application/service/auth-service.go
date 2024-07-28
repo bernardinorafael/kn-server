@@ -17,6 +17,7 @@ import (
 var (
 	ErrEmailAlreadyTaken    = errors.New("email already taken")
 	ErrDocumentAlreadyTaken = errors.New("document already taken")
+	ErrPhoneAlreadyTaken    = errors.New("phone already taken")
 	ErrInvalidCredential    = errors.New("invalid credentials")
 	ErrUpdatingPassword     = errors.New("error while updating password")
 	ErrUserNotFound         = errors.New("user not found")
@@ -59,7 +60,7 @@ func (svc *authService) Login(data dto.Login) (*model.User, error) {
 }
 
 func (svc *authService) Register(data dto.Register) (*model.User, error) {
-	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document)
+	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document, data.Phone)
 	if err != nil {
 		svc.log.Error("error creating user entity", "error", err.Error())
 		return nil, err
@@ -75,6 +76,10 @@ func (svc *authService) Register(data dto.Register) (*model.User, error) {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", data.Email)
 			return nil, ErrEmailAlreadyTaken
+		}
+		if strings.Contains(err.Error(), "uni_users_phone") {
+			svc.log.Error("phone already taken", "phone", data.Phone)
+			return nil, ErrPhoneAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_document") {
 			svc.log.Error("document already taken", "document", data.Document)
