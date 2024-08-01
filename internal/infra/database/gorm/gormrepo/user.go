@@ -19,12 +19,13 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 
 func (r *userRepo) Create(u user.User) (*gormodel.User, error) {
 	user := gormodel.User{
-		Name:     u.Name,
-		Email:    u.Email,
-		Password: u.Password,
-		PublicID: u.PublicID,
-		Document: u.Document,
-		Phone:    u.Phone,
+		Name:      u.Name,
+		Email:     string(u.Email),
+		Password:  string(u.Password),
+		PublicID:  string(u.PublicID),
+		Document:  string(u.Document),
+		Phone:     string(u.Phone),
+		UpdatedAt: time.Now(),
 	}
 
 	err := r.db.Create(&user).Error
@@ -69,9 +70,9 @@ func (r *userRepo) Update(u user.User) (*gormodel.User, error) {
 
 	updated := gormodel.User{
 		Name:      u.Name,
-		Password:  u.Password,
-		Document:  u.Document,
-		Phone:     u.Phone,
+		Password:  string(u.Password),
+		Document:  string(u.Document),
+		Phone:     string(u.Phone),
 		UpdatedAt: time.Now(),
 	}
 

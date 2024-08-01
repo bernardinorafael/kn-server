@@ -51,7 +51,7 @@ func (svc *authService) Login(data dto.Login) (*gormodel.User, error) {
 		return nil, err
 	}
 
-	err = p.Compare(user.Password, data.Password)
+	err = p.Compare(password.Password(user.Password), data.Password)
 	if err != nil {
 		svc.log.Error("the password provided is incorrect", "password", data.Password)
 		return nil, ErrInvalidCredential
@@ -103,7 +103,7 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		return err
 	}
 
-	err = p.Compare(u.Password, data.OldPassword)
+	err = p.Compare(password.Password(u.Password), data.OldPassword)
 	if err != nil {
 		svc.log.Error("failed to compare password", "error", err.Error())
 		return err
