@@ -21,7 +21,7 @@ type ProductService interface {
 	GetBySlug(slugInput string) (*model.Product, error)
 	GetAll(disabled bool, orderBy string) ([]model.Product, error)
 	UpdatePrice(publicID string, price float64) error
-	IncreaseQuantity(publicID string, quantity int32) error
+	IncreaseQuantity(publicID string, quantity int) error
 	ChangeStatus(publicID string, status bool) error
 }
 

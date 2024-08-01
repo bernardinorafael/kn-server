@@ -62,7 +62,7 @@ func (svc *productService) ChangeStatus(publicID string, status bool) error {
 	return nil
 }
 
-func (svc *productService) IncreaseQuantity(publicID string, quantity int32) error {
+func (svc *productService) IncreaseQuantity(publicID string, quantity int) error {
 	record, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "public_id", publicID)

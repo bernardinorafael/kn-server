@@ -31,11 +31,12 @@ type User struct {
 	Document  cpf.CPF           `json:"document"`
 	Phone     phone.Phone       `json:"phone"`
 	Enabled   bool              `json:"enabled"`
+	TeamID    *string           `json:"team_id"`
 	Password  password.Password `json:"password"`
 	CreatedAt time.Time         `json:"created_at"`
 }
 
-func New(newName, newEmail, newPass, newDoc, newPhone string) (*User, error) {
+func New(newName, newEmail, newPass, newDoc, newPhone string, teamId *string) (*User, error) {
 	address, err := email.New(newEmail)
 	if err != nil {
 		return nil, err
@@ -68,6 +69,7 @@ func New(newName, newEmail, newPass, newDoc, newPhone string) (*User, error) {
 		Document: document.ToCPF(),
 		Phone:    ph.ToPhone(),
 		Password: hashed,
+		TeamID:   teamId,
 		Enabled:  false,
 	}
 

@@ -28,12 +28,12 @@ type Product struct {
 	Name      string    `json:"name"`
 	Image     string    `json:"image"`
 	Price     float64   `json:"price"`
-	Quantity  int32     `json:"quantity"`
+	Quantity  int       `json:"quantity"`
 	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func New(name string, price float64, quantity int32) (*Product, error) {
+func New(name string, price float64, quantity int) (*Product, error) {
 	if len(name) == 0 {
 		return nil, ErrEmptyProductName
 	}
@@ -90,7 +90,7 @@ func (p *Product) ChangePrice(price float64) error {
 	return nil
 }
 
-func (p *Product) IncreaseQuantity(quantity int32) error {
+func (p *Product) IncreaseQuantity(quantity int) error {
 	if quantity < 1 {
 		return ErrInvalidQuantity
 	}

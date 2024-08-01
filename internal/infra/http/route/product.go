@@ -134,7 +134,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	input := dto.CreateProduct{
 		Name:      name,
 		Price:     parsedPrice,
-		Quantity:  int32(parsedQuantity),
+		Quantity:  parsedQuantity,
 		Image:     f,
 		ImageName: fh.Filename,
 	}

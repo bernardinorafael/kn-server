@@ -14,7 +14,7 @@ type Product struct {
 	Slug      slug.Slug `json:"slug"`
 	Name      string    `json:"name"`
 	Price     float64   `json:"price"`
-	Quantity  int32     `json:"quantity"`
+	Quantity  int       `json:"quantity"`
 	Enabled   bool      `json:"enabled"`
 	Image     string    `json:"image"`
 	CreatedAt time.Time `json:"created_at"`
