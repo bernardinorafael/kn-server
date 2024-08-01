@@ -19,11 +19,11 @@ func TestTeam_New(t *testing.T) {
 			nil,
 		)
 
-		tm, err := team.New(u.PublicID, "My team")
+		tm, err := team.New(u.PublicID, "John's team")
 		assert.Nil(t, err)
 
 		assert.Equal(t, tm.OwnerID(), u.PublicID)
-		assert.Equal(t, tm.Name(), "My team")
+		assert.Equal(t, tm.Name(), "John's team")
 	})
 }
 
@@ -49,12 +49,31 @@ func TestTeam_AddMembers(t *testing.T) {
 			nil,
 		)
 
-		tm, err := team.New(jane.PublicID, "My team")
+		tm, err := team.New(jane.PublicID, "Jane's team")
 		assert.Nil(t, err)
 
-		members := []user.User{*bob}
-		tm.AddMembers(members...)
+		err = tm.AddMembers(*bob)
 
+		assert.NotNil(t, err)
 		assert.Len(t, tm.Members(), 1)
+	})
+
+	t.Run("Should throw an error if the owner is added as member", func(t *testing.T) {
+		jane, _ := user.New(
+			"jane doe",
+			"jane.doe@email.com",
+			".Jane123",
+			"75838249072",
+			"48988781289",
+			nil,
+		)
+
+		tm, _ := team.New(jane.PublicID, "Jane's team")
+
+		members := []user.User{*jane}
+		err := tm.AddMembers(members...)
+
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "the owner cannot be added as a member")
 	})
 }

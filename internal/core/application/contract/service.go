@@ -17,7 +17,7 @@ type AuthService interface {
 type ProductService interface {
 	Create(data dto.CreateProduct) error
 	Delete(publicID string) error
-	GetByPublicID(publicID string) (*gormodel.Product, error)
+	GetByPublicID(publicId string) (*gormodel.Product, error)
 	GetBySlug(slugInput string) (*gormodel.Product, error)
 	GetAll(disabled bool, orderBy string) ([]gormodel.Product, error)
 	UpdatePrice(publicID string, price float64) error
@@ -30,7 +30,7 @@ type UserService interface {
 	Update(publicID string, data dto.UpdateUser) error
 }
 
-// remove s3 deps from this contract
+// FileManagerService remove s3 deps from this contract
 type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error)
 }

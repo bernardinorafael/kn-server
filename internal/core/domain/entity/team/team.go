@@ -9,11 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var (
-	ErrEmptyOwnerID = errors.New("ownerId cannot be empty")
-	ErrEmptyOrgName = errors.New("name cannot be empty")
-)
-
 type Team struct {
 	publicId  string
 	ownerId   string
@@ -23,7 +18,7 @@ type Team struct {
 }
 
 func New(ownerId, name string, members ...user.User) (*Team, error) {
-	org := &Team{
+	team := &Team{
 		publicId:  uuid.NewString(),
 		ownerId:   ownerId,
 		name:      name,
@@ -31,25 +26,32 @@ func New(ownerId, name string, members ...user.User) (*Team, error) {
 		createdAt: time.Now(),
 	}
 
-	if err := org.validate(); err != nil {
+	if err := team.validate(); err != nil {
 		return nil, err
 	}
 
-	return org, nil
+	return team, nil
 }
 
 func (o *Team) validate() error {
 	if o.ownerId == "" {
-		return ErrEmptyOwnerID
+		return errors.New("ownerId cannot be empty")
 	}
 	if o.name == "" {
-		return ErrEmptyOrgName
+		return errors.New("name cannot be empty")
 	}
+
 	return nil
 }
 
-func (o *Team) AddMembers(members ...user.User) {
+func (o *Team) AddMembers(members ...user.User) error {
+	for _, m := range members {
+		if m.PublicID == o.ownerId {
+			return errors.New("the owner cannot be added as a member")
+		}
+	}
 	o.members = append(o.members, members...)
+	return nil
 }
 
 func (o *Team) PublicID() string     { return o.publicId }
