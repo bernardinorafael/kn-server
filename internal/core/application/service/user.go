@@ -32,6 +32,7 @@ func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
 		string(foundUser.Password),
 		string(foundUser.Document),
 		string(foundUser.Phone),
+		nil,
 	)
 	if err != nil {
 		svc.log.Error("error init user entity", "error", err.Error())

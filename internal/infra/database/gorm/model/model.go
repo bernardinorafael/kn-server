@@ -16,7 +16,7 @@ type Team struct {
 	ID        int            `json:"id" gorm:"primaryKey"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
 	Name      string         `json:"name"`
-	Members   []User         `json:"members"`
+	Members   []User         `json:"members" gorm:"foreignKey:TeamID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`

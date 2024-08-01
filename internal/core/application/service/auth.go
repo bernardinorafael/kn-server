@@ -60,7 +60,7 @@ func (svc *authService) Login(data dto.Login) (*model.User, error) {
 }
 
 func (svc *authService) Register(data dto.Register) (*model.User, error) {
-	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document, data.Phone)
+	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document, data.Phone, nil)
 	if err != nil {
 		svc.log.Error("error creating user entity", "error", err.Error())
 		return nil, err
