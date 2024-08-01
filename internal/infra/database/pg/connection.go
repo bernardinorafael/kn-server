@@ -3,7 +3,7 @@ package db
 import (
 	"gorm.io/driver/postgres"
 
-	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
@@ -15,9 +15,9 @@ func Connect(log logger.Logger, DSN string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	var team = &model.Team{}
-	var user = &model.User{}
-	var product = &model.Product{}
+	var team = &gormodel.Team{}
+	var user = &gormodel.User{}
+	var product = &gormodel.Product{}
 
 	tables := []interface{}{
 		team,

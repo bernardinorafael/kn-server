@@ -5,7 +5,7 @@ import (
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
-	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"gorm.io/gorm"
 )
 
@@ -17,8 +17,8 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 	return &userRepo{db: DB}
 }
 
-func (r *userRepo) Create(u user.User) (*model.User, error) {
-	user := model.User{
+func (r *userRepo) Create(u user.User) (*gormodel.User, error) {
+	user := gormodel.User{
 		Name:     u.Name,
 		Email:    u.Email,
 		Password: u.Password,
@@ -34,8 +34,8 @@ func (r *userRepo) Create(u user.User) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) GetByPublicID(publicID string) (*model.User, error) {
-	var u model.User
+func (r *userRepo) GetByPublicID(publicID string) (*gormodel.User, error) {
+	var u gormodel.User
 
 	err := r.db.Where("public_id = ?", publicID).First(&u).Error
 	if err != nil {
@@ -44,8 +44,8 @@ func (r *userRepo) GetByPublicID(publicID string) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *userRepo) GetByID(id int) (*model.User, error) {
-	var user model.User
+func (r *userRepo) GetByID(id int) (*gormodel.User, error) {
+	var user gormodel.User
 
 	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -54,8 +54,8 @@ func (r *userRepo) GetByID(id int) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) GetByEmail(email string) (*model.User, error) {
-	var u model.User
+func (r *userRepo) GetByEmail(email string) (*gormodel.User, error) {
+	var u gormodel.User
 
 	err := r.db.Where("email = ?", email).First(&u).Error
 	if err != nil {
@@ -64,10 +64,10 @@ func (r *userRepo) GetByEmail(email string) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *userRepo) Update(u user.User) (*model.User, error) {
-	var user model.User
+func (r *userRepo) Update(u user.User) (*gormodel.User, error) {
+	var user gormodel.User
 
-	updated := model.User{
+	updated := gormodel.User{
 		Name:      u.Name,
 		Password:  u.Password,
 		Document:  u.Document,

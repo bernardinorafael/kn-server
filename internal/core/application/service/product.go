@@ -11,7 +11,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
-	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
@@ -159,7 +159,7 @@ func (svc *productService) Delete(publicID string) error {
 	return nil
 }
 
-func (svc *productService) GetAll(disabled bool, orderBy string) ([]model.Product, error) {
+func (svc *productService) GetAll(disabled bool, orderBy string) ([]gormodel.Product, error) {
 	products, err := svc.productRepo.GetAll(disabled, orderBy)
 	if err != nil {
 		svc.log.Error("cannot get products slice")
@@ -168,7 +168,7 @@ func (svc *productService) GetAll(disabled bool, orderBy string) ([]model.Produc
 	return products, nil
 }
 
-func (svc *productService) GetByPublicID(publicID string) (*model.Product, error) {
+func (svc *productService) GetByPublicID(publicID string) (*gormodel.Product, error) {
 	p, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "public_id", publicID)
@@ -177,7 +177,7 @@ func (svc *productService) GetByPublicID(publicID string) (*model.Product, error
 	return p, nil
 }
 
-func (svc *productService) GetBySlug(slugInput string) (*model.Product, error) {
+func (svc *productService) GetBySlug(slugInput string) (*gormodel.Product, error) {
 	s, err := slug.New(slugInput)
 	if err != nil {
 		svc.log.Error("cannot init slug value object", "error", err.Error())

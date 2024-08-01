@@ -6,7 +6,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
-	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/model"
+	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
@@ -88,7 +88,7 @@ func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
 	return nil
 }
 
-func (svc *userService) GetUser(publicID string) (*model.User, error) {
+func (svc *userService) GetUser(publicID string) (*gormodel.User, error) {
 	user, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
