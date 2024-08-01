@@ -10,7 +10,7 @@ import (
 
 func TestTeam_New(t *testing.T) {
 	t.Run("Should create a new team", func(t *testing.T) {
-		u, _ := user.New(
+		john, _ := user.New(
 			"john doe",
 			"john.doe@email.com",
 			".John123",
@@ -18,11 +18,14 @@ func TestTeam_New(t *testing.T) {
 			"48988781289",
 			nil,
 		)
+		john.Enabled = true
 
-		tm, err := team.New(u.PublicID, "John's team")
+		tm, err := team.New(*john, "John's team")
 		assert.Nil(t, err)
 
-		assert.Equal(t, tm.OwnerID(), u.PublicID)
+		ownerID := tm.Owner().PublicID
+
+		assert.Equal(t, ownerID, john.PublicID)
 		assert.Equal(t, tm.Name(), "John's team")
 	})
 }
@@ -38,6 +41,7 @@ func TestTeam_AddMembers(t *testing.T) {
 			"48988781289",
 			nil,
 		)
+		jane.Enabled = true
 
 		// bob is the team member
 		bob, _ := user.New(
@@ -49,7 +53,7 @@ func TestTeam_AddMembers(t *testing.T) {
 			nil,
 		)
 
-		tm, err := team.New(jane.PublicID, "Jane's team")
+		tm, err := team.New(*jane, "Jane's team")
 		assert.Nil(t, err)
 
 		err = tm.AddMembers(*bob)
@@ -67,8 +71,8 @@ func TestTeam_AddMembers(t *testing.T) {
 			"48988781289",
 			nil,
 		)
-
-		tm, _ := team.New(jane.PublicID, "Jane's team")
+		
+		tm, _ := team.New(*jane, "Jane's team")
 
 		members := []user.User{*jane}
 		err := tm.AddMembers(members...)

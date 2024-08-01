@@ -10,17 +10,17 @@ import (
 )
 
 type Team struct {
-	publicId  string
-	ownerId   string
+	publicID  string
+	owner     user.User
 	name      string
 	members   []user.User
 	createdAt time.Time
 }
 
-func New(ownerId, name string, members ...user.User) (*Team, error) {
+func New(owner user.User, name string, members ...user.User) (*Team, error) {
 	team := &Team{
-		publicId:  uuid.NewString(),
-		ownerId:   ownerId,
+		publicID:  uuid.NewString(),
+		owner:     owner,
 		name:      name,
 		members:   members,
 		createdAt: time.Now(),
@@ -33,29 +33,35 @@ func New(ownerId, name string, members ...user.User) (*Team, error) {
 	return team, nil
 }
 
-func (o *Team) validate() error {
-	if o.ownerId == "" {
-		return errors.New("ownerId cannot be empty")
+func (t *Team) validate() error {
+	if t.owner.PublicID == "" {
+		return errors.New("the team must have an owner")
 	}
-	if o.name == "" {
-		return errors.New("name cannot be empty")
+
+	if t.name == "" {
+		return errors.New("the team name cannot be empty")
+	}
+
+	status := t.owner.Enabled
+	if status == false {
+		return errors.New("only activated users can create a team")
 	}
 
 	return nil
 }
 
-func (o *Team) AddMembers(members ...user.User) error {
+func (t *Team) AddMembers(members ...user.User) error {
 	for _, m := range members {
-		if m.PublicID == o.ownerId {
+		if m.PublicID == t.owner.PublicID {
 			return errors.New("the owner cannot be added as a member")
 		}
 	}
-	o.members = append(o.members, members...)
+	t.members = append(t.members, members...)
 	return nil
 }
 
-func (o *Team) PublicID() string     { return o.publicId }
-func (o *Team) OwnerID() string      { return o.ownerId }
-func (o *Team) Name() string         { return o.name }
-func (o *Team) Members() []user.User { return o.members }
-func (o *Team) CreatedAt() time.Time { return o.createdAt }
+func (t *Team) PublicID() string     { return t.publicID }
+func (t *Team) Owner() user.User     { return t.owner }
+func (t *Team) Name() string         { return t.name }
+func (t *Team) Members() []user.User { return t.members }
+func (t *Team) CreatedAt() time.Time { return t.createdAt }
