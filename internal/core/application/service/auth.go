@@ -11,7 +11,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
-	"gorm.io/gorm"
+	"github.com/google/uuid"
 )
 
 var (
@@ -60,18 +60,26 @@ func (svc *authService) Login(data dto.Login) (*gormodel.User, error) {
 }
 
 func (svc *authService) Register(data dto.Register) (*gormodel.User, error) {
-	newUser, err := user.New(data.Name, data.Email, data.Password, data.Document, data.Phone, nil)
+	u, err := user.New(user.Params{
+		PublicID: uuid.NewString(),
+		Name:     data.Name,
+		Email:    data.Email,
+		Password: data.Password,
+		Document: data.Document,
+		Phone:    data.Phone,
+		TeamID:   nil,
+	})
 	if err != nil {
-		svc.log.Error("error creating user entity", "error", err.Error())
+		svc.log.Error("failed to initialize new user entity", "error", err.Error())
 		return nil, err
 	}
 
-	_, err = svc.userRepo.GetByEmail(string(newUser.Email))
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err = u.EncryptPassword(); err != nil {
+		svc.log.Error("failed to encrypt password", "error", err.Error())
 		return nil, err
 	}
 
-	u, err := svc.userRepo.Create(*newUser)
+	newUser, err := svc.userRepo.Create(*u)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", data.Email)
@@ -87,11 +95,11 @@ func (svc *authService) Register(data dto.Register) (*gormodel.User, error) {
 		}
 		return nil, err
 	}
-	return u, nil
+	return newUser, nil
 }
 
 func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
-	u, err := svc.userRepo.GetByPublicID(publicID)
+	record, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "id", publicID)
 		return ErrUserNotFound
@@ -103,7 +111,7 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		return err
 	}
 
-	err = p.Compare(password.Password(u.Password), data.OldPassword)
+	err = p.Compare(password.Password(record.Password), data.OldPassword)
 	if err != nil {
 		svc.log.Error("failed to compare password", "error", err.Error())
 		return err
@@ -115,11 +123,23 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		return err
 	}
 
-	updatedPassword := user.User{PublicID: publicID, Password: hashed}
-
-	_, err = svc.userRepo.Update(updatedPassword)
+	u, err := user.New(user.Params{
+		PublicID: record.PublicID,
+		Name:     record.Name,
+		Email:    record.Email,
+		Password: string(hashed),
+		Document: record.Document,
+		Phone:    record.Phone,
+		TeamID:   record.PublicTeamID,
+	})
 	if err != nil {
-		svc.log.Error("error upadting password", "error", err.Error())
+		svc.log.Error("failed to initialize new user entity", "error", err.Error())
+		return err
+	}
+
+	_, err = svc.userRepo.Update(*u)
+	if err != nil {
+		svc.log.Error("error updating password", "error", err.Error())
 		return ErrUpdatingPassword
 	}
 	return nil

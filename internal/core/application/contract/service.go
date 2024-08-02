@@ -30,7 +30,6 @@ type UserService interface {
 	Update(publicID string, data dto.UpdateUser) error
 }
 
-// FileManagerService remove s3 deps from this contract
 type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error)
 }

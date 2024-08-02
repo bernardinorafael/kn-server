@@ -19,12 +19,12 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 
 func (r *userRepo) Create(u user.User) (*gormodel.User, error) {
 	user := gormodel.User{
-		Name:      u.Name,
-		Email:     string(u.Email),
-		Password:  string(u.Password),
-		PublicID:  string(u.PublicID),
-		Document:  string(u.Document),
-		Phone:     string(u.Phone),
+		PublicID:  u.PublicID(),
+		Name:      u.Name(),
+		Email:     string(u.Email()),
+		Password:  string(u.Password()),
+		Document:  string(u.Document()),
+		Phone:     string(u.Phone()),
 		UpdatedAt: time.Now(),
 	}
 
@@ -69,22 +69,24 @@ func (r *userRepo) Update(u user.User) (*gormodel.User, error) {
 	var user gormodel.User
 
 	updated := gormodel.User{
-		Name:      u.Name,
-		Password:  string(u.Password),
-		Document:  string(u.Document),
-		Phone:     string(u.Phone),
+		PublicID:  u.PublicID(),
+		Name:      u.Name(),
+		Email:     string(u.Email()),
+		Password:  string(u.Password()),
+		Document:  string(u.Document()),
+		Phone:     string(u.Phone()),
 		UpdatedAt: time.Now(),
 	}
 
 	err := r.db.
 		Model(&user).
-		Where("public_id = ?", u.PublicID).
+		Where("public_id = ?", u.PublicID()).
 		Updates(updated).
 		First(&user).
 		Error
-
 	if err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }

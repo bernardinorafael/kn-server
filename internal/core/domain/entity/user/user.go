@@ -22,55 +22,57 @@ var (
 	ErrInvalidNameLength = fmt.Errorf("name must be at least %d characters long", minNameLength)
 	ErrInvalidFullName   = errors.New("incorrect name, must contain valid first and last name")
 	ErrEmptyUserName     = errors.New("name is a required field")
+	ErrInvalidUUIDFormat = errors.New("invalid id, must be a valid uuid format")
 )
 
-type User struct {
-	PublicID  string            `json:"public_id"`
-	Name      string            `json:"name"`
-	Email     email.Email       `json:"email"`
-	Document  cpf.CPF           `json:"document"`
-	Phone     phone.Phone       `json:"phone"`
-	Enabled   bool              `json:"enabled"`
-	TeamID    *string           `json:"team_id"`
-	Password  password.Password `json:"password"`
-	CreatedAt time.Time         `json:"created_at"`
+// Params contains the parameters required to create a new User entity.
+type Params struct {
+	PublicID string
+	Name     string
+	Email    string
+	Password string
+	Document string
+	Phone    string
+	TeamID   *string
 }
 
-func New(newName, newEmail, newPass, newDoc, newPhone string, teamId *string) (*User, error) {
-	address, err := email.New(newEmail)
+type User struct {
+	publicID  string
+	name      string
+	email     email.Email
+	document  cpf.CPF
+	phone     phone.Phone
+	enabled   bool
+	teamID    *string
+	password  password.Password
+	createdAt time.Time
+}
+
+func New(u Params) (*User, error) {
+	address, err := email.New(u.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	ph, err := phone.New(newPhone)
+	ph, err := phone.New(u.Phone)
 	if err != nil {
 		return nil, err
 	}
 
-	p, err := password.New(newPass)
-	if err != nil {
-		return nil, err
-	}
-
-	hashed, err := p.ToEncrypted()
-	if err != nil {
-		return nil, err
-	}
-
-	document, err := cpf.New(newDoc)
+	document, err := cpf.New(u.Document)
 	if err != nil {
 		return nil, err
 	}
 
 	user := User{
-		Name:     newName,
-		PublicID: uuid.NewString(),
-		Email:    address.ToEmail(),
-		Document: document.ToCPF(),
-		Phone:    ph.ToPhone(),
-		Password: hashed,
-		TeamID:   teamId,
-		Enabled:  false,
+		publicID: u.PublicID,
+		name:     u.Name,
+		email:    address.ToEmail(),
+		document: document.ToCPF(),
+		phone:    ph.ToPhone(),
+		password: password.Password(u.Password),
+		teamID:   u.TeamID,
+		enabled:  false,
 	}
 
 	if err = user.validate(); err != nil {
@@ -81,27 +83,47 @@ func New(newName, newEmail, newPass, newDoc, newPhone string, teamId *string) (*
 }
 
 func (u *User) validate() error {
-	if u.Name == "" {
+	if u.name == "" {
 		return ErrEmptyUserName
 	}
 
-	if len(u.Name) < minNameLength {
+	if len(u.name) < minNameLength {
 		return ErrInvalidNameLength
 	}
 
-	u.Name = strings.TrimSpace(u.Name)
+	u.name = strings.TrimSpace(u.name)
 
 	fullNamePattern := "^[A-Za-zÀ-ÿ]+(?:\\s[A-Za-zÀ-ÿ]+)+$"
-	matched, _ := regexp.MatchString(fullNamePattern, u.Name)
+	matched, _ := regexp.MatchString(fullNamePattern, u.name)
 	if !matched {
 		return ErrInvalidFullName
+	}
+
+	_, err := uuid.Parse(u.publicID)
+	if err != nil {
+		return ErrInvalidUUIDFormat
 	}
 
 	return nil
 }
 
+func (u *User) EncryptPassword() error {
+	p, err := password.New(string(u.password))
+	if err != nil {
+		return err
+	}
+
+	hashed, err := p.ToEncrypted()
+	if err != nil {
+		return err
+	}
+
+	u.password = hashed
+	return nil
+}
+
 func (u *User) ChangeName(newName string) error {
-	u.Name = newName
+	u.name = newName
 	if err := u.validate(); err != nil {
 		return err
 	}
@@ -114,7 +136,7 @@ func (u *User) ChangePhone(newPhone string) error {
 		return err
 	}
 
-	u.Phone = p.ToPhone()
+	u.phone = p.ToPhone()
 	return nil
 }
 
@@ -124,7 +146,7 @@ func (u *User) ChangeDocument(newDocument string) error {
 		return err
 	}
 
-	u.Document = doc.ToCPF()
+	u.document = doc.ToCPF()
 	return nil
 }
 
@@ -134,6 +156,20 @@ func (u *User) ChangeEmail(newEmail string) error {
 		return err
 	}
 
-	u.Email = address.ToEmail()
+	u.email = address.ToEmail()
 	return nil
 }
+
+func (u *User) ChangeStatus(status bool) {
+	u.enabled = status
+}
+
+func (u *User) PublicID() string            { return u.publicID }
+func (u *User) Name() string                { return u.name }
+func (u *User) Email() email.Email          { return u.email }
+func (u *User) Document() cpf.CPF           { return u.document }
+func (u *User) Phone() phone.Phone          { return u.phone }
+func (u *User) Enabled() bool               { return u.enabled }
+func (u *User) TeamID() *string             { return u.teamID }
+func (u *User) Password() password.Password { return u.password }
+func (u *User) CreatedAt() time.Time        { return u.createdAt }

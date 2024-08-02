@@ -11,18 +11,18 @@ import (
 
 type Team struct {
 	publicID  string
-	owner     user.User
+	ownerID   string
 	name      string
 	members   []user.User
 	createdAt time.Time
 }
 
-func New(owner user.User, name string, members ...user.User) (*Team, error) {
+func New(ownerID, name string) (*Team, error) {
 	team := &Team{
 		publicID:  uuid.NewString(),
-		owner:     owner,
+		ownerID:   ownerID,
 		name:      name,
-		members:   members,
+		members:   nil,
 		createdAt: time.Now(),
 	}
 
@@ -34,7 +34,7 @@ func New(owner user.User, name string, members ...user.User) (*Team, error) {
 }
 
 func (t *Team) validate() error {
-	if t.owner.PublicID == "" {
+	if t.ownerID == "" {
 		return errors.New("the team must have an owner")
 	}
 
@@ -42,26 +42,26 @@ func (t *Team) validate() error {
 		return errors.New("the team name cannot be empty")
 	}
 
-	status := t.owner.Enabled
-	if status == false {
-		return errors.New("only activated users can create a team")
-	}
-
 	return nil
 }
 
-func (t *Team) AddMembers(members ...user.User) error {
-	for _, m := range members {
-		if m.PublicID == t.owner.PublicID {
+func (t *Team) AddMember(member user.User) error {
+	if member.PublicID() == t.ownerID {
+		return errors.New("the owner cannot be added as a member")
+	}
+
+	for _, m := range t.Members() {
+		if m.PublicID() == member.PublicID() {
 			return errors.New("the owner cannot be added as a member")
 		}
 	}
-	t.members = append(t.members, members...)
+	t.members = append(t.members, member)
+
 	return nil
 }
 
 func (t *Team) PublicID() string     { return t.publicID }
-func (t *Team) Owner() user.User     { return t.owner }
+func (t *Team) OwnerID() string      { return t.ownerID }
 func (t *Team) Name() string         { return t.name }
 func (t *Team) Members() []user.User { return t.members }
 func (t *Team) CreatedAt() time.Time { return t.createdAt }

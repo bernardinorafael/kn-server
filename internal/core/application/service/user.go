@@ -20,66 +20,56 @@ func NewUserService(log logger.Logger, userRepo contract.UserRepository) contrac
 }
 
 func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
-	foundUser, err := svc.userRepo.GetByPublicID(publicID)
+	record, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
 		return errors.New("user not found")
 	}
 
-	userEntity, err := user.New(
-		foundUser.Name,
-		string(foundUser.Email),
-		string(foundUser.Password),
-		string(foundUser.Document),
-		string(foundUser.Phone),
-		nil,
-	)
+	u, err := user.New(user.Params{
+		PublicID: record.PublicID,
+		Name:     record.Name,
+		Email:    record.Email,
+		Password: record.Password,
+		Document: record.Document,
+		Phone:    record.Phone,
+		TeamID:   record.PublicTeamID,
+	})
 	if err != nil {
-		svc.log.Error("error init user entity", "error", err.Error())
+		svc.log.Error("failed to initialize new user entity", "error", err.Error())
 		return err
 	}
 
 	if data.Name != "" {
-		err = userEntity.ChangeName(data.Name)
+		err = u.ChangeName(data.Name)
 		if err != nil {
-			svc.log.Error("erro while changing name", "error", err.Error())
+			svc.log.Error("error while changing name", "error", err.Error())
 			return err
 		}
 	}
-
 	if data.Document != "" {
-		err = userEntity.ChangeDocument(data.Document)
+		err = u.ChangeDocument(data.Document)
 		if err != nil {
 			svc.log.Error("error while changing document", "error", err.Error())
 			return err
 		}
 	}
-
 	if data.Email != "" {
-		err = userEntity.ChangeEmail(data.Email)
+		err = u.ChangeEmail(data.Email)
 		if err != nil {
 			svc.log.Error("error while changing email", "error", err.Error())
 			return err
 		}
 	}
-
 	if data.Phone != "" {
-		err = userEntity.ChangePhone(data.Phone)
+		err = u.ChangePhone(data.Phone)
 		if err != nil {
 			svc.log.Error("error while changing phone", "error", err.Error())
 			return err
 		}
 	}
 
-	updated := user.User{
-		PublicID: publicID,
-		Name:     userEntity.Name,
-		Email:    userEntity.Email,
-		Document: userEntity.Document,
-		Phone:    userEntity.Phone,
-	}
-
-	_, err = svc.userRepo.Update(updated)
+	_, err = svc.userRepo.Update(*u)
 	if err != nil {
 		svc.log.Error("cannot update user", "error", err.Error())
 		return err

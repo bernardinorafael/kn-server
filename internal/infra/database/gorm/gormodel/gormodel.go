@@ -10,25 +10,26 @@ type Team struct {
 	ID        int            `json:"id" gorm:"primaryKey"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
 	Name      string         `json:"name"`
-	Members   []User         `json:"members" gorm:"foreignKey:TeamID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+
+	Members []User `json:"members" gorm:"foreignKey:PublicTeamID"`
 }
 
 type User struct {
-	ID        int            `json:"id" gorm:"primaryKey"`
-	PublicID  string         `json:"public_id" gorm:"unique"`
-	Name      string         `json:"name"`
-	Email     string         `json:"email" gorm:"unique"`
-	Document  string         `json:"document" gorm:"unique"`
-	Phone     string         `json:"phone" gorm:"unique"`
-	Enabled   bool           `json:"enabled"`
-	Password  string         `json:"password"`
-	TeamID    *int           `json:"team_id" gorm:"default:null"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	ID           int            `json:"id" gorm:"primaryKey"`
+	PublicID     string         `json:"public_id" gorm:"unique"`
+	Name         string         `json:"name"`
+	Email        string         `json:"email" gorm:"unique"`
+	Document     string         `json:"document" gorm:"unique"`
+	Phone        string         `json:"phone" gorm:"unique"`
+	Enabled      bool           `json:"enabled"`
+	Password     string         `json:"password"`
+	PublicTeamID *string        `json:"public_team_id" gorm:"default:null"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
 type Product struct {
