@@ -6,7 +6,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/httperr"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
@@ -41,13 +41,13 @@ func (h *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
 		h.log.Error(err.Error())
-		error.NewBadRequestError(w, "error parsing body request")
+		httperr.BadRequestError(w, "http error parsing body request")
 		return
 	}
 
 	err = h.userService.Update(r.PathValue("id"), input)
 	if err != nil {
-		error.NewBadRequestError(w, "cannot update user")
+		httperr.BadRequestError(w, "cannot update user")
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)
@@ -58,13 +58,13 @@ func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := h.jwtAuth.VerifyToken(token)
 	if err != nil {
-		error.NewUnauthorizedError(w, "unauthorized user")
+		httperr.UnauthorizedError(w, "unauthorized user")
 		return
 	}
 
 	u, err := h.userService.GetUser(payload.PublicID)
 	if err != nil {
-		error.NewBadRequestError(w, "user not found")
+		httperr.BadRequestError(w, "user not found")
 		return
 	}
 

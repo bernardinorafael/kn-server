@@ -41,7 +41,7 @@ func (r *productRepo) Update(p product.Product) error {
 }
 
 func (r *productRepo) Create(p product.Product) (*gormodel.Product, error) {
-	newProduct := &gormodel.Product{
+	product := gormodel.Product{
 		Name:      p.Name(),
 		Price:     p.Price(),
 		Quantity:  p.Quantity(),
@@ -51,12 +51,10 @@ func (r *productRepo) Create(p product.Product) (*gormodel.Product, error) {
 		Enabled:   p.Enabled(),
 		UpdatedAt: time.Now(),
 	}
-
-	err := r.db.Create(newProduct).Error
-	if err != nil {
+	if err := r.db.Create(product).Error; err != nil {
 		return nil, err
 	}
-	return newProduct, nil
+	return &product, nil
 }
 
 func (r *productRepo) GetByID(id int) (*gormodel.Product, error) {

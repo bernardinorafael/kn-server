@@ -31,13 +31,13 @@ func main() {
 
 	env, err := config.NewConfig()
 	if err != nil {
-		l.Error("failed load env", "error", err)
+		l.Error("failed load env", "httperr", err)
 		return
 	}
 
 	con, err := db.Connect(l, env.DSN)
 	if err != nil {
-		l.Error("error connecting db", "error", err)
+		l.Error("httperr connecting db", "httperr", err)
 		panic(err)
 	}
 
@@ -73,7 +73,7 @@ func main() {
 
 	err = http.ListenAndServe(":"+env.Port, router)
 	if err != nil {
-		l.Error("error connecting web server", "error", err)
+		l.Error("httperr connecting web server", "httperr", err)
 		os.Exit(1)
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/error"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/httperr"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
@@ -39,23 +39,23 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		error.NewBadRequestError(w, "error parsing body request")
+		httperr.BadRequestError(w, "error parsing body request")
 		return
 	}
 
 	user, err := h.authService.Login(input)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
-			error.NewConflictError(w, err.Error())
+			httperr.ConflictError(w, err.Error())
 			return
 		}
-		error.NewBadRequestError(w, err.Error())
+		httperr.BadRequestError(w, err.Error())
 		return
 	}
 
 	token, payload, err := h.jwtAuth.CreateAccessToken(user.PublicID, h.env.AccessTokenDuration)
 	if err != nil {
-		error.NewInternalServerError(w, err.Error())
+		httperr.InternalServerError(w, err.Error())
 		return
 	}
 	restutil.WriteJSON(w, http.StatusCreated, map[string]interface{}{
@@ -69,21 +69,21 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &input)
 	if err != nil {
-		error.NewBadRequestError(w, "error parsing body request")
+		httperr.BadRequestError(w, "error parsing body request")
 		return
 	}
 
 	_, err = h.authService.Register(input)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
-			error.NewConflictError(w, err.Error())
+			httperr.ConflictError(w, err.Error())
 			return
 		}
 		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
-			error.NewConflictError(w, err.Error())
+			httperr.ConflictError(w, err.Error())
 			return
 		}
-		error.NewBadRequestError(w, err.Error())
+		httperr.BadRequestError(w, err.Error())
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)
@@ -94,17 +94,17 @@ func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 
 	err := restutil.ParseBody(r, &payload)
 	if err != nil {
-		error.NewBadRequestError(w, "error parsing body request")
+		httperr.BadRequestError(w, "error parsing body request")
 		return
 	}
 
 	err = h.authService.RecoverPassword(r.PathValue("id"), payload)
 	if err != nil {
 		if errors.Is(err, service.ErrUpdatingPassword) {
-			error.NewConflictError(w, err.Error())
+			httperr.ConflictError(w, err.Error())
 			return
 		}
-		error.NewBadRequestError(w, err.Error())
+		httperr.BadRequestError(w, err.Error())
 		return
 	}
 	restutil.WriteSuccess(w, http.StatusCreated)

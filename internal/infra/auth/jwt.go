@@ -48,7 +48,7 @@ func (j *jwtAuth) VerifyToken(t string) (*TokenPayload, error) {
 
 	token, err := jwt.ParseWithClaims(t, &TokenPayload{}, keyFunc)
 	if err != nil {
-		j.log.Error("error validate jwt", "error", err.Error())
+		j.log.Error("httperr validate jwt", "httperr", err.Error())
 		return nil, errUnauthorized
 	}
 

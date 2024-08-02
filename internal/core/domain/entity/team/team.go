@@ -52,7 +52,7 @@ func (t *Team) AddMember(member user.User) error {
 
 	for _, m := range t.Members() {
 		if m.PublicID() == member.PublicID() {
-			return errors.New("the owner cannot be added as a member")
+			return errors.New("a member cannot be added twice")
 		}
 	}
 	t.members = append(t.members, member)
