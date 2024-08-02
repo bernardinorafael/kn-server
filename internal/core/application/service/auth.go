@@ -99,7 +99,7 @@ func (svc *authService) Register(data dto.Register) (*gormodel.User, error) {
 }
 
 func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
-	record, err := svc.userRepo.GetByPublicID(publicID)
+	found, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "id", publicID)
 		return ErrUserNotFound
@@ -111,7 +111,7 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		return err
 	}
 
-	err = p.Compare(password.Password(record.Password), data.OldPassword)
+	err = p.Compare(password.Password(found.Password), data.OldPassword)
 	if err != nil {
 		svc.log.Error("failed to compare password", "error", err.Error())
 		return err
@@ -124,13 +124,13 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 	}
 
 	u, err := user.New(user.Params{
-		PublicID: record.PublicID,
-		Name:     record.Name,
-		Email:    record.Email,
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
 		Password: string(hashed),
-		Document: record.Document,
-		Phone:    record.Phone,
-		TeamID:   record.PublicTeamID,
+		Document: found.Document,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())

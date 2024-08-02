@@ -22,34 +22,46 @@ var (
 	ErrInvalidProductName        = fmt.Errorf("name length must be between %d and %d characters", minNameLength, maxNameLength)
 )
 
-type Product struct {
-	PublicID  string    `json:"public_id"`
-	Slug      slug.Slug `json:"slug"`
-	Name      string    `json:"name"`
-	Image     string    `json:"image"`
-	Price     float64   `json:"price"`
-	Quantity  int       `json:"quantity"`
-	Enabled   bool      `json:"enabled"`
-	CreatedAt time.Time `json:"created_at"`
+// Params contains the parameters required to create a new Product entity
+type Params struct {
+	PublicID string
+	Name     string
+	Image    string
+	Price    float64
+	Quantity int
+	Enabled  bool
 }
 
-func New(name string, price float64, quantity int) (*Product, error) {
-	if len(name) == 0 {
+type Product struct {
+	publicID  string
+	slug      slug.Slug
+	name      string
+	image     string
+	price     float64
+	quantity  int
+	enabled   bool
+	createdAt time.Time
+}
+
+func New(p Params) (*Product, error) {
+	if p.Name == "" {
 		return nil, ErrEmptyProductName
 	}
 
-	s, err := slug.New(name)
+	s, err := slug.New(p.Name)
 	if err != nil {
 		return nil, err
 	}
 
 	product := Product{
-		Name:     name,
-		Price:    price,
-		Quantity: quantity,
-		PublicID: uuid.NewString(),
-		Slug:     s.GetSlug(),
-		Enabled:  true,
+		publicID:  uuid.NewString(),
+		slug:      s.GetSlug(),
+		name:      p.Name,
+		image:     p.Image,
+		price:     p.Price,
+		quantity:  p.Quantity,
+		enabled:   p.Enabled,
+		createdAt: time.Now(),
 	}
 
 	if err = product.validate(); err != nil {
@@ -59,19 +71,19 @@ func New(name string, price float64, quantity int) (*Product, error) {
 }
 
 func (p *Product) validate() error {
-	if len(p.Name) > maxNameLength {
+	if len(p.Name()) > maxNameLength {
 		return ErrInvalidProductName
 	}
 
-	if len(p.Name) < minNameLength {
+	if len(p.Name()) < minNameLength {
 		return ErrInvalidProductName
 	}
 
-	if p.Quantity < 1 {
+	if p.Quantity() < 1 {
 		return ErrInvalidQuantity
 	}
 
-	if p.Price < 1 {
+	if p.Price() < 1 {
 		return ErrInvalidPrice
 	}
 	return nil
@@ -82,11 +94,11 @@ func (p *Product) ChangePrice(price float64) error {
 		return ErrInvalidPrice
 	}
 
-	if !p.Enabled {
+	if !p.Enabled() {
 		return ErrManipulateDisabledProduct
 	}
 
-	p.Price = price
+	p.price = price
 	return nil
 }
 
@@ -94,16 +106,16 @@ func (p *Product) IncreaseQuantity(quantity int) error {
 	if quantity < 1 {
 		return ErrInvalidQuantity
 	}
-	if !p.Enabled {
+	if !p.Enabled() {
 		return ErrManipulateDisabledProduct
 	}
 
-	p.Quantity += quantity
+	p.quantity += quantity
 	return nil
 }
 
 func (p *Product) ChangeName(name string) error {
-	if !p.Enabled {
+	if !p.Enabled() {
 		return ErrManipulateDisabledProduct
 	}
 
@@ -111,7 +123,7 @@ func (p *Product) ChangeName(name string) error {
 		return ErrEmptyProductName
 	}
 
-	if len(p.Name) < minNameLength || len(p.Name) >= maxNameLength {
+	if len(p.Name()) < minNameLength || len(p.Name()) >= maxNameLength {
 		return ErrInvalidProductName
 	}
 
@@ -120,20 +132,21 @@ func (p *Product) ChangeName(name string) error {
 		return err
 	}
 
-	p.Name = name
-	p.Slug = s.GetSlug()
+	p.name = name
+	p.slug = s.GetSlug()
 
 	return nil
 }
 
-func (p *Product) SetImage(url string) {
-	p.Image = url
-}
-
-func (p *Product) GetStatus() bool {
-	return p.Enabled
-}
-
 func (p *Product) ChangeStatus(status bool) {
-	p.Enabled = status
+	p.enabled = status
 }
+
+func (p *Product) PublicID() string     { return p.publicID }
+func (p *Product) Slug() slug.Slug      { return p.slug }
+func (p *Product) Name() string         { return p.name }
+func (p *Product) Image() string        { return p.image }
+func (p *Product) Price() float64       { return p.price }
+func (p *Product) Quantity() int        { return p.quantity }
+func (p *Product) Enabled() bool        { return p.enabled }
+func (p *Product) CreatedAt() time.Time { return p.createdAt }

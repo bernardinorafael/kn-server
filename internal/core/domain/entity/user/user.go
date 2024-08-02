@@ -25,7 +25,7 @@ var (
 	ErrInvalidUUIDFormat = errors.New("invalid id, must be a valid uuid format")
 )
 
-// Params contains the parameters required to create a new User entity.
+// Params contains the parameters required to create a new User entity
 type Params struct {
 	PublicID string
 	Name     string
@@ -65,14 +65,15 @@ func New(u Params) (*User, error) {
 	}
 
 	user := User{
-		publicID: u.PublicID,
-		name:     u.Name,
-		email:    address.ToEmail(),
-		document: document.ToCPF(),
-		phone:    ph.ToPhone(),
-		password: password.Password(u.Password),
-		teamID:   u.TeamID,
-		enabled:  false,
+		publicID:  u.PublicID,
+		name:      u.Name,
+		email:     address.ToEmail(),
+		document:  document.ToCPF(),
+		phone:     ph.ToPhone(),
+		password:  password.Password(u.Password),
+		teamID:    u.TeamID,
+		enabled:   false,
+		createdAt: time.Now(),
 	}
 
 	if err = user.validate(); err != nil {
