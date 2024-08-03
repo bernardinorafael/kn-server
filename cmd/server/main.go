@@ -9,7 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormrepo"
-	db "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
+	database "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
@@ -35,9 +35,9 @@ func main() {
 		return
 	}
 
-	con, err := db.Connect(l, env.DSN)
+	db, err := database.Connect(l, env.DSN)
 	if err != nil {
-		l.Error("httperr connecting db", "httperr", err)
+		l.Error("error connecting db", "httperr", err)
 		panic(err)
 	}
 
@@ -53,13 +53,18 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := gormrepo.NewUserRepo(con)
-	productRepo := gormrepo.NewProductRepo(con)
+	userRepo := gormrepo.NewUserRepo(db)
+	productRepo := gormrepo.NewProductRepo(db)
 
 	s3Service := service.NewS3Service(s3, l)
 	authService := service.NewAuthService(l, userRepo)
-	productService := service.NewProductService(l, env, productRepo, s3Service)
 	userService := service.NewUserService(l, userRepo)
+	productService := service.NewProductService(service.WithProductParams{
+		Log:         l,
+		Env:         env,
+		ProductRepo: productRepo,
+		FileService: s3Service,
+	})
 
 	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
@@ -73,7 +78,7 @@ func main() {
 
 	err = http.ListenAndServe(":"+env.Port, router)
 	if err != nil {
-		l.Error("httperr connecting web server", "httperr", err)
+		l.Error("error connecting web server", "httperr", err)
 		os.Exit(1)
 	}
 }

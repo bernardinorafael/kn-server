@@ -21,6 +21,13 @@ var (
 	ErrProductNotFound         = errors.New("product not found")
 )
 
+type WithProductParams struct {
+	Log         logger.Logger
+	Env         *env.Env
+	ProductRepo contract.ProductRepository
+	FileService contract.FileManagerService
+}
+
 type productService struct {
 	log         logger.Logger
 	env         *env.Env
@@ -28,8 +35,13 @@ type productService struct {
 	fileService contract.FileManagerService
 }
 
-func NewProductService(log logger.Logger, env *env.Env, productRepo contract.ProductRepository, fileService contract.FileManagerService) contract.ProductService {
-	return &productService{log, env, productRepo, fileService}
+func NewProductService(p WithProductParams) contract.ProductService {
+	return &productService{
+		log:         p.Log,
+		env:         p.Env,
+		productRepo: p.ProductRepo,
+		fileService: p.FileService,
+	}
 }
 
 func (svc *productService) ChangeStatus(publicID string, status bool) error {

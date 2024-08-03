@@ -221,7 +221,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 		routeutils.NewBadRequestError(w, err.Error())
 		return
 	}
-	
+
 	var products []response.Product
 	for _, p := range allProducts {
 		products = append(products, response.Product{

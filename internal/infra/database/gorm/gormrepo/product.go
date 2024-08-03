@@ -37,6 +37,7 @@ func (r *productRepo) Update(p product.Product) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -54,6 +55,7 @@ func (r *productRepo) Create(p product.Product) (*gormodel.Product, error) {
 	if err := r.db.Create(product).Error; err != nil {
 		return nil, err
 	}
+
 	return &product, nil
 }
 
@@ -64,6 +66,7 @@ func (r *productRepo) GetByID(id int) (*gormodel.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &product, nil
 }
 
@@ -74,21 +77,29 @@ func (r *productRepo) GetBySlug(slug string) (*gormodel.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &product, nil
 }
 
 func (r *productRepo) Delete(publicID string) error {
 	var p gormodel.Product
 
-	err := r.db.Where("public_id = ?", publicID).Find(&p).Error
+	err := r.db.
+		Where("public_id = ?", publicID).
+		Find(&p).
+		Error
 	if err != nil {
 		return err
 	}
 
-	err = r.db.Where("id = ?", p.ID).Delete(&p).Error
+	err = r.db.
+		Where("id = ?", p.ID).
+		Delete(&p).
+		Error
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -103,15 +114,20 @@ func (r *productRepo) GetAll(disabled bool, orderBy string) ([]gormodel.Product,
 	if err != nil {
 		return products, err
 	}
+
 	return products, nil
 }
 
 func (r *productRepo) GetByPublicID(publicID string) (*gormodel.Product, error) {
 	var product gormodel.Product
 
-	err := r.db.Where("public_id = ?", publicID).First(&product).Error
+	err := r.db.
+		Where("public_id = ?", publicID).
+		First(&product).
+		Error
 	if err != nil {
 		return nil, err
 	}
+
 	return &product, nil
 }

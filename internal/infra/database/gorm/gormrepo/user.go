@@ -32,16 +32,21 @@ func (r *userRepo) Create(u user.User) (*gormodel.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 
 func (r *userRepo) GetByPublicID(publicID string) (*gormodel.User, error) {
 	var u gormodel.User
 
-	err := r.db.Where("public_id = ?", publicID).First(&u).Error
+	err := r.db.
+		Where("public_id = ?", publicID).
+		First(&u).
+		Error
 	if err != nil {
 		return nil, err
 	}
+
 	return &u, nil
 }
 
@@ -58,10 +63,14 @@ func (r *userRepo) GetByID(id int) (*gormodel.User, error) {
 func (r *userRepo) GetByEmail(email string) (*gormodel.User, error) {
 	var u gormodel.User
 
-	err := r.db.Where("email = ?", email).First(&u).Error
+	err := r.db.
+		Where("email = ?", email).
+		First(&u).
+		Error
 	if err != nil {
 		return nil, err
 	}
+	
 	return &u, nil
 }
 

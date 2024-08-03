@@ -44,10 +44,6 @@ type Product struct {
 }
 
 func New(p Params) (*Product, error) {
-	if p.Name == "" {
-		return nil, ErrEmptyProductName
-	}
-
 	s, err := slug.New(p.Name)
 	if err != nil {
 		return nil, err
@@ -71,6 +67,10 @@ func New(p Params) (*Product, error) {
 }
 
 func (p *Product) validate() error {
+	if p.Name() == "" {
+		return ErrEmptyProductName
+	}
+
 	if len(p.Name()) > maxNameLength {
 		return ErrInvalidProductName
 	}

@@ -1,6 +1,8 @@
-package db
+package database
 
 import (
+	"sync"
+
 	"gorm.io/driver/postgres"
 
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
@@ -9,26 +11,29 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	db   *gorm.DB
+	once sync.Once
+)
+
 func Connect(log logger.Logger, DSN string) (*gorm.DB, error) {
-	con, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
+	once.Do(func() {
+		db, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
+		if err != nil {
+			return
+		}
 
-	var team = &gormodel.Team{}
-	var user = &gormodel.User{}
-	var product = &gormodel.Product{}
+		tables := []interface{}{
+			&gormodel.Team{},
+			&gormodel.User{},
+			&gormodel.Product{},
+		}
 
-	tables := []interface{}{
-		team,
-		user,
-		product,
-	}
+		if err = db.AutoMigrate(tables...); err != nil {
+			log.Error("migrate: error attempt to exec migrates", "httperr", err.Error())
+			return
+		}
+	})
 
-	if err = con.AutoMigrate(tables...); err != nil {
-		log.Error("migrate: error attempt to exec migrates", "httperr", err.Error())
-		return nil, err
-	}
-
-	return con, nil
+	return db, nil
 }
