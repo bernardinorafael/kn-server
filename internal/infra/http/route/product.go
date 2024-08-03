@@ -57,7 +57,7 @@ func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 
 	err := routeutils.ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "error parsing body request")
+		routeutils.NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -75,7 +75,7 @@ func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request)
 
 	err := routeutils.ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "error parsing body request")
+		routeutils.NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -93,7 +93,7 @@ func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 
 	err := routeutils.ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "error parsing body request")
+		routeutils.NewBadRequestError(w, err.Error())
 		return
 	}
 

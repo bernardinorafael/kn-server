@@ -17,6 +17,11 @@ import (
 	"github.com/go-chi/cors"
 )
 
+/*
+* TODO: implement Graceful Shutdown
+* TODO: implement Option Pattern for services
+ */
+
 func main() {
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
@@ -55,11 +60,12 @@ func main() {
 
 	userRepo := gormrepo.NewUserRepo(db)
 	productRepo := gormrepo.NewProductRepo(db)
-	_ = gormrepo.NewTeamRepo(db)
+	teamRepo := gormrepo.NewTeamRepo(db)
 
 	s3Service := service.NewS3Service(s3, l)
 	authService := service.NewAuthService(l, userRepo)
 	userService := service.NewUserService(l, userRepo)
+	teamService := service.NewTeamService(l, teamRepo)
 	productService := service.NewProductService(service.WithProductParams{
 		Log:         l,
 		Env:         env,
@@ -70,16 +76,18 @@ func main() {
 	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
+	teamHandler := route.NewTeamHandler(l, teamService)
 
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)
+	teamHandler.RegisterRoute(router)
 
 	l.Info("server listening", "port", env.Port)
 
 	err = http.ListenAndServe(":"+env.Port, router)
 	if err != nil {
-		l.Error("error connecting web server", "httperr", err)
+		l.Error("error connecting web server", "error", err)
 		os.Exit(1)
 	}
 }

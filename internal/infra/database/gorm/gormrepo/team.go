@@ -7,13 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type teamRepo struct {
-	db *gorm.DB
-}
-
 /*
 * TODO: remove entity/model mapping logic from repositories and do it into service layer
  */
+
+type teamRepo struct {
+	db *gorm.DB
+}
 
 func NewTeamRepo(db *gorm.DB) contract.TeamRepository {
 	return &teamRepo{db}

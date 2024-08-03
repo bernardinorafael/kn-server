@@ -39,7 +39,6 @@ func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := routeutils.ParseBodyRequest(r, &input)
 	if err != nil {
-		h.log.Error(err.Error())
 		routeutils.NewBadRequestError(w, "http error parsing body request")
 		return
 	}

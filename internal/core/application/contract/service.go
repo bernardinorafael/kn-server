@@ -30,6 +30,10 @@ type UserService interface {
 	Update(publicID string, data dto.UpdateUser) error
 }
 
+type TeamService interface {
+	Create(data dto.CreateTeam) error
+}
+
 type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error)
 }
