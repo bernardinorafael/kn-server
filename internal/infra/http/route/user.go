@@ -1,10 +1,12 @@
 package route
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
+	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
@@ -31,7 +33,30 @@ func (h userHandler) RegisterRoute(r *chi.Mux) {
 
 		r.Get("/me", h.getSigned)
 		r.Put("/{id}", h.updateUser)
+		r.Patch("/{id}/password", h.recoverPassword)
 	})
+}
+
+func (h userHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
+	var payload dto.UpdatePassword
+
+	err := ParseBodyRequest(r, &payload)
+	if err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	err = h.userService.RecoverPassword(r.PathValue("id"), payload)
+	if err != nil {
+		if errors.Is(err, service.ErrUpdatingPassword) {
+			NewConflictError(w, err.Error())
+			return
+		}
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {

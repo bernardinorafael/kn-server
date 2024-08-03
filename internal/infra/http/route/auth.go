@@ -25,13 +25,10 @@ func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth
 	return &authHandler{log, env, authService, jwtAuth}
 }
 
-// TODO: transfer update password handler to users handler
-
 func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
-		r.Patch("/{id}/password", h.recoverPassword)
 	})
 }
 
@@ -82,28 +79,6 @@ func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
-			NewConflictError(w, err.Error())
-			return
-		}
-		NewBadRequestError(w, err.Error())
-		return
-	}
-
-	WriteSuccessResponse(w, http.StatusCreated)
-}
-
-func (h authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
-	var payload dto.UpdatePassword
-
-	err := ParseBodyRequest(r, &payload)
-	if err != nil {
-		NewBadRequestError(w, err.Error())
-		return
-	}
-
-	err = h.authService.RecoverPassword(r.PathValue("id"), payload)
-	if err != nil {
-		if errors.Is(err, service.ErrUpdatingPassword) {
 			NewConflictError(w, err.Error())
 			return
 		}

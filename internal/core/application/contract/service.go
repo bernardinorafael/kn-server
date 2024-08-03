@@ -11,7 +11,6 @@ import (
 type AuthService interface {
 	Login(data dto.Login) (gormodel.User, error)
 	Register(data dto.Register) (gormodel.User, error)
-	RecoverPassword(publicID string, data dto.UpdatePassword) error
 }
 
 type ProductService interface {
@@ -28,6 +27,7 @@ type ProductService interface {
 type UserService interface {
 	GetUser(publicID string) (gormodel.User, error)
 	Update(publicID string, data dto.UpdateUser) error
+	RecoverPassword(publicID string, data dto.UpdatePassword) error
 }
 
 type TeamService interface {
