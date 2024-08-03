@@ -9,6 +9,7 @@ import (
 type Team struct {
 	ID        int            `json:"id" gorm:"primaryKey"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
+	OwnerID   string         `json:"owner_id"`
 	Name      string         `json:"name"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

@@ -55,6 +55,7 @@ func main() {
 
 	userRepo := gormrepo.NewUserRepo(db)
 	productRepo := gormrepo.NewProductRepo(db)
+	_ = gormrepo.NewTeamRepo(db)
 
 	s3Service := service.NewS3Service(s3, l)
 	authService := service.NewAuthService(l, userRepo)
