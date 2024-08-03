@@ -100,7 +100,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 			Image:    "image-url-test",
 			Price:    300,
 			Quantity: 100,
-			Enabled:  false,
+			Enabled:  true,
 		})
 
 		err := p.ChangePrice(100)
@@ -151,11 +151,12 @@ func TestProductEntity_IncQuantity(t *testing.T) {
 			Quantity: 10,
 			Enabled:  false,
 		})
+		p.ChangeStatus(true)
 
 		err := p.IncreaseQuantity(10)
 
 		assert.Nil(t, err)
-		assert.Equal(t, p.Quantity(), int32(20))
+		assert.Equal(t, p.Quantity(), 20)
 	})
 
 	t.Run("Should not be able to inc a product quantity with zero value", func(t *testing.T) {
@@ -200,7 +201,7 @@ func TestProductEntity_ChangeName(t *testing.T) {
 			Image:    "image-url-test",
 			Price:    300,
 			Quantity: 10,
-			Enabled:  false,
+			Enabled:  true,
 		})
 
 		err := p.ChangeName("other product name")

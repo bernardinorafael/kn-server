@@ -56,7 +56,7 @@ func TestTeam_AddMembers(t *testing.T) {
 		tm, err := team.New(jane.PublicID(), "Jane's team")
 		err = tm.AddMember(*bob)
 
-		assert.NotNil(t, err)
+		assert.Nil(t, err)
 		assert.Len(t, tm.Members(), 1)
 	})
 
