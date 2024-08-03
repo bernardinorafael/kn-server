@@ -10,7 +10,6 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	. "github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
@@ -32,10 +31,10 @@ func NewProductHandler(log logger.Logger, productService contract.ProductService
 }
 
 func (h productHandler) RegisterRoute(r *chi.Mux) {
-	m := middleware.NewWithAuth(h.jwtAuth, h.log)
+	// m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/products", func(r chi.Router) {
-		r.With(m.WithAuth)
+		// r.Use(m.WithAuth)
 
 		r.Post("/", h.create)
 
@@ -169,13 +168,12 @@ func (h productHandler) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
-	slug := r.PathValue("slug")
-
-	p, err := h.productService.GetBySlug(slug)
+	p, err := h.productService.GetBySlug(r.PathValue("slug"))
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
+
 	product := response.Product{
 		PublicID:  p.PublicID,
 		Slug:      p.Slug,

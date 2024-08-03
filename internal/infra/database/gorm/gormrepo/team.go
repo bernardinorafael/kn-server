@@ -85,7 +85,7 @@ func (r teamRepo) GetByPublicID(publicID string) (gormodel.Team, error) {
 		First(&team).
 		Error
 	if err != nil {
-		return team, nil
+		return team, err
 	}
 
 	return team, nil

@@ -27,7 +27,7 @@ func (h teamHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/teams", func(r chi.Router) {
-		r.With(m.WithAuth)
+		r.Use(m.WithAuth)
 
 		r.Post("/", h.create)
 		r.Get("/{id}", h.getByID)
@@ -38,10 +38,6 @@ func (h teamHandler) getByID(w http.ResponseWriter, r *http.Request) {
 	t, err := h.teamService.GetByID(r.PathValue("id"))
 	if err != nil {
 		NewBadRequestError(w, err.Error())
-		return
-	}
-	if t.PublicID == "" {
-		NewNotFoundError(w, "team not found")
 		return
 	}
 

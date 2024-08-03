@@ -27,7 +27,7 @@ func (h userHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/users", func(r chi.Router) {
-		r.With(m.WithAuth)
+		r.Use(m.WithAuth)
 
 		r.Get("/me", h.getSigned)
 		r.Put("/{id}", h.updateUser)

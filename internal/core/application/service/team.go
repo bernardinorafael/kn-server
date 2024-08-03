@@ -10,6 +10,10 @@ import (
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
+var (
+	ErrNotFoundTeam = errors.New("team not found")
+)
+
 type teamService struct {
 	log      logger.Logger
 	teamRepo contract.TeamRepository
@@ -25,11 +29,10 @@ func (svc teamService) GetByID(publicID string) (gormodel.Team, error) {
 	t, err := svc.teamRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("team not found", "public_id", publicID)
-		return team, errors.New("team not found")
+		return team, ErrNotFoundTeam
 	}
-	team = t
 
-	return team, nil
+	return t, nil
 }
 
 func (svc teamService) Create(data dto.CreateTeam) error {

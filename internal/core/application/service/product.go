@@ -191,7 +191,8 @@ func (svc productService) Delete(publicID string) error {
 	}
 
 	if err = svc.productRepo.Delete(publicID); err != nil {
-		return err
+		svc.log.Error("error deleting product", "error", err.Error())
+		return errors.New("error deleting product")
 	}
 
 	return nil
@@ -202,7 +203,7 @@ func (svc productService) GetAll(disabled bool, orderBy string) ([]gormodel.Prod
 
 	if err != nil {
 		svc.log.Error("error retrieving products", "errors", err.Error())
-		return nil, err
+		return nil, errors.New("products not found")
 	}
 
 	return products, nil
@@ -214,7 +215,7 @@ func (svc productService) GetByPublicID(publicID string) (gormodel.Product, erro
 	p, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "public_id", publicID)
-		return product, err
+		return product, errors.New("product not found")
 	}
 
 	return p, nil
@@ -232,7 +233,7 @@ func (svc productService) GetBySlug(slugInput string) (gormodel.Product, error) 
 	p, err := svc.productRepo.GetBySlug(string(s.GetSlug()))
 	if err != nil {
 		svc.log.Error("product not found", "slug", slugInput)
-		return product, err
+		return product, errors.New("product not found")
 	}
 
 	return p, nil

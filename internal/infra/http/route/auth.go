@@ -25,6 +25,8 @@ func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth
 	return &authHandler{log, env, authService, jwtAuth}
 }
 
+// TODO: transfer update password handler to users handler
+
 func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
