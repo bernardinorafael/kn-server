@@ -32,6 +32,7 @@ type UserService interface {
 
 type TeamService interface {
 	Create(data dto.CreateTeam) error
+	GetByID(publicID string) (gormodel.Team, error)
 }
 
 type FileManagerService interface {

@@ -9,7 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
+	. "github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 )
@@ -36,29 +36,29 @@ func (h authHandler) RegisterRoute(r *chi.Mux) {
 func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var input dto.Login
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	user, err := h.authService.Login(input)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
-			routeutils.NewConflictError(w, err.Error())
+			NewConflictError(w, err.Error())
 			return
 		}
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	token, payload, err := h.jwtAuth.CreateAccessToken(user.PublicID, h.env.AccessTokenDuration)
 	if err != nil {
-		routeutils.NewInternalServerError(w, err.Error())
+		NewInternalServerError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteJSONResponse(w, http.StatusCreated, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusCreated, map[string]interface{}{
 		"token":   token,
 		"payload": payload,
 	})
@@ -67,47 +67,47 @@ func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var input dto.Register
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	_, err = h.authService.Register(input)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
-			routeutils.NewConflictError(w, err.Error())
+			NewConflictError(w, err.Error())
 			return
 		}
 		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
-			routeutils.NewConflictError(w, err.Error())
+			NewConflictError(w, err.Error())
 			return
 		}
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UpdatePassword
 
-	err := routeutils.ParseBodyRequest(r, &payload)
+	err := ParseBodyRequest(r, &payload)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	err = h.authService.RecoverPassword(r.PathValue("id"), payload)
 	if err != nil {
 		if errors.Is(err, service.ErrUpdatingPassword) {
-			routeutils.NewConflictError(w, err.Error())
+			NewConflictError(w, err.Error())
 			return
 		}
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }

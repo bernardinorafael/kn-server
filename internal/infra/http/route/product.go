@@ -12,7 +12,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
+	. "github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 )
@@ -48,91 +48,86 @@ func (h productHandler) RegisterRoute(r *chi.Mux) {
 		r.Get("/slug/{slug}", h.getBySlug)
 
 		r.Delete("/{id}", h.delete)
-
 	})
 }
 
 func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	var input dto.ChangeStatus
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	err = h.productService.ChangeStatus(r.PathValue("id"), input.Status)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateQuantity
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	err = h.productService.IncreaseQuantity(r.PathValue("id"), input.Amount)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdatePrice
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
 	err = h.productService.UpdatePrice(r.PathValue("id"), input.Amount)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
-	quantity := r.FormValue("quantity")
-	price := r.FormValue("price")
-
 	f, fh, err := r.FormFile("image")
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
-			routeutils.NewUnprocessableEntityError(w, "product image cannot be empty")
+			NewUnprocessableEntityError(w, "product image cannot be empty")
 			return
 		}
-		routeutils.NewBadRequestError(w, "cannot parse multipart form")
+		NewBadRequestError(w, "cannot parse multipart form")
 		return
 	}
 	defer f.Close()
 
 	// verify if image size is larger than 5mb
 	if fh.Size > maxImageSize {
-		routeutils.NewBadRequestError(w, "image size too long")
+		NewBadRequestError(w, "image size too long")
 		return
 	}
 
-	parsedPrice, _ := strconv.ParseFloat(price, 64)
-	parsedQuantity, _ := strconv.Atoi(quantity)
+	parsedPrice, _ := strconv.ParseFloat(r.FormValue("price"), 64)
+	parsedQuantity, _ := strconv.Atoi(r.FormValue("quantity"))
 
 	input := dto.CreateProduct{
-		Name:      name,
+		Name:      r.FormValue("name"),
 		Price:     parsedPrice,
 		Quantity:  parsedQuantity,
 		Image:     f,
@@ -143,34 +138,34 @@ func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, product.ErrInvalidPrice):
-			routeutils.NewUnprocessableEntityError(w, err.Error())
+			NewUnprocessableEntityError(w, err.Error())
 		case errors.Is(err, product.ErrInvalidQuantity):
-			routeutils.NewUnprocessableEntityError(w, err.Error())
+			NewUnprocessableEntityError(w, err.Error())
 		case errors.Is(err, product.ErrEmptyProductName):
-			routeutils.NewUnprocessableEntityError(w, err.Error())
+			NewUnprocessableEntityError(w, err.Error())
 		case errors.Is(err, service.ErrProductNameAlreadyTaken):
-			routeutils.NewConflictError(w, err.Error())
+			NewConflictError(w, err.Error())
 		default:
-			routeutils.NewInternalServerError(w, "cannot create resource")
+			NewInternalServerError(w, "cannot create resource")
 		}
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusOK)
+	WriteSuccessResponse(w, http.StatusOK)
 }
 
 func (h productHandler) delete(w http.ResponseWriter, r *http.Request) {
 	err := h.productService.Delete(r.PathValue("id"))
 	if err != nil {
 		if errors.Is(err, service.ErrProductNotFound) {
-			routeutils.NewBadRequestError(w, err.Error())
+			NewBadRequestError(w, err.Error())
 			return
 		}
-		routeutils.NewInternalServerError(w, "cannot delete resource")
+		NewInternalServerError(w, "cannot delete resource")
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusOK)
+	WriteSuccessResponse(w, http.StatusOK)
 }
 
 func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
@@ -178,7 +173,7 @@ func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.productService.GetBySlug(slug)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 	product := response.Product{
@@ -191,7 +186,7 @@ func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: p.CreatedAt,
 	}
 
-	routeutils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"product": product,
 	})
 }
@@ -202,23 +197,23 @@ func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	// TODO: make a parser method to query params
 	disabled, err := strconv.ParseBool(query.Get("disabled"))
 	if !query.Has("disabled") {
-		routeutils.NewBadRequestError(w, "missing [disabled] query parameter")
+		NewBadRequestError(w, "missing [disabled] query parameter")
 		return
 	}
 	if err != nil {
-		routeutils.NewBadRequestError(w, "cannot parse [disabled] query params")
+		NewBadRequestError(w, "cannot parse [disabled] query params")
 		return
 	}
 
 	orderBy := query.Get("order_by")
 	if !query.Has("order_by") {
-		routeutils.NewBadRequestError(w, "missing [order_by] query parameter")
+		NewBadRequestError(w, "missing [order_by] query parameter")
 		return
 	}
 
 	allProducts, err := h.productService.GetAll(disabled, orderBy)
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -236,7 +231,7 @@ func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	routeutils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"products": products,
 	})
 }
@@ -244,7 +239,7 @@ func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 func (h productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 	p, err := h.productService.GetByPublicID(r.PathValue("id"))
 	if err != nil {
-		routeutils.NewBadRequestError(w, err.Error())
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
@@ -259,7 +254,7 @@ func (h productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: p.CreatedAt,
 	}
 
-	routeutils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"product": product,
 	})
 }

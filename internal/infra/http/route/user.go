@@ -8,7 +8,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
+	. "github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 )
@@ -37,19 +37,19 @@ func (h userHandler) RegisterRoute(r *chi.Mux) {
 func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateUser
 
-	err := routeutils.ParseBodyRequest(r, &input)
+	err := ParseBodyRequest(r, &input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "http error parsing body request")
+		NewBadRequestError(w, "http error parsing body request")
 		return
 	}
 
 	err = h.userService.Update(r.PathValue("id"), input)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "cannot update user")
+		NewBadRequestError(w, "cannot update user")
 		return
 	}
 
-	routeutils.WriteSuccessResponse(w, http.StatusCreated)
+	WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
@@ -57,13 +57,13 @@ func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := h.jwtAuth.VerifyToken(token)
 	if err != nil {
-		routeutils.NewUnauthorizedError(w, "unauthorized user")
+		NewUnauthorizedError(w, "unauthorized user")
 		return
 	}
 
 	u, err := h.userService.GetUser(payload.PublicID)
 	if err != nil {
-		routeutils.NewBadRequestError(w, "user not found")
+		NewBadRequestError(w, "user not found")
 		return
 	}
 
@@ -77,7 +77,7 @@ func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: u.CreatedAt,
 	}
 
-	routeutils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"user": user,
 	})
 }

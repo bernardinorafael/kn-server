@@ -77,7 +77,7 @@ func (r teamRepo) Delete(publicID string) error {
 	return nil
 }
 
-func (r teamRepo) GetByID(publicID string) (gormodel.Team, error) {
+func (r teamRepo) GetByPublicID(publicID string) (gormodel.Team, error) {
 	var team gormodel.Team
 
 	err := r.db.

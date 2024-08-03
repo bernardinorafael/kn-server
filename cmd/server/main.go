@@ -76,7 +76,7 @@ func main() {
 	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
-	teamHandler := route.NewTeamHandler(l, teamService)
+	teamHandler := route.NewTeamHandler(l, teamService, jwtAuth)
 
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)

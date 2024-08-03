@@ -28,5 +28,5 @@ type TeamRepository interface {
 	Create(t team.Team) (gormodel.Team, error)
 	Update(t team.Team) (gormodel.Team, error)
 	Delete(publicID string) error
-	GetByID(publicID string) (gormodel.Team, error)
+	GetByPublicID(publicID string) (gormodel.Team, error)
 }

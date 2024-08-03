@@ -16,11 +16,19 @@ type Product struct {
 }
 
 type User struct {
+	PublicID  string    `json:"public_id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	PublicID  string    `json:"public_id"`
 	Document  string    `json:"document"`
 	Phone     string    `json:"phone"`
 	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Team struct {
+	PublicID  string    `json:"public_id"`
+	Name      string    `json:"name"`
+	OwnerID   string    `json:"owner_id"`
+	Members   []User    `json:"members"`
 	CreatedAt time.Time `json:"created_at"`
 }
