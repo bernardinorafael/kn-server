@@ -1,4 +1,4 @@
-package httperr
+package routeutils
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ type HttpErr struct {
 	Message string `json:"message"`
 }
 
-func BadRequestError(w http.ResponseWriter, message string) {
+func NewBadRequestError(w http.ResponseWriter, message string) {
 	code := http.StatusBadRequest
 
 	w.Header().Add("Content-Type", "application/json")
@@ -23,7 +23,7 @@ func BadRequestError(w http.ResponseWriter, message string) {
 	})
 }
 
-func UnauthorizedError(w http.ResponseWriter, message string) {
+func NewUnauthorizedError(w http.ResponseWriter, message string) {
 	code := http.StatusUnauthorized
 
 	w.Header().Add("Content-Type", "application/json")
@@ -35,7 +35,7 @@ func UnauthorizedError(w http.ResponseWriter, message string) {
 	})
 }
 
-func InternalServerError(w http.ResponseWriter, message string) {
+func NewInternalServerError(w http.ResponseWriter, message string) {
 	code := http.StatusInternalServerError
 
 	w.Header().Add("Content-Type", "application/json")
@@ -47,7 +47,7 @@ func InternalServerError(w http.ResponseWriter, message string) {
 	})
 }
 
-func NotFoundError(w http.ResponseWriter, message string) {
+func NewNotFoundError(w http.ResponseWriter, message string) {
 	code := http.StatusNotFound
 
 	w.Header().Add("Content-Type", "application/json")
@@ -59,7 +59,7 @@ func NotFoundError(w http.ResponseWriter, message string) {
 	})
 }
 
-func ConflictError(w http.ResponseWriter, message string) {
+func NewConflictError(w http.ResponseWriter, message string) {
 	code := http.StatusConflict
 
 	w.Header().Add("Content-Type", "application/json")
@@ -71,7 +71,7 @@ func ConflictError(w http.ResponseWriter, message string) {
 	})
 }
 
-func UnprocessableEntityError(w http.ResponseWriter, message string) {
+func NewUnprocessableEntityError(w http.ResponseWriter, message string) {
 	code := http.StatusUnprocessableEntity
 
 	w.Header().Add("Content-Type", "application/json")

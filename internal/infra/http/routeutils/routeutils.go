@@ -1,4 +1,4 @@
-package restutil
+package routeutils
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func WriteSuccess(w http.ResponseWriter, code int) {
+func WriteSuccessResponse(w http.ResponseWriter, code int) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(map[string]string{
@@ -14,15 +14,16 @@ func WriteSuccess(w http.ResponseWriter, code int) {
 	})
 }
 
-func WriteJSON(w http.ResponseWriter, code int, v any) {
+func WriteJSONResponse(w http.ResponseWriter, code int, v any) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-func ParseBody(r *http.Request, v any) error {
+func ParseBodyRequest(r *http.Request, v any) error {
 	if r.Body == nil {
 		return fmt.Errorf("invalid request data")
 	}
+	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(v)
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/httperr"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
@@ -22,14 +22,14 @@ func (m *middleware) WithAuth(next http.Handler) http.Handler {
 		accessToken := r.Header.Get("Authorization")
 		if len(accessToken) == 0 {
 			m.log.Error("unauthorized", "error", "authorization header not found")
-			httperr.UnauthorizedError(w, "access token not found")
+			routeutils.NewUnauthorizedError(w, "access token not found")
 			return
 		}
-		
+
 		_, err := m.jwtAuth.VerifyToken(accessToken)
 		if err != nil {
 			m.log.Error("unauthorized access attempt", "error", "invalid access token")
-			httperr.UnauthorizedError(w, "unauthorized user")
+			routeutils.NewUnauthorizedError(w, "unauthorized user")
 			return
 		}
 

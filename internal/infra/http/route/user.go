@@ -6,10 +6,9 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/httperr"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
-	"github.com/bernardinorafael/kn-server/internal/infra/http/restutil"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 )
@@ -38,19 +37,20 @@ func (h *userHandler) RegisterRoute(r *chi.Mux) {
 func (h *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateUser
 
-	err := restutil.ParseBody(r, &input)
+	err := routeutils.ParseBodyRequest(r, &input)
 	if err != nil {
 		h.log.Error(err.Error())
-		httperr.BadRequestError(w, "http error parsing body request")
+		routeutils.NewBadRequestError(w, "http error parsing body request")
 		return
 	}
 
 	err = h.userService.Update(r.PathValue("id"), input)
 	if err != nil {
-		httperr.BadRequestError(w, "cannot update user")
+		routeutils.NewBadRequestError(w, "cannot update user")
 		return
 	}
-	restutil.WriteSuccess(w, http.StatusCreated)
+
+	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
 func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
@@ -58,13 +58,13 @@ func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := h.jwtAuth.VerifyToken(token)
 	if err != nil {
-		httperr.UnauthorizedError(w, "unauthorized user")
+		routeutils.NewUnauthorizedError(w, "unauthorized user")
 		return
 	}
 
 	u, err := h.userService.GetUser(payload.PublicID)
 	if err != nil {
-		httperr.BadRequestError(w, "user not found")
+		routeutils.NewBadRequestError(w, "user not found")
 		return
 	}
 
@@ -77,7 +77,8 @@ func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 		Enabled:   u.Enabled,
 		CreatedAt: u.CreatedAt,
 	}
-	restutil.WriteJSON(w, http.StatusOK, map[string]interface{}{
+
+	routeutils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"user": user,
 	})
 }
