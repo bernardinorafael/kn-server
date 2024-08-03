@@ -70,7 +70,7 @@ func (r *userRepo) GetByEmail(email string) (*gormodel.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &u, nil
 }
 
