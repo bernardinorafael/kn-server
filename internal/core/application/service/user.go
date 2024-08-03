@@ -19,7 +19,7 @@ func NewUserService(log logger.Logger, userRepo contract.UserRepository) contrac
 	return &userService{log, userRepo}
 }
 
-func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
+func (svc userService) Update(publicID string, data dto.UpdateUser) error {
 	record, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
@@ -78,11 +78,12 @@ func (svc *userService) Update(publicID string, data dto.UpdateUser) error {
 	return nil
 }
 
-func (svc *userService) GetUser(publicID string) (*gormodel.User, error) {
+func (svc userService) GetUser(publicID string) (gormodel.User, error) {
 	user, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
-		return nil, errors.New("user not found")
+		return gormodel.User{}, errors.New("user not found")
 	}
+
 	return user, nil
 }

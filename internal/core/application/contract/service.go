@@ -9,16 +9,16 @@ import (
 )
 
 type AuthService interface {
-	Login(data dto.Login) (*gormodel.User, error)
-	Register(data dto.Register) (*gormodel.User, error)
+	Login(data dto.Login) (gormodel.User, error)
+	Register(data dto.Register) (gormodel.User, error)
 	RecoverPassword(publicID string, data dto.UpdatePassword) error
 }
 
 type ProductService interface {
 	Create(data dto.CreateProduct) error
 	Delete(publicID string) error
-	GetByPublicID(publicId string) (*gormodel.Product, error)
-	GetBySlug(slugInput string) (*gormodel.Product, error)
+	GetByPublicID(publicId string) (gormodel.Product, error)
+	GetBySlug(slugInput string) (gormodel.Product, error)
 	GetAll(disabled bool, orderBy string) ([]gormodel.Product, error)
 	UpdatePrice(publicID string, price float64) error
 	IncreaseQuantity(publicID string, quantity int) error
@@ -26,7 +26,7 @@ type ProductService interface {
 }
 
 type UserService interface {
-	GetUser(publicID string) (*gormodel.User, error)
+	GetUser(publicID string) (gormodel.User, error)
 	Update(publicID string, data dto.UpdateUser) error
 }
 

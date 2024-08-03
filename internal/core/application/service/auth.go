@@ -32,34 +32,37 @@ func NewAuthService(log logger.Logger, userRepo contract.UserRepository) contrac
 	return &authService{log, userRepo}
 }
 
-func (svc *authService) Login(data dto.Login) (*gormodel.User, error) {
-	address, err := email.New(data.Email)
+func (svc authService) Login(data dto.Login) (gormodel.User, error) {
+	var u gormodel.User
+
+	_, err := email.New(data.Email)
 	if err != nil {
 		svc.log.Error("error creating email value object", "error", err.Error())
-		return nil, err
+		return u, err
 	}
 
-	user, err := svc.userRepo.GetByEmail(string(address.ToEmail()))
+	user, err := svc.userRepo.GetByEmail(data.Email)
 	if err != nil {
-		svc.log.Error("cannot find user by the given email", "email", data.Email)
-		return nil, ErrInvalidCredential
+		svc.log.Error("failed to find user by email", "email", data.Email)
+		return u, ErrInvalidCredential
 	}
 
 	p, err := password.New(data.Password)
 	if err != nil {
 		svc.log.Error("error creating password value object", "error", err.Error())
-		return nil, err
+		return u, err
 	}
 
 	err = p.Compare(password.Password(user.Password), data.Password)
 	if err != nil {
 		svc.log.Error("the password provided is incorrect", "password", data.Password)
-		return nil, ErrInvalidCredential
+		return u, ErrInvalidCredential
 	}
+
 	return user, nil
 }
 
-func (svc *authService) Register(data dto.Register) (*gormodel.User, error) {
+func (svc authService) Register(data dto.Register) (gormodel.User, error) {
 	u, err := user.New(user.Params{
 		PublicID: uuid.NewString(),
 		Name:     data.Name,
@@ -71,34 +74,35 @@ func (svc *authService) Register(data dto.Register) (*gormodel.User, error) {
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
-		return nil, err
+		return gormodel.User{}, err
 	}
 
 	if err = u.EncryptPassword(); err != nil {
 		svc.log.Error("failed to encrypt password", "error", err.Error())
-		return nil, err
+		return gormodel.User{}, err
 	}
 
 	newUser, err := svc.userRepo.Create(*u)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", data.Email)
-			return nil, ErrEmailAlreadyTaken
+			return gormodel.User{}, ErrEmailAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_phone") {
 			svc.log.Error("phone already taken", "phone", data.Phone)
-			return nil, ErrPhoneAlreadyTaken
+			return gormodel.User{}, ErrPhoneAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_document") {
 			svc.log.Error("document already taken", "document", data.Document)
-			return nil, ErrDocumentAlreadyTaken
+			return gormodel.User{}, ErrDocumentAlreadyTaken
 		}
-		return nil, err
+		return gormodel.User{}, err
 	}
+
 	return newUser, nil
 }
 
-func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
+func (svc authService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
 	found, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "id", publicID)
@@ -142,5 +146,6 @@ func (svc *authService) RecoverPassword(publicID string, data dto.UpdatePassword
 		svc.log.Error("error updating password", "error", err.Error())
 		return ErrUpdatingPassword
 	}
+
 	return nil
 }

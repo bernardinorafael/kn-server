@@ -18,12 +18,15 @@ func NewProductRepo(db *gorm.DB) contract.ProductRepository {
 	return &productRepo{db}
 }
 
-func (r *productRepo) Update(p product.Product) error {
+func (r productRepo) Update(p product.Product) (gormodel.Product, error) {
 	var product gormodel.Product
 
-	err := r.db.Where("public_id = ?", p.PublicID()).First(&product).Error
+	err := r.db.
+		Where("public_id = ?", p.PublicID()).
+		First(&product).
+		Error
 	if err != nil {
-		return err
+		return product, err
 	}
 
 	product.Name = p.Name()
@@ -35,14 +38,16 @@ func (r *productRepo) Update(p product.Product) error {
 
 	err = r.db.Save(&product).Error
 	if err != nil {
-		return err
+		return gormodel.Product{}, err
 	}
 
-	return nil
+	return product, nil
 }
 
-func (r *productRepo) Create(p product.Product) (*gormodel.Product, error) {
-	product := gormodel.Product{
+func (r productRepo) Create(p product.Product) (gormodel.Product, error) {
+	var product gormodel.Product
+
+	newProduct := gormodel.Product{
 		Name:      p.Name(),
 		Price:     p.Price(),
 		Quantity:  p.Quantity(),
@@ -52,49 +57,47 @@ func (r *productRepo) Create(p product.Product) (*gormodel.Product, error) {
 		Enabled:   p.Enabled(),
 		UpdatedAt: time.Now(),
 	}
-	if err := r.db.Create(product).Error; err != nil {
-		return nil, err
+
+	err := r.db.
+		Create(newProduct).
+		First(&product).
+		Error
+	if err != nil {
+		return product, err
 	}
 
-	return &product, nil
+	return product, nil
 }
 
-func (r *productRepo) GetByID(id int) (*gormodel.Product, error) {
+func (r productRepo) GetByID(id int) (gormodel.Product, error) {
 	var product gormodel.Product
 
 	err := r.db.Where("id = ?", id).First(&product).Error
 	if err != nil {
-		return nil, err
+		return product, err
 	}
 
-	return &product, nil
+	return product, nil
 }
 
-func (r *productRepo) GetBySlug(slug string) (*gormodel.Product, error) {
+func (r productRepo) GetBySlug(slug string) (gormodel.Product, error) {
 	var product gormodel.Product
 
 	err := r.db.Where("slug = ?", slug).First(&product).Error
 	if err != nil {
-		return nil, err
+		return product, err
 	}
 
-	return &product, nil
+	return product, nil
 }
 
-func (r *productRepo) Delete(publicID string) error {
-	var p gormodel.Product
+func (r productRepo) Delete(publicID string) error {
+	var product gormodel.Product
 
 	err := r.db.
 		Where("public_id = ?", publicID).
-		Find(&p).
-		Error
-	if err != nil {
-		return err
-	}
-
-	err = r.db.
-		Where("id = ?", p.ID).
-		Delete(&p).
+		First(&product).
+		Delete(&product).
 		Error
 	if err != nil {
 		return err
@@ -103,7 +106,7 @@ func (r *productRepo) Delete(publicID string) error {
 	return nil
 }
 
-func (r *productRepo) GetAll(disabled bool, orderBy string) ([]gormodel.Product, error) {
+func (r productRepo) GetAll(disabled bool, orderBy string) ([]gormodel.Product, error) {
 	var products []gormodel.Product
 	var enabled bool = !disabled
 
@@ -118,7 +121,7 @@ func (r *productRepo) GetAll(disabled bool, orderBy string) ([]gormodel.Product,
 	return products, nil
 }
 
-func (r *productRepo) GetByPublicID(publicID string) (*gormodel.Product, error) {
+func (r productRepo) GetByPublicID(publicID string) (gormodel.Product, error) {
 	var product gormodel.Product
 
 	err := r.db.
@@ -126,8 +129,8 @@ func (r *productRepo) GetByPublicID(publicID string) (*gormodel.Product, error) 
 		First(&product).
 		Error
 	if err != nil {
-		return nil, err
+		return product, err
 	}
 
-	return &product, nil
+	return product, nil
 }
