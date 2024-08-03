@@ -31,13 +31,13 @@ func main() {
 
 	env, err := config.NewConfig()
 	if err != nil {
-		l.Error("failed load env", "httperr", err)
+		l.Error("failed load env", "error", err)
 		return
 	}
 
 	db, err := database.Connect(l, env.DSN)
 	if err != nil {
-		l.Error("error connecting db", "httperr", err)
+		l.Error("error connecting db", "error", err)
 		panic(err)
 	}
 

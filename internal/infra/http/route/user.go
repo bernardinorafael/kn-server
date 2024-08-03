@@ -23,7 +23,7 @@ func NewUserHandler(log logger.Logger, userService contract.UserService, jwtAuth
 	return &userHandler{log, userService, jwtAuth}
 }
 
-func (h *userHandler) RegisterRoute(r *chi.Mux) {
+func (h userHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/users", func(r chi.Router) {
@@ -34,7 +34,7 @@ func (h *userHandler) RegisterRoute(r *chi.Mux) {
 	})
 }
 
-func (h *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
+func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateUser
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -53,7 +53,7 @@ func (h *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
-func (h *userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
+func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 
 	payload, err := h.jwtAuth.VerifyToken(token)

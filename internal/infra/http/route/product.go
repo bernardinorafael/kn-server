@@ -31,7 +31,7 @@ func NewProductHandler(log logger.Logger, productService contract.ProductService
 	return &productHandler{log, productService, jwtAuth}
 }
 
-func (h *productHandler) RegisterRoute(r *chi.Mux) {
+func (h productHandler) RegisterRoute(r *chi.Mux) {
 	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/products", func(r chi.Router) {
@@ -52,7 +52,7 @@ func (h *productHandler) RegisterRoute(r *chi.Mux) {
 	})
 }
 
-func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	var input dto.ChangeStatus
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -70,7 +70,7 @@ func (h *productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
-func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateQuantity
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -88,7 +88,7 @@ func (h *productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request
 	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
-func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdatePrice
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -106,7 +106,7 @@ func (h *productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
-func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	quantity := r.FormValue("quantity")
 	price := r.FormValue("price")
@@ -159,7 +159,7 @@ func (h *productHandler) create(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusOK)
 }
 
-func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) delete(w http.ResponseWriter, r *http.Request) {
 	err := h.productService.Delete(r.PathValue("id"))
 	if err != nil {
 		if errors.Is(err, service.ErrProductNotFound) {
@@ -173,7 +173,7 @@ func (h *productHandler) delete(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusOK)
 }
 
-func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 
 	p, err := h.productService.GetBySlug(slug)
@@ -196,7 +196,7 @@ func (h *productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	// TODO: make a parser method to query params
@@ -241,7 +241,7 @@ func (h *productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *productHandler) getByID(w http.ResponseWriter, r *http.Request) {
+func (h productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 	p, err := h.productService.GetByPublicID(r.PathValue("id"))
 	if err != nil {
 		routeutils.NewBadRequestError(w, err.Error())

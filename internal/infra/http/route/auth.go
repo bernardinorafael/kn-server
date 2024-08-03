@@ -25,7 +25,7 @@ func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth
 	return &authHandler{log, env, authService, jwtAuth}
 }
 
-func (h *authHandler) RegisterRoute(r *chi.Mux) {
+func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
@@ -33,7 +33,7 @@ func (h *authHandler) RegisterRoute(r *chi.Mux) {
 	})
 }
 
-func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
+func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var input dto.Login
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -64,7 +64,7 @@ func (h *authHandler) login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
+func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var input dto.Register
 
 	err := routeutils.ParseBodyRequest(r, &input)
@@ -90,7 +90,7 @@ func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 	routeutils.WriteSuccessResponse(w, http.StatusCreated)
 }
 
-func (h *authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
+func (h authHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UpdatePassword
 
 	err := routeutils.ParseBodyRequest(r, &payload)

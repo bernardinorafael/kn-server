@@ -13,8 +13,8 @@ type userRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) contract.UserRepository {
-	return &userRepo{db}
+func NewUserRepo(DB *gorm.DB) contract.UserRepository {
+	return &userRepo{db: DB}
 }
 
 func (r userRepo) Create(u user.User) (gormodel.User, error) {
