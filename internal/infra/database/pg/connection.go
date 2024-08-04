@@ -22,7 +22,7 @@ func Connect(log logger.Logger, DSN string) (*gorm.DB, error) {
 	}
 
 	if err = db.AutoMigrate(tables...); err != nil {
-		log.Error("migrate: error attempt to exec migrates", "httperr", err.Error())
+		log.Error("migrate: error attempt to exec migrates", "error", err.Error())
 		return nil, err
 	}
 
