@@ -16,21 +16,47 @@ import (
 )
 
 var (
-	ErrEmailAlreadyTaken    = errors.New("email already taken")
-	ErrDocumentAlreadyTaken = errors.New("document already taken")
-	ErrPhoneAlreadyTaken    = errors.New("phone already taken")
-	ErrInvalidCredential    = errors.New("invalid credentials")
-	ErrUpdatingPassword     = errors.New("error while updating password")
-	ErrUserNotFound         = errors.New("user not found")
+	ErrEmailAlreadyTaken = errors.New("email already taken")
+	ErrPhoneAlreadyTaken = errors.New("phone already taken")
+	ErrInvalidCredential = errors.New("invalid credentials")
+	ErrUpdatingPassword  = errors.New("error while updating password")
+	ErrUserNotFound      = errors.New("user not found")
 )
 
 type authService struct {
-	log      logger.Logger
-	userRepo contract.UserRepository
+	log             logger.Logger
+	notifierService contract.SMSNotifier
+	userRepo        contract.UserRepository
 }
 
-func NewAuthService(log logger.Logger, userRepo contract.UserRepository) contract.AuthService {
-	return &authService{log, userRepo}
+func NewAuthService(
+	log logger.Logger,
+	notifierService contract.SMSNotifier,
+	userRepo contract.UserRepository,
+) contract.AuthService {
+	return &authService{log, notifierService, userRepo}
+}
+
+func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
+	_, err := phone.New(dto.Phone)
+	if err != nil {
+		svc.log.Error("failed to validate phone", "error", err.Error())
+		return err
+	}
+
+	user, err := svc.userRepo.GetByPhone(dto.Phone)
+	if err != nil {
+		svc.log.Error("not found user by phone", "phone", dto.Phone)
+		return ErrUserNotFound
+	}
+
+	err = svc.notifierService.Notify(user.Phone)
+	if err != nil {
+		svc.log.Error("code verification failed", "error", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
@@ -38,14 +64,20 @@ func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
 
 	_, err := phone.New(dto.Phone)
 	if err != nil {
-		svc.log.Error("error creating phone value object", "error", err.Error())
+		svc.log.Error("failed to validate phone", "error", err.Error())
 		return userModel, err
 	}
 
 	user, err := svc.userRepo.GetByPhone(dto.Phone)
 	if err != nil {
-		svc.log.Error("failed to find user by phone", "phone", dto.Phone)
+		svc.log.Error("not found user by phone", "phone", dto.Phone)
 		return userModel, ErrUserNotFound
+	}
+
+	err = svc.notifierService.Confirm(dto.Code, dto.Phone)
+	if err != nil {
+		svc.log.Error("code verification failed", "error", err.Error())
+		return userModel, err
 	}
 
 	return user, nil
@@ -89,7 +121,6 @@ func (svc authService) Register(dto dto.Register) (gormodel.User, error) {
 		Name:     dto.Name,
 		Email:    dto.Email,
 		Password: dto.Password,
-		Document: dto.Document,
 		Phone:    dto.Phone,
 		TeamID:   nil,
 	})
@@ -112,10 +143,6 @@ func (svc authService) Register(dto dto.Register) (gormodel.User, error) {
 		if strings.Contains(err.Error(), "uni_users_phone") {
 			svc.log.Error("phone already taken", "phone", dto.Phone)
 			return userModel, ErrPhoneAlreadyTaken
-		}
-		if strings.Contains(err.Error(), "uni_users_document") {
-			svc.log.Error("document already taken", "document", dto.Document)
-			return userModel, ErrDocumentAlreadyTaken
 		}
 		return userModel, err
 	}

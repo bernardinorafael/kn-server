@@ -16,7 +16,6 @@ func TestTeam_New(t *testing.T) {
 			Name:     "john doe",
 			Email:    "john.doe@email.com",
 			Password: ".John1234",
-			Document: "75838249072",
 			Phone:    "48988781289",
 			TeamID:   nil,
 		})
@@ -37,7 +36,6 @@ func TestTeam_AddMembers(t *testing.T) {
 			Name:     "jane doe",
 			Email:    "jane.doe@email.com",
 			Password: ".Jane1234",
-			Document: "75838249072",
 			Phone:    "48988781289",
 			TeamID:   nil,
 		})
@@ -48,7 +46,6 @@ func TestTeam_AddMembers(t *testing.T) {
 			Name:     "bob doe",
 			Email:    "bob.doe@email.com",
 			Password: ".Bob1234",
-			Document: "75838249072",
 			Phone:    "48988781289",
 			TeamID:   nil,
 		})
@@ -66,7 +63,6 @@ func TestTeam_AddMembers(t *testing.T) {
 			Name:     "jane doe",
 			Email:    "jane.doe@email.com",
 			Password: ".Jane1234",
-			Document: "75838249072",
 			Phone:    "48988781289",
 			TeamID:   nil,
 		})

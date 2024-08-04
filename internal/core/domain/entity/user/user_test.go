@@ -17,7 +17,6 @@ func TestUserEntity_New(t *testing.T) {
 			Name:     "john doe",
 			Email:    "john_doe@email.com",
 			Password: "@Password123",
-			Document: "42008790002",
 			Phone:    "11978761232",
 			TeamID:   nil,
 		})
@@ -32,7 +31,6 @@ func TestUserEntity_New(t *testing.T) {
 			Name:     "john doe",
 			Email:    "john_doe@email.com",
 			Password: "@Password123",
-			Document: "42008790002",
 			Phone:    "11978761232",
 			TeamID:   nil,
 		})
@@ -53,7 +51,6 @@ func TestUserEntity_New(t *testing.T) {
 			Name:     "jo",
 			Email:    "john_doe@email.com",
 			Password: "@Password123",
-			Document: "42008790002",
 			Phone:    "11978761232",
 			TeamID:   nil,
 		})
@@ -68,7 +65,6 @@ func TestUserEntity_New(t *testing.T) {
 			Name:     "joe",
 			Email:    "john_doe@email.com",
 			Password: "@Password123",
-			Document: "42008790002",
 			Phone:    "11978761232",
 			TeamID:   nil,
 		})

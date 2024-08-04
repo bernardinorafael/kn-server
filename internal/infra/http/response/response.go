@@ -19,7 +19,6 @@ type User struct {
 	PublicID  string    `json:"public_id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Document  string    `json:"document"`
 	Phone     string    `json:"phone"`
 	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`

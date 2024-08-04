@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/cpf"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
@@ -31,7 +30,6 @@ type Params struct {
 	Name     string
 	Email    string
 	Password string
-	Document string
 	Phone    string
 	TeamID   *string
 }
@@ -40,7 +38,6 @@ type User struct {
 	publicID  string
 	name      string
 	email     email.Email
-	document  cpf.CPF
 	phone     phone.Phone
 	enabled   bool
 	teamID    *string
@@ -59,16 +56,10 @@ func New(u Params) (*User, error) {
 		return nil, err
 	}
 
-	document, err := cpf.New(u.Document)
-	if err != nil {
-		return nil, err
-	}
-
 	user := User{
 		publicID:  u.PublicID,
 		name:      u.Name,
 		email:     address.ToEmail(),
-		document:  document.ToCPF(),
 		phone:     ph.Phone(),
 		password:  password.Password(u.Password),
 		teamID:    u.TeamID,
@@ -158,7 +149,6 @@ func (u *User) ChangeStatus(status bool) {
 func (u *User) PublicID() string            { return u.publicID }
 func (u *User) Name() string                { return u.name }
 func (u *User) Email() email.Email          { return u.email }
-func (u *User) Document() cpf.CPF           { return u.document }
 func (u *User) Phone() phone.Phone          { return u.phone }
 func (u *User) Enabled() bool               { return u.enabled }
 func (u *User) TeamID() *string             { return u.teamID }

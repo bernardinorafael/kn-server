@@ -77,7 +77,7 @@ func main() {
 	 */
 	s3Service := service.NewS3Service(s3Client, l)
 	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
-	authService := service.NewAuthService(l, userRepo)
+	authService := service.NewAuthService(l, twilioSMSService, userRepo)
 	userService := service.NewUserService(l, userRepo)
 	teamService := service.NewTeamService(l, teamRepo)
 	productService := service.NewProductService(service.WithProductParams{

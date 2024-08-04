@@ -47,7 +47,6 @@ func (h teamHandler) getByID(w http.ResponseWriter, r *http.Request) {
 			PublicID:  m.PublicID,
 			Name:      m.Name,
 			Email:     m.Email,
-			Document:  m.Document,
 			Phone:     m.Phone,
 			Enabled:   m.Enabled,
 			CreatedAt: m.CreatedAt,

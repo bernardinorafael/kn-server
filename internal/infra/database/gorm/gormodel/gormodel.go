@@ -23,7 +23,6 @@ type User struct {
 	PublicID     string         `json:"public_id" gorm:"unique"`
 	Name         string         `json:"name"`
 	Email        string         `json:"email" gorm:"unique"`
-	Document     string         `json:"document" gorm:"unique"`
 	Phone        string         `json:"phone" gorm:"unique"`
 	Enabled      bool           `json:"enabled"`
 	Password     string         `json:"password"`

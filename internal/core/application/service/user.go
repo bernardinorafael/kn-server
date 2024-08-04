@@ -50,7 +50,6 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 		Name:     found.Name,
 		Email:    found.Email,
 		Password: string(hashed),
-		Document: found.Document,
 		Phone:    found.Phone,
 		TeamID:   found.PublicTeamID,
 	})
@@ -80,7 +79,6 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 		Name:     record.Name,
 		Email:    record.Email,
 		Password: record.Password,
-		Document: record.Document,
 		Phone:    record.Phone,
 		TeamID:   record.PublicTeamID,
 	})

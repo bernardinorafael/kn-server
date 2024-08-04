@@ -7,12 +7,12 @@ type Login struct {
 
 type LoginOTP struct {
 	Phone string `json:"phone"`
+	Code  string `json:"code"`
 }
 
 type Register struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Document string `json:"document"`
 	Phone    string `json:"phone"`
 	Password string `json:"password"`
 }
@@ -20,11 +20,6 @@ type Register struct {
 type UpdatePassword struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
-}
-
-type VerifySMS struct {
-	Phone string `json:"phone"`
-	Code  string `json:"code"`
 }
 
 type NotifySMS struct {

@@ -42,27 +42,25 @@ func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
-		r.Post("/login-otp", h.loginOTP)
-		r.Post("/verify-otp", h.verifyOTP)
+		r.Post("/login-otp", h.notifyLoginOTP)
+		r.Post("/verify-otp", h.verifyLoginOTP)
 	})
 }
 
-func (h authHandler) verifyOTP(w http.ResponseWriter, r *http.Request) {
-	var body dto.VerifySMS
+func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
+	var body dto.LoginOTP
 
 	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err := h.notifierService.Confirm(body.Code, body.Phone)
+	user, err := h.authService.LoginOTP(body)
 	if err != nil {
-		NewBadRequestError(w, err.Error())
-		return
-	}
-
-	user, err := h.authService.LoginOTP(dto.LoginOTP{Phone: body.Phone})
-	if err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			NewNotFoundError(w, err.Error())
+			return
+		}
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -79,7 +77,7 @@ func (h authHandler) verifyOTP(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h authHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
+func (h authHandler) notifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 	var body dto.NotifySMS
 
 	if err := ParseBodyRequest(r, &body); err != nil {
@@ -87,7 +85,11 @@ func (h authHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.notifierService.Notify(body.Phone); err != nil {
+	if err := h.authService.NotifyLoginOTP(body); err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			NewNotFoundError(w, err.Error())
+			return
+		}
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -136,10 +138,6 @@ func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 	_, err := h.authService.Register(body)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
-			NewConflictError(w, err.Error())
-			return
-		}
-		if errors.Is(err, service.ErrDocumentAlreadyTaken) {
 			NewConflictError(w, err.Error())
 			return
 		}
