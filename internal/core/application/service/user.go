@@ -96,13 +96,6 @@ func (svc userService) Update(publicID string, data dto.UpdateUser) error {
 			return err
 		}
 	}
-	if data.Document != "" {
-		err = u.ChangeDocument(data.Document)
-		if err != nil {
-			svc.log.Error("error while changing document", "error", err.Error())
-			return err
-		}
-	}
 	if data.Email != "" {
 		err = u.ChangeEmail(data.Email)
 		if err != nil {

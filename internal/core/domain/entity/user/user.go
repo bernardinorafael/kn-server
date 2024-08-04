@@ -141,16 +141,6 @@ func (u *User) ChangePhone(newPhone string) error {
 	return nil
 }
 
-func (u *User) ChangeDocument(newDocument string) error {
-	doc, err := cpf.New(newDocument)
-	if err != nil {
-		return err
-	}
-
-	u.document = doc.ToCPF()
-	return nil
-}
-
 func (u *User) ChangeEmail(newEmail string) error {
 	address, err := email.New(newEmail)
 	if err != nil {

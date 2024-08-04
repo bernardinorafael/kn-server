@@ -85,7 +85,6 @@ func (r userRepo) Update(u user.User) (gormodel.User, error) {
 	user.Name = u.Name()
 	user.Email = string(u.Email())
 	user.Password = string(u.Password())
-	user.Document = string(u.Document())
 	user.Phone = string(u.Phone())
 	user.UpdatedAt = time.Now()
 
