@@ -12,13 +12,13 @@ func TestPhone_New(t *testing.T) {
 		p, err := phone.New("11988091232")
 
 		assert.Nil(t, err)
-		assert.Equal(t, p.ToPhone(), phone.Phone("11988091232"))
+		assert.Equal(t, p.Phone(), phone.Phone("11988091232"))
 	})
 
 	t.Run("Should return complete string phone", func(t *testing.T) {
 		p, err := phone.New("11988091232")
 
-		phoneStr := p.ToPhone()
+		phoneStr := p.Phone()
 
 		assert.Nil(t, err)
 		assert.Equal(t, phoneStr, phone.Phone("11988091232"))

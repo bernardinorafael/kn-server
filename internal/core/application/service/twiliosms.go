@@ -1,12 +1,18 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
+)
+
+const (
+	smsCodeLength = 6
 )
 
 type twilioSMSService struct {
@@ -20,12 +26,17 @@ func NewTwilioSMSService(log logger.Logger, serviceID string, client *twilio.Res
 }
 
 func (svc twilioSMSService) Notify(to string) error {
+	p, err := phone.New(to)
+	if err != nil {
+		return err
+	}
+
 	params := verify.CreateVerificationParams{}
 
-	params.SetTo(fmt.Sprintf("+55%s", to))
+	params.SetTo(fmt.Sprintf("+55%s", p.Phone()))
 	params.SetChannel("sms")
 
-	_, err := svc.client.VerifyV2.CreateVerification(svc.serviceID, &params)
+	_, err = svc.client.VerifyV2.CreateVerification(svc.serviceID, &params)
 	if err != nil {
 		svc.log.Error("cannot send sms", "error", err.Error())
 		return fmt.Errorf("error sending sms to %s", to)
@@ -34,16 +45,25 @@ func (svc twilioSMSService) Notify(to string) error {
 	return nil
 }
 
-func (svc twilioSMSService) Confirm(code string, phone string) (status string, err error) {
+func (svc twilioSMSService) Confirm(code string, to string) (status string, err error) {
+	if len(code) != smsCodeLength {
+		return "", errors.New("invalid code format")
+	}
+
+	p, err := phone.New(to)
+	if err != nil {
+		return "", err
+	}
+
 	params := verify.CreateVerificationCheckParams{}
 
-	params.SetTo(fmt.Sprintf("+55%s", phone))
+	params.SetTo(fmt.Sprintf("+55%s", p.Phone()))
 	params.SetCode(code)
 
 	res, err := svc.client.VerifyV2.CreateVerificationCheck(svc.serviceID, &params)
 	if err != nil {
 		svc.log.Error("cannot verify code", "error", err.Error())
-		return "", fmt.Errorf("error verifying code to %s", phone)
+		return "", fmt.Errorf("error verifying code to %s", p.Phone())
 	}
 
 	return *res.Status, nil

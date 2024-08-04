@@ -42,10 +42,6 @@ func New(value string) (*phone, error) {
 	return p, nil
 }
 
-func (p *phone) ToPhone() Phone {
-	return Phone(p.area) + Phone(p.local)
-}
-
 func (p *phone) validate() error {
 	if p.area == "" {
 		return errors.New("invalid area code")
@@ -55,7 +51,7 @@ func (p *phone) validate() error {
 		return errors.New("invalid local part")
 	}
 
-	if len(p.ToPhone()) != phoneLength {
+	if len(p.Phone()) != phoneLength {
 		return errors.New("invalid phone format")
 	}
 
@@ -77,4 +73,8 @@ func (p *phone) verifyAreaCode() error {
 		}
 	}
 	return errors.New("invalid area code")
+}
+
+func (p *phone) Phone() Phone {
+	return Phone(p.area) + Phone(p.local)
 }

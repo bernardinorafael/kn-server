@@ -69,7 +69,7 @@ func New(u Params) (*User, error) {
 		name:      u.Name,
 		email:     address.ToEmail(),
 		document:  document.ToCPF(),
-		phone:     ph.ToPhone(),
+		phone:     ph.Phone(),
 		password:  password.Password(u.Password),
 		teamID:    u.TeamID,
 		enabled:   false,
@@ -137,7 +137,7 @@ func (u *User) ChangePhone(newPhone string) error {
 		return err
 	}
 
-	u.phone = p.ToPhone()
+	u.phone = p.Phone()
 	return nil
 }
 
