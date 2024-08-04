@@ -58,7 +58,17 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 		return err
 	}
 
-	_, err = svc.userRepo.Update(*u)
+	userModel := gormodel.User{
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
 	if err != nil {
 		svc.log.Error("error updating password", "error", err.Error())
 		return ErrUpdatingPassword
@@ -109,7 +119,17 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 		}
 	}
 
-	_, err = svc.userRepo.Update(*u)
+	userModel := gormodel.User{
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
 	if err != nil {
 		svc.log.Error("cannot update user", "error", err.Error())
 		return err

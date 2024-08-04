@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrNotFoundTeam = errors.New("team not found")
+	ErrTeamNotFound = errors.New("team not found")
 )
 
 type teamService struct {
@@ -29,7 +29,7 @@ func (svc teamService) GetByID(publicID string) (gormodel.Team, error) {
 	t, err := svc.teamRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("team not found", "public_id", publicID)
-		return team, ErrNotFoundTeam
+		return team, ErrTeamNotFound
 	}
 
 	return t, nil
@@ -42,7 +42,13 @@ func (svc teamService) Create(dto dto.CreateTeam) error {
 		return err
 	}
 
-	_, err = svc.teamRepo.Create(*t)
+	teamModel := gormodel.Team{
+		PublicID: t.PublicID(),
+		OwnerID:  t.OwnerID(),
+		Name:     t.Name(),
+	}
+
+	err = svc.teamRepo.Create(teamModel)
 	if err != nil {
 		svc.log.Error("error creating team", "error", err.Error())
 		return errors.New("cannot create team resource")

@@ -135,7 +135,7 @@ func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.authService.Register(body)
+	err := h.authService.Register(body)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			NewConflictError(w, err.Error())

@@ -2,14 +2,13 @@ package gormrepo
 
 import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/team"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"gorm.io/gorm"
 )
 
 /*
-* TODO: remove entity/model mapping logic from repositories and do it into service layer
- */
+ TODO: remove entity/model mapping logic from repositories and do it into service layer
+*/
 
 type teamRepo struct {
 	db *gorm.DB
@@ -19,32 +18,19 @@ func NewTeamRepo(db *gorm.DB) contract.TeamRepository {
 	return &teamRepo{db}
 }
 
-func (r teamRepo) Create(t team.Team) (gormodel.Team, error) {
-	var team gormodel.Team
-
-	newTeam := gormodel.Team{
-		PublicID: t.PublicID(),
-		OwnerID:  t.OwnerID(),
-		Name:     t.Name(),
-		Members:  nil,
-	}
-
-	err := r.db.
-		Create(&newTeam).
-		First(&team).
-		Error
+func (r teamRepo) Create(t gormodel.Team) error {
+	err := r.db.Create(&t).Error
 	if err != nil {
-		return team, nil
+		return err
 	}
-
-	return team, nil
+	return nil
 }
 
-func (r teamRepo) Update(t team.Team) (gormodel.Team, error) {
+func (r teamRepo) Update(t gormodel.Team) (gormodel.Team, error) {
 	var team gormodel.Team
 
 	err := r.db.
-		Where("public_id = ?", t.PublicID()).
+		Where("public_id = ?", t.PublicID).
 		First(&team).
 		Error
 	if err != nil {
@@ -52,7 +38,7 @@ func (r teamRepo) Update(t team.Team) (gormodel.Team, error) {
 	}
 
 	// TODO: implement members update
-	team.Name = t.Name()
+	team.Name = t.Name
 
 	err = r.db.Save(&team).Error
 	if err != nil {

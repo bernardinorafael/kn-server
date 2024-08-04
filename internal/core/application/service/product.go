@@ -65,7 +65,17 @@ func (svc productService) ChangeStatus(publicID string, status bool) error {
 	}
 	p.ChangeStatus(status)
 
-	_, err = svc.productRepo.Update(*p)
+	productModel := gormodel.Product{
+		PublicID: p.PublicID(),
+		Slug:     string(p.Slug()),
+		Name:     p.Name(),
+		Image:    p.Image(),
+		Price:    int(p.Price()),
+		Quantity: p.Quantity(),
+		Enabled:  p.Enabled(),
+	}
+
+	_, err = svc.productRepo.Update(productModel)
 	if err != nil {
 		svc.log.Error("cannot change product status", "error", err.Error())
 		return errors.New("cannot change product status")
@@ -99,7 +109,17 @@ func (svc productService) IncreaseQuantity(publicID string, quantity int) error 
 		return err
 	}
 
-	_, err = svc.productRepo.Update(*p)
+	productModel := gormodel.Product{
+		PublicID: p.PublicID(),
+		Slug:     string(p.Slug()),
+		Name:     p.Name(),
+		Image:    p.Image(),
+		Price:    int(p.Price()),
+		Quantity: p.Quantity(),
+		Enabled:  p.Enabled(),
+	}
+
+	_, err = svc.productRepo.Update(productModel)
 	if err != nil {
 		svc.log.Error(err.Error())
 		return errors.New("cannot increment product price")
@@ -133,7 +153,17 @@ func (svc productService) UpdatePrice(publicID string, price int) error {
 		return err
 	}
 
-	_, err = svc.productRepo.Update(*p)
+	productModel := gormodel.Product{
+		PublicID: p.PublicID(),
+		Slug:     string(p.Slug()),
+		Name:     p.Name(),
+		Image:    p.Image(),
+		Price:    int(p.Price()),
+		Quantity: p.Quantity(),
+		Enabled:  p.Enabled(),
+	}
+
+	_, err = svc.productRepo.Update(productModel)
 	if err != nil {
 		svc.log.Error("error updating product", "error", err.Error())
 		return errors.New("cannot increment product price")
@@ -170,7 +200,17 @@ func (svc productService) Create(dto dto.CreateProduct) error {
 		return err
 	}
 
-	_, err = svc.productRepo.Create(*p)
+	productModel := gormodel.Product{
+		PublicID: p.PublicID(),
+		Slug:     string(p.Slug()),
+		Name:     p.Name(),
+		Image:    p.Image(),
+		Price:    int(p.Price()),
+		Quantity: p.Quantity(),
+		Enabled:  p.Enabled(),
+	}
+
+	err = svc.productRepo.Create(productModel)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
 			svc.log.Error("product name already taken", "name", dto.Name)

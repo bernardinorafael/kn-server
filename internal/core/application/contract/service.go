@@ -9,7 +9,7 @@ import (
 
 type AuthService interface {
 	Login(dto dto.Login) (gormodel.User, error)
-	Register(dto dto.Register) (gormodel.User, error)
+	Register(dto dto.Register) error
 	LoginOTP(dto dto.LoginOTP) (gormodel.User, error)
 	NotifyLoginOTP(dto dto.NotifySMS) error
 }

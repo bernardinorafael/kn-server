@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"gorm.io/gorm"
 )
@@ -22,22 +21,22 @@ func NewProductRepo(db *gorm.DB) contract.ProductRepository {
 	return &productRepo{db}
 }
 
-func (r productRepo) Update(p product.Product) (gormodel.Product, error) {
+func (r productRepo) Update(p gormodel.Product) (gormodel.Product, error) {
 	var product gormodel.Product
 
 	err := r.db.
-		Where("public_id = ?", p.PublicID()).
+		Where("public_id = ?", p.PublicID).
 		First(&product).
 		Error
 	if err != nil {
 		return product, err
 	}
 
-	product.Name = p.Name()
-	product.Slug = string(p.Slug())
-	product.Price = int(p.Price())
-	product.Quantity = p.Quantity()
-	product.Enabled = p.Enabled()
+	product.Name = p.Name
+	product.Slug = p.Slug
+	product.Price = p.Price
+	product.Quantity = p.Quantity
+	product.Enabled = p.Enabled
 	product.UpdatedAt = time.Now()
 
 	err = r.db.Save(&product).Error
@@ -48,29 +47,12 @@ func (r productRepo) Update(p product.Product) (gormodel.Product, error) {
 	return product, nil
 }
 
-func (r productRepo) Create(p product.Product) (gormodel.Product, error) {
-	var product gormodel.Product
-
-	newProduct := gormodel.Product{
-		Name:      p.Name(),
-		Price:     int(p.Price()),
-		Quantity:  p.Quantity(),
-		PublicID:  p.PublicID(),
-		Slug:      string(p.Slug()),
-		Image:     p.Image(),
-		Enabled:   p.Enabled(),
-		UpdatedAt: time.Now(),
-	}
-
-	err := r.db.
-		Create(&newProduct).
-		First(&product).
-		Error
+func (r productRepo) Create(p gormodel.Product) error {
+	err := r.db.Create(&p).Error
 	if err != nil {
-		return product, err
+		return err
 	}
-
-	return product, nil
+	return nil
 }
 
 func (r productRepo) GetByID(id int) (gormodel.Product, error) {

@@ -113,9 +113,7 @@ func (svc authService) Login(dto dto.Login) (gormodel.User, error) {
 	return user, nil
 }
 
-func (svc authService) Register(dto dto.Register) (gormodel.User, error) {
-	var userModel gormodel.User
-
+func (svc authService) Register(dto dto.Register) error {
 	u, err := user.New(user.Params{
 		PublicID: uuid.NewString(),
 		Name:     dto.Name,
@@ -126,26 +124,36 @@ func (svc authService) Register(dto dto.Register) (gormodel.User, error) {
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
-		return userModel, err
+		return err
 	}
 
 	if err = u.EncryptPassword(); err != nil {
 		svc.log.Error("failed to encrypt password", "error", err.Error())
-		return userModel, err
+		return err
 	}
 
-	newUser, err := svc.userRepo.Create(*u)
+	userModel := gormodel.User{
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	err = svc.userRepo.Create(userModel)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", dto.Email)
-			return userModel, ErrEmailAlreadyTaken
+			return ErrEmailAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_phone") {
 			svc.log.Error("phone already taken", "phone", dto.Phone)
-			return userModel, ErrPhoneAlreadyTaken
+			return ErrPhoneAlreadyTaken
 		}
-		return userModel, err
+		return err
 	}
 
-	return newUser, nil
+	return nil
 }
