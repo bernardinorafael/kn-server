@@ -42,6 +42,7 @@ func (r userRepo) Create(u user.User) (gormodel.User, error) {
 		Email:     string(u.Email()),
 		Password:  string(u.Password()),
 		Phone:     string(u.Phone()),
+		Status:    u.StatusString(),
 		UpdatedAt: time.Now(),
 	}
 

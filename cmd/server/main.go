@@ -19,10 +19,10 @@ import (
 )
 
 /*
-* TODO: implement Graceful Shutdown
-* TODO: implement Swagger
-* TODO: resolve excess logic in the controller
- */
+ TODO: implement Graceful Shutdown
+ TODO: implement Swagger
+ TODO: resolve excess logic in the controller
+*/
 
 func main() {
 	router := chi.NewRouter()
@@ -49,8 +49,8 @@ func main() {
 	}
 
 	/*
-	* TODO: change JWT implementation into a service
-	 */
+	 TODO: change JWT implementation into a service
+	*/
 	jwtAuth, err := auth.NewJWTAuth(l, env.JWTSecret)
 	if err != nil {
 		l.Error("cannot initialize jwt auth")
@@ -66,15 +66,15 @@ func main() {
 	twilioClient := twilioclient.New(env)
 
 	/*
-	* Repositories
-	 */
+	 Repositories
+	*/
 	userRepo := gormrepo.NewUserRepo(db)
 	productRepo := gormrepo.NewProductRepo(db)
 	teamRepo := gormrepo.NewTeamRepo(db)
 	/*
-	* Services
-	* TODO: make Option Pattern for services
-	 */
+	 Services
+	 TODO: make Option Pattern for services
+	*/
 	s3Service := service.NewS3Service(s3Client, l)
 	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
 	authService := service.NewAuthService(l, twilioSMSService, userRepo)
@@ -87,15 +87,15 @@ func main() {
 		FileService: s3Service,
 	})
 	/*
-	* Controllers
-	 */
+	 Controllers
+	*/
 	authHandler := route.NewAuthHandler(l, authService, twilioSMSService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
 	teamHandler := route.NewTeamHandler(l, teamService, jwtAuth)
 	/*
-	* Registering controllers
-	 */
+	 Registering controllers
+	*/
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)

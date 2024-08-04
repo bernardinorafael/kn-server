@@ -95,7 +95,7 @@ func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 		Name:      u.Name,
 		Email:     u.Email,
 		Phone:     u.Phone,
-		Enabled:   u.Enabled,
+		Status:    u.Status,
 		CreatedAt: u.CreatedAt,
 	}
 

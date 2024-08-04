@@ -42,7 +42,6 @@ func TestUserEntity_New(t *testing.T) {
 		assert.Equal(t, u.Name(), "john doe")
 		assert.Equal(t, u.Email(), email.Email("john_doe@email.com"))
 		assert.NotEqual(t, u.Password(), password.Password("@Password123"))
-		assert.False(t, u.Enabled())
 	})
 
 	t.Run("Should validate user name length", func(t *testing.T) {
@@ -71,5 +70,49 @@ func TestUserEntity_New(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, user.ErrInvalidFullName.Error())
+	})
+}
+
+func TestUser_ChangeStatus(t *testing.T) {
+	t.Run("Should only change a status by a valid one", func(t *testing.T) {
+		u, _ := user.New(user.Params{
+			PublicID: uuid.NewString(),
+			Name:     "joe doe",
+			Email:    "john_doe@email.com",
+			Password: "@Password123",
+			Phone:    "11978761232",
+			TeamID:   nil,
+		})
+
+		err := u.ChangeStatus(user.StatusEnabled)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Should not change status by a invalid one", func(t *testing.T) {
+		u, _ := user.New(user.Params{
+			PublicID: uuid.NewString(),
+			Name:     "joe doe",
+			Email:    "john_doe@email.com",
+			Password: "@Password123",
+			Phone:    "11978761232",
+			TeamID:   nil,
+		})
+
+		err := u.ChangeStatus(user.Status(99))
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "invalid user status")
+	})
+
+	t.Run("Should return status string from user", func(t *testing.T) {
+		u, _ := user.New(user.Params{
+			PublicID: uuid.NewString(),
+			Name:     "joe doe",
+			Email:    "john_doe@email.com",
+			Password: "@Password123",
+			Phone:    "11978761232",
+			TeamID:   nil,
+		})
+
+		assert.Equal(t, u.StatusString(), "pending")
 	})
 }

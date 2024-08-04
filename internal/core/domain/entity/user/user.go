@@ -13,9 +13,23 @@ import (
 	"github.com/google/uuid"
 )
 
+type Status int
+
 const (
-	minNameLength = 3
+	// StatusPending indicates the initial state of the account when it is first created
+	StatusPending Status = iota
+
+	// StatusActivationSent indicates that an activation email has been sent to the user
+	StatusActivationSent
+
+	// StatusEnabled indicates that the account has been activated
+	StatusEnabled
+
+	// StatusSuspended the status is self-explanatory
+	StatusSuspended
 )
+
+const minNameLength = 3
 
 var (
 	ErrInvalidNameLength = fmt.Errorf("name must be at least %d characters long", minNameLength)
@@ -39,7 +53,7 @@ type User struct {
 	name      string
 	email     email.Email
 	phone     phone.Phone
-	enabled   bool
+	status    Status
 	teamID    *string
 	password  password.Password
 	createdAt time.Time
@@ -63,7 +77,7 @@ func New(u Params) (*User, error) {
 		phone:     ph.Phone(),
 		password:  password.Password(u.Password),
 		teamID:    u.TeamID,
-		enabled:   false,
+		status:    StatusPending,
 		createdAt: time.Now(),
 	}
 
@@ -142,15 +156,31 @@ func (u *User) ChangeEmail(newEmail string) error {
 	return nil
 }
 
-func (u *User) ChangeStatus(status bool) {
-	u.enabled = status
+func (u *User) ChangeStatus(status Status) error {
+	switch status {
+	case StatusPending, StatusActivationSent, StatusEnabled, StatusSuspended:
+		u.status = status
+		return nil
+	default:
+		return errors.New("invalid user status")
+	}
+}
+
+func (u *User) StatusString() string {
+	status := []string{
+		"pending",
+		"activation_sent",
+		"enabled",
+		"suspended",
+	}
+	return status[u.status]
 }
 
 func (u *User) PublicID() string            { return u.publicID }
 func (u *User) Name() string                { return u.name }
 func (u *User) Email() email.Email          { return u.email }
 func (u *User) Phone() phone.Phone          { return u.phone }
-func (u *User) Enabled() bool               { return u.enabled }
+func (u *User) Status() Status              { return u.status }
 func (u *User) TeamID() *string             { return u.teamID }
 func (u *User) Password() password.Password { return u.password }
 func (u *User) CreatedAt() time.Time        { return u.createdAt }

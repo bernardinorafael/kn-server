@@ -24,7 +24,7 @@ type User struct {
 	Name         string         `json:"name"`
 	Email        string         `json:"email" gorm:"unique"`
 	Phone        string         `json:"phone" gorm:"unique"`
-	Enabled      bool           `json:"enabled"`
+	Status       string         `json:"status"`
 	Password     string         `json:"password"`
 	PublicTeamID *string        `json:"public_team_id" gorm:"default:null"`
 	CreatedAt    time.Time      `json:"created_at"`
