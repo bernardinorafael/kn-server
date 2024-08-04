@@ -35,8 +35,8 @@ func (svc teamService) GetByID(publicID string) (gormodel.Team, error) {
 	return t, nil
 }
 
-func (svc teamService) Create(data dto.CreateTeam) error {
-	t, err := team.New(data.OwnerID, data.Name)
+func (svc teamService) Create(dto dto.CreateTeam) error {
+	t, err := team.New(dto.OwnerID, dto.Name)
 	if err != nil {
 		svc.log.Error("error initializing team", "error", err.Error())
 		return err

@@ -11,6 +11,7 @@ type UserRepository interface {
 	Create(u user.User) (gormodel.User, error)
 	GetByPublicID(publicID string) (gormodel.User, error)
 	GetByEmail(email string) (gormodel.User, error)
+	GetByPhone(phone string) (gormodel.User, error)
 	Update(u user.User) (gormodel.User, error)
 }
 

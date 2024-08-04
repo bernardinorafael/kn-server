@@ -9,6 +9,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/user"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/password"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/google/uuid"
@@ -32,71 +33,91 @@ func NewAuthService(log logger.Logger, userRepo contract.UserRepository) contrac
 	return &authService{log, userRepo}
 }
 
-func (svc authService) Login(data dto.Login) (gormodel.User, error) {
-	var u gormodel.User
+func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
+	var userModel gormodel.User
 
-	_, err := email.New(data.Email)
+	_, err := phone.New(dto.Phone)
 	if err != nil {
-		svc.log.Error("error creating email value object", "error", err.Error())
-		return u, err
+		svc.log.Error("error creating phone value object", "error", err.Error())
+		return userModel, err
 	}
 
-	user, err := svc.userRepo.GetByEmail(data.Email)
+	user, err := svc.userRepo.GetByPhone(dto.Phone)
 	if err != nil {
-		svc.log.Error("failed to find user by email", "email", data.Email)
-		return u, ErrInvalidCredential
-	}
-
-	p, err := password.New(data.Password)
-	if err != nil {
-		svc.log.Error("error creating password value object", "error", err.Error())
-		return u, err
-	}
-
-	err = p.Compare(password.Password(user.Password), data.Password)
-	if err != nil {
-		svc.log.Error("the password provided is incorrect", "password", data.Password)
-		return u, ErrInvalidCredential
+		svc.log.Error("failed to find user by phone", "phone", dto.Phone)
+		return userModel, ErrUserNotFound
 	}
 
 	return user, nil
 }
 
-func (svc authService) Register(data dto.Register) (gormodel.User, error) {
+func (svc authService) Login(dto dto.Login) (gormodel.User, error) {
+	var userModel gormodel.User
+
+	_, err := email.New(dto.Email)
+	if err != nil {
+		svc.log.Error("error creating email value object", "error", err.Error())
+		return userModel, err
+	}
+
+	user, err := svc.userRepo.GetByEmail(dto.Email)
+	if err != nil {
+		svc.log.Error("failed to find user by email", "email", dto.Email)
+		return userModel, ErrInvalidCredential
+	}
+
+	p, err := password.New(dto.Password)
+	if err != nil {
+		svc.log.Error("error creating password value object", "error", err.Error())
+		return userModel, err
+	}
+
+	err = p.Compare(password.Password(user.Password), dto.Password)
+	if err != nil {
+		svc.log.Error("the password provided is incorrect", "password", dto.Password)
+		return userModel, ErrInvalidCredential
+	}
+
+	return user, nil
+}
+
+func (svc authService) Register(dto dto.Register) (gormodel.User, error) {
+	var userModel gormodel.User
+
 	u, err := user.New(user.Params{
 		PublicID: uuid.NewString(),
-		Name:     data.Name,
-		Email:    data.Email,
-		Password: data.Password,
-		Document: data.Document,
-		Phone:    data.Phone,
+		Name:     dto.Name,
+		Email:    dto.Email,
+		Password: dto.Password,
+		Document: dto.Document,
+		Phone:    dto.Phone,
 		TeamID:   nil,
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
-		return gormodel.User{}, err
+		return userModel, err
 	}
 
 	if err = u.EncryptPassword(); err != nil {
 		svc.log.Error("failed to encrypt password", "error", err.Error())
-		return gormodel.User{}, err
+		return userModel, err
 	}
 
 	newUser, err := svc.userRepo.Create(*u)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
-			svc.log.Error("email already taken", "email", data.Email)
-			return gormodel.User{}, ErrEmailAlreadyTaken
+			svc.log.Error("email already taken", "email", dto.Email)
+			return userModel, ErrEmailAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_phone") {
-			svc.log.Error("phone already taken", "phone", data.Phone)
-			return gormodel.User{}, ErrPhoneAlreadyTaken
+			svc.log.Error("phone already taken", "phone", dto.Phone)
+			return userModel, ErrPhoneAlreadyTaken
 		}
 		if strings.Contains(err.Error(), "uni_users_document") {
-			svc.log.Error("document already taken", "document", data.Document)
-			return gormodel.User{}, ErrDocumentAlreadyTaken
+			svc.log.Error("document already taken", "document", dto.Document)
+			return userModel, ErrDocumentAlreadyTaken
 		}
-		return gormodel.User{}, err
+		return userModel, err
 	}
 
 	return newUser, nil

@@ -42,52 +42,52 @@ func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
-		r.Post("/notify", h.notify)
-		r.Post("/verify", h.verify)
+		r.Post("/login-otp", h.loginOTP)
+		r.Post("/verify-otp", h.verifyOTP)
 	})
 }
 
-func (h authHandler) verify(w http.ResponseWriter, r *http.Request) {
-	var input dto.VerifySMS
+func (h authHandler) verifyOTP(w http.ResponseWriter, r *http.Request) {
+	var body dto.VerifySMS
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	status, err := h.notifierService.Confirm(input.Code, input.Phone)
+	err := h.notifierService.Confirm(body.Code, body.Phone)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	switch {
-	case status == "pending":
-		NewBadRequestError(w, "invalid code")
-		return
-	case status == "canceled":
-		NewBadRequestError(w, "verify operation canceled")
-		return
-	case status == "max_attempts_reached":
-		NewBadRequestError(w, "max attempts reached")
-		return
-	case status == "expired":
-		NewBadRequestError(w, "the verification has expired")
-		return
-	}
-
-	WriteSuccessResponse(w, http.StatusOK)
-}
-
-func (h authHandler) notify(w http.ResponseWriter, r *http.Request) {
-	var input dto.NotifySMS
-
-	if err := ParseBodyRequest(r, &input); err != nil {
+	user, err := h.authService.LoginOTP(dto.LoginOTP{Phone: body.Phone})
+	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	if err := h.notifierService.Notify(input.Phone); err != nil {
+	token, payload, err := h.jwtAuth.CreateAccessToken(user.PublicID, h.env.AccessTokenDuration)
+	if err != nil {
+		NewInternalServerError(w, err.Error())
+		return
+	}
+
+	WriteJSONResponse(w, http.StatusCreated, map[string]interface{}{
+		"token":   token,
+		"payload": payload,
+	})
+}
+
+func (h authHandler) loginOTP(w http.ResponseWriter, r *http.Request) {
+	var body dto.NotifySMS
+
+	if err := ParseBodyRequest(r, &body); err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	if err := h.notifierService.Notify(body.Phone); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -96,14 +96,14 @@ func (h authHandler) notify(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
-	var input dto.Login
+	var body dto.Login
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	user, err := h.authService.Login(input)
+	user, err := h.authService.Login(body)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredential) {
 			NewConflictError(w, err.Error())
@@ -126,14 +126,14 @@ func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
-	var input dto.Register
+	var body dto.Register
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	_, err := h.authService.Register(input)
+	_, err := h.authService.Register(body)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			NewConflictError(w, err.Error())

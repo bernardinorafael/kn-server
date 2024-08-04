@@ -141,17 +141,17 @@ func (svc productService) UpdatePrice(publicID string, price int) error {
 	return nil
 }
 
-func (svc productService) Create(data dto.CreateProduct) error {
+func (svc productService) Create(dto dto.CreateProduct) error {
 	id := uuid.NewString()
 
-	ext := filepath.Ext(data.ImageName)
+	ext := filepath.Ext(dto.ImageName)
 	if len(ext) == 0 {
 		svc.log.Error("image name cannot be empty")
 		return errors.New("cannot reach image name")
 	}
 	filename := fmt.Sprintf("%s%s", id, ext)
 
-	location, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
+	location, err := svc.fileService.UploadFile(dto.Image, filename, svc.env.AWSBucket)
 	if err != nil {
 		svc.log.Error("cannot upload image to s3", "error", err.Error())
 		return err
@@ -159,10 +159,10 @@ func (svc productService) Create(data dto.CreateProduct) error {
 
 	p, err := product.New(product.Params{
 		PublicID: id,
-		Name:     data.Name,
+		Name:     dto.Name,
 		Image:    location,
-		Price:    data.Price,
-		Quantity: data.Quantity,
+		Price:    dto.Price,
+		Quantity: dto.Quantity,
 		Enabled:  true,
 	})
 	if err != nil {
@@ -173,7 +173,7 @@ func (svc productService) Create(data dto.CreateProduct) error {
 	_, err = svc.productRepo.Create(*p)
 	if err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
-			svc.log.Error("product name already taken", "name", data.Name)
+			svc.log.Error("product name already taken", "name", dto.Name)
 			return ErrProductNameAlreadyTaken
 		}
 		svc.log.Error(err.Error())

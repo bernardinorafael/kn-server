@@ -21,6 +21,7 @@ import (
 /*
 * TODO: implement Graceful Shutdown
 * TODO: implement Swagger
+* TODO: resolve excess logic in the controller
  */
 
 func main() {

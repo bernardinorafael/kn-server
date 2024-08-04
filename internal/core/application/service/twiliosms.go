@@ -45,14 +45,14 @@ func (svc twilioSMSService) Notify(to string) error {
 	return nil
 }
 
-func (svc twilioSMSService) Confirm(code string, to string) (status string, err error) {
+func (svc twilioSMSService) Confirm(code string, to string) error {
 	if len(code) != smsCodeLength {
-		return "", errors.New("invalid code format")
+		return errors.New("invalid code format")
 	}
 
 	p, err := phone.New(to)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	params := verify.CreateVerificationCheckParams{}
@@ -63,8 +63,19 @@ func (svc twilioSMSService) Confirm(code string, to string) (status string, err 
 	res, err := svc.client.VerifyV2.CreateVerificationCheck(svc.serviceID, &params)
 	if err != nil {
 		svc.log.Error("cannot verify code", "error", err.Error())
-		return "", fmt.Errorf("error verifying code to %s", p.Phone())
+		return fmt.Errorf("error verifying code to %s", p.Phone())
 	}
 
-	return *res.Status, nil
+	switch {
+	case *res.Status == "pending":
+		return errors.New("invalid otp code")
+	case *res.Status == "canceled":
+		return errors.New("verify otp operation canceled")
+	case *res.Status == "max_attempts_reached":
+		return errors.New("max attempts reached")
+	case *res.Status == "expired":
+		return errors.New("verification code expired")
+	}
+
+	return nil
 }

@@ -52,14 +52,14 @@ func (h productHandler) RegisterRoute(r *chi.Mux) {
 }
 
 func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
-	var input dto.ChangeStatus
+	var body dto.ChangeStatus
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err := h.productService.ChangeStatus(r.PathValue("id"), input.Status)
+	err := h.productService.ChangeStatus(r.PathValue("id"), body.Status)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -69,14 +69,14 @@ func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
-	var input dto.UpdateQuantity
+	var body dto.UpdateQuantity
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err := h.productService.IncreaseQuantity(r.PathValue("id"), input.Amount)
+	err := h.productService.IncreaseQuantity(r.PathValue("id"), body.Amount)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -86,14 +86,14 @@ func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request)
 }
 
 func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
-	var input dto.UpdatePrice
+	var body dto.UpdatePrice
 
-	if err := ParseBodyRequest(r, &input); err != nil {
+	if err := ParseBodyRequest(r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err := h.productService.UpdatePrice(r.PathValue("id"), input.Amount)
+	err := h.productService.UpdatePrice(r.PathValue("id"), body.Amount)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -123,7 +123,7 @@ func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 	parsedPrice, _ := strconv.Atoi(r.FormValue("price"))
 	parsedQuantity, _ := strconv.Atoi(r.FormValue("quantity"))
 
-	input := dto.CreateProduct{
+	body := dto.CreateProduct{
 		Name:      r.FormValue("name"),
 		Price:     parsedPrice,
 		Quantity:  parsedQuantity,
@@ -131,7 +131,7 @@ func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 		ImageName: fh.Filename,
 	}
 
-	err = h.productService.Create(input)
+	err = h.productService.Create(body)
 	if err != nil {
 		switch {
 		case errors.Is(err, product.ErrInvalidPrice):

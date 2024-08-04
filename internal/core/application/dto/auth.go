@@ -5,6 +5,10 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+type LoginOTP struct {
+	Phone string `json:"phone"`
+}
+
 type Register struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`

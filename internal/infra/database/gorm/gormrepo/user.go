@@ -19,6 +19,20 @@ func NewUserRepo(DB *gorm.DB) contract.UserRepository {
 	return &userRepo{db: DB}
 }
 
+func (r userRepo) GetByPhone(phone string) (gormodel.User, error) {
+	var user gormodel.User
+
+	err := r.db.
+		Where("phone = ?", phone).
+		First(&user).
+		Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (r userRepo) Create(u user.User) (gormodel.User, error) {
 	var user gormodel.User
 

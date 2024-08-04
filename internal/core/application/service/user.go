@@ -20,20 +20,20 @@ func NewUserService(log logger.Logger, userRepo contract.UserRepository) contrac
 	return &userService{log, userRepo}
 }
 
-func (svc userService) RecoverPassword(publicID string, data dto.UpdatePassword) error {
+func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) error {
 	found, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "id", publicID)
 		return ErrUserNotFound
 	}
 
-	p, err := password.New(data.NewPassword)
+	p, err := password.New(dto.NewPassword)
 	if err != nil {
 		svc.log.Error("error creating password value object", "error", err.Error())
 		return err
 	}
 
-	err = p.Compare(password.Password(found.Password), data.OldPassword)
+	err = p.Compare(password.Password(found.Password), dto.OldPassword)
 	if err != nil {
 		svc.log.Error("failed to compare password", "error", err.Error())
 		return err
@@ -68,7 +68,7 @@ func (svc userService) RecoverPassword(publicID string, data dto.UpdatePassword)
 	return nil
 }
 
-func (svc userService) Update(publicID string, data dto.UpdateUser) error {
+func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 	record, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
@@ -89,22 +89,22 @@ func (svc userService) Update(publicID string, data dto.UpdateUser) error {
 		return err
 	}
 
-	if data.Name != "" {
-		err = u.ChangeName(data.Name)
+	if dto.Name != "" {
+		err = u.ChangeName(dto.Name)
 		if err != nil {
 			svc.log.Error("error while changing name", "error", err.Error())
 			return err
 		}
 	}
-	if data.Email != "" {
-		err = u.ChangeEmail(data.Email)
+	if dto.Email != "" {
+		err = u.ChangeEmail(dto.Email)
 		if err != nil {
 			svc.log.Error("error while changing email", "error", err.Error())
 			return err
 		}
 	}
-	if data.Phone != "" {
-		err = u.ChangePhone(data.Phone)
+	if dto.Phone != "" {
+		err = u.ChangePhone(dto.Phone)
 		if err != nil {
 			svc.log.Error("error while changing phone", "error", err.Error())
 			return err

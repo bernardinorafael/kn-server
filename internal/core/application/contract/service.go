@@ -8,12 +8,13 @@ import (
 )
 
 type AuthService interface {
-	Login(data dto.Login) (gormodel.User, error)
-	Register(data dto.Register) (gormodel.User, error)
+	Login(dto dto.Login) (gormodel.User, error)
+	LoginOTP(dto dto.LoginOTP) (gormodel.User, error)
+	Register(dto dto.Register) (gormodel.User, error)
 }
 
 type ProductService interface {
-	Create(data dto.CreateProduct) error
+	Create(dto dto.CreateProduct) error
 	Delete(publicID string) error
 	GetByPublicID(publicId string) (gormodel.Product, error)
 	GetBySlug(slugInput string) (gormodel.Product, error)
@@ -25,12 +26,12 @@ type ProductService interface {
 
 type UserService interface {
 	GetUser(publicID string) (gormodel.User, error)
-	Update(publicID string, data dto.UpdateUser) error
-	RecoverPassword(publicID string, data dto.UpdatePassword) error
+	Update(publicID string, dto dto.UpdateUser) error
+	RecoverPassword(publicID string, dto dto.UpdatePassword) error
 }
 
 type TeamService interface {
-	Create(data dto.CreateTeam) error
+	Create(dto dto.CreateTeam) error
 	GetByID(publicID string) (gormodel.Team, error)
 }
 
@@ -40,5 +41,5 @@ type FileManagerService interface {
 
 type SMSNotifier interface {
 	Notify(to string) error
-	Confirm(code string, phone string) (status string, err error)
+	Confirm(code string, phone string) error
 }
