@@ -30,7 +30,7 @@ func (r teamRepo) Create(t team.Team) (gormodel.Team, error) {
 	}
 
 	err := r.db.
-		Create(newTeam).
+		Create(&newTeam).
 		First(&team).
 		Error
 	if err != nil {

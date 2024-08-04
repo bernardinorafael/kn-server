@@ -151,7 +151,7 @@ func (svc productService) Create(data dto.CreateProduct) error {
 	}
 	filename := fmt.Sprintf("%s%s", id, ext)
 
-	res, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
+	location, err := svc.fileService.UploadFile(data.Image, filename, svc.env.AWSBucket)
 	if err != nil {
 		svc.log.Error("cannot upload image to s3", "error", err.Error())
 		return err
@@ -160,7 +160,7 @@ func (svc productService) Create(data dto.CreateProduct) error {
 	p, err := product.New(product.Params{
 		PublicID: id,
 		Name:     data.Name,
-		Image:    res.Location,
+		Image:    location,
 		Price:    data.Price,
 		Quantity: data.Quantity,
 		Enabled:  true,

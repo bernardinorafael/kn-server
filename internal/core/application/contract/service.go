@@ -3,7 +3,6 @@ package contract
 import (
 	"io"
 
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 )
@@ -36,5 +35,5 @@ type TeamService interface {
 }
 
 type FileManagerService interface {
-	UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error)
+	UploadFile(file io.Reader, key, bucket string) (location string, err error)
 }

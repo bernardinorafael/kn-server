@@ -32,7 +32,10 @@ func (r userRepo) Create(u user.User) (gormodel.User, error) {
 		UpdatedAt: time.Now(),
 	}
 
-	err := r.db.Create(&newUser).First(&user).Error
+	err := r.db.
+		Create(&newUser).
+		First(&user).
+		Error
 	if err != nil {
 		return user, err
 	}

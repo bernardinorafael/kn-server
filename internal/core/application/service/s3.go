@@ -12,6 +12,10 @@ import (
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 )
 
+/*
+* TODO: implement a method to remove a file from the bucket
+ */
+
 type service struct {
 	log    logger.Logger
 	client *s3.Client
@@ -21,7 +25,7 @@ func NewS3Service(client *s3.Client, log logger.Logger) contract.FileManagerServ
 	return &service{log, client}
 }
 
-func (svc *service) UploadFile(file io.Reader, key, bucket string) (*manager.UploadOutput, error) {
+func (svc *service) UploadFile(file io.Reader, key, bucket string) (location string, err error) {
 	uploader := manager.NewUploader(svc.client)
 	out, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket:      aws.String(bucket),
@@ -33,8 +37,8 @@ func (svc *service) UploadFile(file io.Reader, key, bucket string) (*manager.Upl
 
 	if err != nil {
 		svc.log.Error("error uploading file to s3", "error", err)
-		return nil, errors.New("cannot upload image to bucket")
+		return "", errors.New("cannot upload image to bucket")
 	}
 
-	return out, nil
+	return out.Location, nil
 }

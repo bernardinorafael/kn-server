@@ -63,7 +63,7 @@ func (r productRepo) Create(p product.Product) (gormodel.Product, error) {
 	}
 
 	err := r.db.
-		Create(newProduct).
+		Create(&newProduct).
 		First(&product).
 		Error
 	if err != nil {
