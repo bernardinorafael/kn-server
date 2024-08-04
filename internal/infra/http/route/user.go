@@ -38,15 +38,14 @@ func (h userHandler) RegisterRoute(r *chi.Mux) {
 }
 
 func (h userHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
-	var payload dto.UpdatePassword
+	var input dto.UpdatePassword
 
-	err := ParseBodyRequest(r, &payload)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.userService.RecoverPassword(r.PathValue("id"), payload)
+	err := h.userService.RecoverPassword(r.PathValue("id"), input)
 	if err != nil {
 		if errors.Is(err, service.ErrUpdatingPassword) {
 			NewConflictError(w, err.Error())
@@ -62,13 +61,12 @@ func (h userHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateUser
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
-		NewBadRequestError(w, "http error parsing body request")
+	if err := ParseBodyRequest(r, &input); err != nil {
+		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.userService.Update(r.PathValue("id"), input)
+	err := h.userService.Update(r.PathValue("id"), input)
 	if err != nil {
 		NewBadRequestError(w, "cannot update user")
 		return

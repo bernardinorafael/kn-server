@@ -15,28 +15,90 @@ import (
 )
 
 type authHandler struct {
-	log         logger.Logger
-	env         *config.Env
-	authService contract.AuthService
-	jwtAuth     auth.TokenAuthInterface
+	log             logger.Logger
+	env             *config.Env
+	authService     contract.AuthService
+	notifierService contract.SMSNotifier
+	jwtAuth         auth.TokenAuthInterface
 }
 
-func NewAuthHandler(log logger.Logger, authService contract.AuthService, jwtAuth auth.TokenAuthInterface, env *config.Env) *authHandler {
-	return &authHandler{log, env, authService, jwtAuth}
+func NewAuthHandler(
+	log logger.Logger,
+	authService contract.AuthService,
+	notifierService contract.SMSNotifier,
+	jwtAuth auth.TokenAuthInterface,
+	env *config.Env,
+) *authHandler {
+	return &authHandler{
+		log:             log,
+		env:             env,
+		authService:     authService,
+		notifierService: notifierService,
+		jwtAuth:         jwtAuth,
+	}
 }
 
 func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
+		r.Post("/notify", h.notify)
+		r.Post("/verify", h.verify)
 	})
+}
+
+func (h authHandler) verify(w http.ResponseWriter, r *http.Request) {
+	var input dto.VerifySMS
+
+	if err := ParseBodyRequest(r, &input); err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	status, err := h.notifierService.Confirm(input.Code, input.Phone)
+	if err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	switch {
+	case status == "pending":
+		NewBadRequestError(w, "invalid code")
+		return
+	case status == "canceled":
+		NewBadRequestError(w, "verify operation canceled")
+		return
+	case status == "max_attempts_reached":
+		NewBadRequestError(w, "max attempts reached")
+		return
+	case status == "expired":
+		NewBadRequestError(w, "the verification has expired")
+		return
+	}
+
+	WriteSuccessResponse(w, http.StatusOK)
+}
+
+func (h authHandler) notify(w http.ResponseWriter, r *http.Request) {
+	var input dto.NotifySMS
+
+	if err := ParseBodyRequest(r, &input); err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	if err := h.notifierService.Notify(input.Phone); err != nil {
+		NewBadRequestError(w, err.Error())
+		return
+	}
+
+	WriteSuccessResponse(w, http.StatusOK)
 }
 
 func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var input dto.Login
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -66,13 +128,12 @@ func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var input dto.Register
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	_, err = h.authService.Register(input)
+	_, err := h.authService.Register(input)
 	if err != nil {
 		if errors.Is(err, service.ErrEmailAlreadyTaken) {
 			NewConflictError(w, err.Error())

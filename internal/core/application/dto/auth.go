@@ -17,3 +17,12 @@ type UpdatePassword struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
+
+type VerifySMS struct {
+	Phone string `json:"phone"`
+	Code  string `json:"code"`
+}
+
+type NotifySMS struct {
+	Phone string `json:"phone"`
+}

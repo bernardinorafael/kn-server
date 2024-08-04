@@ -23,6 +23,10 @@ type Env struct {
 	AWSSecretKey string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
 	AWSRegion    string `mapstructure:"AWS_REGION"`
 	AWSBucket    string `mapstructure:"AWS_BUCKET_NAME"`
+
+	TwilioServiceID string `mapstructure:"TWILIO_SERVICE_SID"`
+	TwilioAuthToken string `mapstructure:"TWILIO_AUTH_TOKEN"`
+	TwilioAccountID string `mapstructure:"TWILIO_ACCOUNT_ID"`
 }
 
 func NewConfig() (*Env, error) {

@@ -12,6 +12,7 @@ import (
 	database "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
+	"github.com/bernardinorafael/kn-server/internal/infra/twilioclient"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -19,7 +20,7 @@ import (
 
 /*
 * TODO: implement Graceful Shutdown
-* TODO: implement Option Pattern for services
+* TODO: implement Swagger
  */
 
 func main() {
@@ -46,23 +47,35 @@ func main() {
 		panic(err)
 	}
 
+	/*
+	* TODO: change JWT implementation into a service
+	 */
 	jwtAuth, err := auth.NewJWTAuth(l, env.JWTSecret)
 	if err != nil {
 		l.Error("cannot initialize jwt auth")
 		panic(err)
 	}
 
-	s3, err := s3client.New(env)
+	s3Client, err := s3client.New(env)
 	if err != nil {
 		l.Error("cannot initialize aws s3 client")
 		panic(err)
 	}
 
+	twilioClient := twilioclient.New(env)
+
+	/*
+	* Repositories
+	 */
 	userRepo := gormrepo.NewUserRepo(db)
 	productRepo := gormrepo.NewProductRepo(db)
 	teamRepo := gormrepo.NewTeamRepo(db)
-
-	s3Service := service.NewS3Service(s3, l)
+	/*
+	* Services
+	* TODO: make Option Pattern for services
+	 */
+	s3Service := service.NewS3Service(s3Client, l)
+	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
 	authService := service.NewAuthService(l, userRepo)
 	userService := service.NewUserService(l, userRepo)
 	teamService := service.NewTeamService(l, teamRepo)
@@ -72,12 +85,16 @@ func main() {
 		ProductRepo: productRepo,
 		FileService: s3Service,
 	})
-
-	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
+	/*
+	* Controllers
+	 */
+	authHandler := route.NewAuthHandler(l, authService, twilioSMSService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
 	teamHandler := route.NewTeamHandler(l, teamService, jwtAuth)
-
+	/*
+	* Registering controllers
+	 */
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)

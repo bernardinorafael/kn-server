@@ -37,3 +37,8 @@ type TeamService interface {
 type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (location string, err error)
 }
+
+type SMSNotifier interface {
+	Notify(to string) error
+	Confirm(code string, phone string) (status string, err error)
+}

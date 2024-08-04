@@ -70,13 +70,12 @@ func (h teamHandler) getByID(w http.ResponseWriter, r *http.Request) {
 func (h teamHandler) create(w http.ResponseWriter, r *http.Request) {
 	var input dto.CreateTeam
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.teamService.Create(input)
+	err := h.teamService.Create(input)
 	if err != nil {
 		NewBadRequestError(w, "cannot create team")
 		return

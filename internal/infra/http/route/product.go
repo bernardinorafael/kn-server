@@ -54,13 +54,12 @@ func (h productHandler) RegisterRoute(r *chi.Mux) {
 func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	var input dto.ChangeStatus
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.productService.ChangeStatus(r.PathValue("id"), input.Status)
+	err := h.productService.ChangeStatus(r.PathValue("id"), input.Status)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -72,13 +71,12 @@ func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateQuantity
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.productService.IncreaseQuantity(r.PathValue("id"), input.Amount)
+	err := h.productService.IncreaseQuantity(r.PathValue("id"), input.Amount)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -90,13 +88,12 @@ func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request)
 func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdatePrice
 
-	err := ParseBodyRequest(r, &input)
-	if err != nil {
+	if err := ParseBodyRequest(r, &input); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
 
-	err = h.productService.UpdatePrice(r.PathValue("id"), input.Amount)
+	err := h.productService.UpdatePrice(r.PathValue("id"), input.Amount)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -139,12 +136,16 @@ func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, product.ErrInvalidPrice):
 			NewUnprocessableEntityError(w, err.Error())
+			return
 		case errors.Is(err, product.ErrInvalidQuantity):
 			NewUnprocessableEntityError(w, err.Error())
+			return
 		case errors.Is(err, product.ErrEmptyProductName):
 			NewUnprocessableEntityError(w, err.Error())
+			return
 		case errors.Is(err, service.ErrProductNameAlreadyTaken):
 			NewConflictError(w, err.Error())
+			return
 		default:
 			NewInternalServerError(w, "cannot create resource")
 		}
