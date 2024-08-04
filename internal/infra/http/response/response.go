@@ -8,7 +8,7 @@ type Product struct {
 	PublicID  string    `json:"public_id"`
 	Slug      string    `json:"slug"`
 	Name      string    `json:"name"`
-	Price     float64   `json:"price"`
+	Price     int       `json:"price"`
 	Quantity  int       `json:"quantity"`
 	Enabled   bool      `json:"enabled"`
 	Image     string    `json:"image"`

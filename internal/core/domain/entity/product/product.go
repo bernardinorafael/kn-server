@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/money"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/slug"
 	"github.com/google/uuid"
 )
@@ -27,7 +28,7 @@ type Params struct {
 	PublicID string
 	Name     string
 	Image    string
-	Price    float64
+	Price    int
 	Quantity int
 	Enabled  bool
 }
@@ -37,7 +38,7 @@ type Product struct {
 	slug      slug.Slug
 	name      string
 	image     string
-	price     float64
+	price     money.Money
 	quantity  int
 	enabled   bool
 	createdAt time.Time
@@ -49,12 +50,17 @@ func New(p Params) (*Product, error) {
 		return nil, err
 	}
 
+	m, err := money.New(p.Price)
+	if err != nil {
+		return nil, err
+	}
+
 	product := Product{
 		publicID:  uuid.NewString(),
 		slug:      s.GetSlug(),
 		name:      p.Name,
 		image:     p.Image,
-		price:     p.Price,
+		price:     m.Cents(),
 		quantity:  p.Quantity,
 		enabled:   p.Enabled,
 		createdAt: time.Now(),
@@ -89,16 +95,17 @@ func (p *Product) validate() error {
 	return nil
 }
 
-func (p *Product) ChangePrice(price float64) error {
-	if price < 1 {
-		return ErrInvalidPrice
+func (p *Product) ChangePrice(price int) error {
+	m, err := money.New(price)
+	if err != nil {
+		return err
 	}
 
 	if !p.Enabled() {
 		return ErrManipulateDisabledProduct
 	}
 
-	p.price = price
+	p.price = m.Cents()
 	return nil
 }
 
@@ -146,7 +153,7 @@ func (p *Product) PublicID() string     { return p.publicID }
 func (p *Product) Slug() slug.Slug      { return p.slug }
 func (p *Product) Name() string         { return p.name }
 func (p *Product) Image() string        { return p.image }
-func (p *Product) Price() float64       { return p.price }
+func (p *Product) Price() money.Money   { return p.price }
 func (p *Product) Quantity() int        { return p.quantity }
 func (p *Product) Enabled() bool        { return p.enabled }
 func (p *Product) CreatedAt() time.Time { return p.createdAt }

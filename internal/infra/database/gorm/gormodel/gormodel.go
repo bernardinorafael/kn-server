@@ -39,7 +39,7 @@ type Product struct {
 	Slug      string         `json:"slug" gorm:"unique"`
 	Name      string         `json:"name" gorm:"index"`
 	Image     string         `json:"image"`
-	Price     float64        `json:"price"`
+	Price     int            `json:"price"`
 	Quantity  int            `json:"quantity"`
 	Enabled   bool           `json:"enabled gorm:index"`
 	CreatedAt time.Time      `json:"created_at"`

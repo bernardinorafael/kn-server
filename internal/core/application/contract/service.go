@@ -19,7 +19,7 @@ type ProductService interface {
 	GetByPublicID(publicId string) (gormodel.Product, error)
 	GetBySlug(slugInput string) (gormodel.Product, error)
 	GetAll(disabled bool, orderBy string) ([]gormodel.Product, error)
-	UpdatePrice(publicID string, price float64) error
+	UpdatePrice(publicID string, price int) error
 	IncreaseQuantity(publicID string, quantity int) error
 	ChangeStatus(publicID string, status bool) error
 }

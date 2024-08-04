@@ -10,6 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/core/application/service"
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/response"
 	. "github.com/bernardinorafael/kn-server/internal/infra/http/routeutils"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
@@ -31,10 +32,10 @@ func NewProductHandler(log logger.Logger, productService contract.ProductService
 }
 
 func (h productHandler) RegisterRoute(r *chi.Mux) {
-	// m := middleware.NewWithAuth(h.jwtAuth, h.log)
+	m := middleware.NewWithAuth(h.jwtAuth, h.log)
 
 	r.Route("/products", func(r chi.Router) {
-		// r.Use(m.WithAuth)
+		r.Use(m.WithAuth)
 
 		r.Post("/", h.create)
 
@@ -122,7 +123,7 @@ func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedPrice, _ := strconv.ParseFloat(r.FormValue("price"), 64)
+	parsedPrice, _ := strconv.Atoi(r.FormValue("price"))
 	parsedQuantity, _ := strconv.Atoi(r.FormValue("quantity"))
 
 	input := dto.CreateProduct{

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bernardinorafael/kn-server/internal/core/domain/entity/product"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/money"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,7 @@ func TestProductEntity_New(t *testing.T) {
 			PublicID: uuid.NewString(),
 			Name:     "my product name",
 			Image:    "image-url-test",
-			Price:    300.1,
+			Price:    30001,
 			Quantity: 100,
 			Enabled:  false,
 		})
@@ -27,7 +28,7 @@ func TestProductEntity_New(t *testing.T) {
 			PublicID: uuid.NewString(),
 			Name:     "pr",
 			Image:    "image-url-test",
-			Price:    300.1,
+			Price:    30001,
 			Quantity: 100,
 			Enabled:  false,
 		})
@@ -40,25 +41,12 @@ func TestProductEntity_New(t *testing.T) {
 			PublicID: uuid.NewString(),
 			Name:     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque cursus at sapien id pretium. Mauris convallis, urna eget.",
 			Image:    "image-url-test",
-			Price:    300.1,
+			Price:    30001,
 			Quantity: 100,
 			Enabled:  false,
 		})
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, product.ErrInvalidProductName.Error())
-	})
-
-	t.Run("Should product price be a valid integer", func(t *testing.T) {
-		_, err := product.New(product.Params{
-			PublicID: uuid.NewString(),
-			Name:     "my product name",
-			Image:    "image-url-test",
-			Price:    0,
-			Quantity: 10,
-			Enabled:  false,
-		})
-		assert.NotNil(t, err)
-		assert.EqualError(t, err, "product price must be greater than zero")
 	})
 }
 
@@ -68,7 +56,7 @@ func TestProductEntity_ChangeStatus(t *testing.T) {
 			PublicID: uuid.NewString(),
 			Name:     "my product name",
 			Image:    "image-url-test",
-			Price:    300.1,
+			Price:    30001,
 			Quantity: 100,
 			Enabled:  true,
 		})
@@ -82,7 +70,7 @@ func TestProductEntity_ChangeStatus(t *testing.T) {
 			PublicID: uuid.NewString(),
 			Name:     "my product name",
 			Image:    "image-url-test",
-			Price:    300.1,
+			Price:    30001,
 			Quantity: 100,
 			Enabled:  false,
 		})
@@ -105,7 +93,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 
 		err := p.ChangePrice(100)
 		assert.Nil(t, err)
-		assert.Equal(t, p.Price(), float64(100))
+		assert.Equal(t, p.Price(), money.Money(100))
 	})
 
 	t.Run("Should not be able to increase price if the inc number is lesser than zero", func(t *testing.T) {
@@ -120,7 +108,7 @@ func TestProductEntity_IncreasePrice(t *testing.T) {
 
 		err := p.ChangePrice(0)
 		assert.NotNil(t, err)
-		assert.EqualError(t, err, "product price must be greater than zero")
+		assert.EqualError(t, err, "monetary amounts cannot be negative")
 	})
 
 	t.Run("Should not be possible to increase price if product is disabled", func(t *testing.T) {

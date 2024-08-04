@@ -108,7 +108,7 @@ func (svc productService) IncreaseQuantity(publicID string, quantity int) error 
 	return nil
 }
 
-func (svc productService) UpdatePrice(publicID string, price float64) error {
+func (svc productService) UpdatePrice(publicID string, price int) error {
 	found, err := svc.productRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("product not found", "public_id", publicID)

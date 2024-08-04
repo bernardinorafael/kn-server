@@ -35,7 +35,7 @@ func (r productRepo) Update(p product.Product) (gormodel.Product, error) {
 
 	product.Name = p.Name()
 	product.Slug = string(p.Slug())
-	product.Price = p.Price()
+	product.Price = int(p.Price())
 	product.Quantity = p.Quantity()
 	product.Enabled = p.Enabled()
 	product.UpdatedAt = time.Now()
@@ -53,7 +53,7 @@ func (r productRepo) Create(p product.Product) (gormodel.Product, error) {
 
 	newProduct := gormodel.Product{
 		Name:      p.Name(),
-		Price:     p.Price(),
+		Price:     int(p.Price()),
 		Quantity:  p.Quantity(),
 		PublicID:  p.PublicID(),
 		Slug:      string(p.Slug()),
