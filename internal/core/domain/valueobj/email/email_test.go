@@ -47,7 +47,7 @@ func TestEmailValueObject(t *testing.T) {
 	t.Run("Should method GetString return the email correctly", func(t *testing.T) {
 		address, err := email.New("john_doe@email.com")
 
-		email := address.ToEmail()
+		email := address.Email()
 
 		assert.Nil(t, err)
 		assert.Contains(t, string(email), "@")

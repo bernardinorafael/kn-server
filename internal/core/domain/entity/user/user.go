@@ -73,7 +73,7 @@ func New(u Params) (*User, error) {
 	user := User{
 		publicID:  u.PublicID,
 		name:      u.Name,
-		email:     address.ToEmail(),
+		email:     address.Email(),
 		phone:     ph.Phone(),
 		password:  password.Password(u.Password),
 		teamID:    u.TeamID,
@@ -152,7 +152,7 @@ func (u *User) ChangeEmail(newEmail string) error {
 		return err
 	}
 
-	u.email = address.ToEmail()
+	u.email = address.Email()
 	return nil
 }
 

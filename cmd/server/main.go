@@ -75,7 +75,7 @@ func main() {
 	 Services
 	 TODO: make Option Pattern for services
 	*/
-	s3Service := service.NewS3Service(s3Client, l)
+	s3Service := service.NewS3Service(l, s3Client)
 	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
 	authService := service.NewAuthService(l, twilioSMSService, userRepo)
 	userService := service.NewUserService(l, userRepo)

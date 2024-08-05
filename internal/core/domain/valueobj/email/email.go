@@ -50,7 +50,7 @@ func New(address string) (*Address, error) {
 }
 
 func (a *Address) validate() error {
-	email := a.ToEmail()
+	email := a.Email()
 
 	if strings.TrimSpace(string(email)) == "" {
 		return ErrEmptyEmailAddress
@@ -96,10 +96,6 @@ func (a *Address) validate() error {
 	return nil
 }
 
-func (a *Address) ToEmail() Email {
-	return Email(a.local + "@" + a.domain)
-}
-
 func (a *Address) GetLocalPart() Email {
 	return Email(a.local)
 }
@@ -107,3 +103,5 @@ func (a *Address) GetLocalPart() Email {
 func (a *Address) GetDomainPart() Email {
 	return Email(a.domain)
 }
+
+func (a *Address) Email() Email { return Email(a.local + "@" + a.domain) }

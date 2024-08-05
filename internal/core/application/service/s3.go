@@ -16,16 +16,16 @@ import (
 * TODO: implement a method to remove a file from the bucket
  */
 
-type service struct {
+type s3Service struct {
 	log    logger.Logger
 	client *s3.Client
 }
 
-func NewS3Service(client *s3.Client, log logger.Logger) contract.FileManagerService {
-	return &service{log, client}
+func NewS3Service(log logger.Logger, client *s3.Client) contract.FileManagerService {
+	return &s3Service{log, client}
 }
 
-func (svc *service) UploadFile(file io.Reader, key, bucket string) (location string, err error) {
+func (svc *s3Service) UploadFile(file io.Reader, key, bucket string) (location string, err error) {
 	uploader := manager.NewUploader(svc.client)
 	out, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket:      aws.String(bucket),

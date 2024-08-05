@@ -44,3 +44,7 @@ type SMSNotifier interface {
 	Notify(to string) error
 	Confirm(code string, phone string) error
 }
+
+type EmailNotifier interface {
+	Notify(to []string, subject string, body string) error
+}

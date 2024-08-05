@@ -12,6 +12,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
+	github.com/twilio/twilio-go v1.22.3
 	golang.org/x/crypto v0.25.0
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.11
@@ -36,7 +37,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/twilio/twilio-go v1.22.3 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 )
 
