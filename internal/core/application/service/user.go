@@ -39,7 +39,7 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 		return err
 	}
 
-	hashed, err := p.ToEncrypted()
+	hashed, err := p.Encrypt()
 	if err != nil {
 		svc.log.Error("failed to encrypt password", "error", err.Error())
 		return err
@@ -142,7 +142,7 @@ func (svc userService) GetUser(publicID string) (gormodel.User, error) {
 	user, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
-		return gormodel.User{}, errors.New("user not found")
+		return user, errors.New("user not found")
 	}
 
 	return user, nil

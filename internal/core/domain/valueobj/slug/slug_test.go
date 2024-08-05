@@ -13,7 +13,7 @@ func TestSlugifyString(t *testing.T) {
 		slug, err := slug.New(s)
 
 		assert.Nil(t, err)
-		assert.Equal(t, string(slug.GetSlug()), "este-e-um-teste-da-funcao-slugify")
+		assert.Equal(t, string(slug.Slug()), "este-e-um-teste-da-funcao-slugify")
 	})
 
 	t.Run("Should throw error if name does not exist", func(t *testing.T) {

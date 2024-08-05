@@ -13,7 +13,7 @@ func TestCPFValueObject_New(t *testing.T) {
 		document, err := cpf.New(valid)
 
 		assert.Nil(t, err)
-		assert.Equal(t, document.ToCPF(), cpf.CPF(valid))
+		assert.Equal(t, document.CPF(), cpf.CPF(valid))
 	})
 
 	t.Run("Should throw error if digit validator is wrong", func(t *testing.T) {

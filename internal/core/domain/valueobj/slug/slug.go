@@ -58,7 +58,7 @@ func (s *slug) slugify() {
 	s.value = strings.Trim(s.value, "-")
 }
 
-func (s *slug) GetSlug() Slug {
+func (s *slug) Slug() Slug {
 	s.slugify()
 	return Slug(s.value)
 }

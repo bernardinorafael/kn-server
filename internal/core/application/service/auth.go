@@ -60,54 +60,54 @@ func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
 }
 
 func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
-	var userModel gormodel.User
+	var user gormodel.User
 
 	_, err := phone.New(dto.Phone)
 	if err != nil {
 		svc.log.Error("failed to validate phone", "error", err.Error())
-		return userModel, err
+		return user, err
 	}
 
-	user, err := svc.userRepo.GetByPhone(dto.Phone)
+	user, err = svc.userRepo.GetByPhone(dto.Phone)
 	if err != nil {
 		svc.log.Error("not found user by phone", "phone", dto.Phone)
-		return userModel, ErrUserNotFound
+		return user, ErrUserNotFound
 	}
 
 	err = svc.notifierService.Confirm(dto.Code, dto.Phone)
 	if err != nil {
 		svc.log.Error("code verification failed", "error", err.Error())
-		return userModel, err
+		return user, err
 	}
 
 	return user, nil
 }
 
 func (svc authService) Login(dto dto.Login) (gormodel.User, error) {
-	var userModel gormodel.User
+	var user gormodel.User
 
 	_, err := email.New(dto.Email)
 	if err != nil {
 		svc.log.Error("error creating email value object", "error", err.Error())
-		return userModel, err
+		return user, err
 	}
 
-	user, err := svc.userRepo.GetByEmail(dto.Email)
+	user, err = svc.userRepo.GetByEmail(dto.Email)
 	if err != nil {
 		svc.log.Error("failed to find user by email", "email", dto.Email)
-		return userModel, ErrInvalidCredential
+		return user, ErrInvalidCredential
 	}
 
 	p, err := password.New(dto.Password)
 	if err != nil {
 		svc.log.Error("error creating password value object", "error", err.Error())
-		return userModel, err
+		return user, err
 	}
 
 	err = p.Compare(password.Password(user.Password), dto.Password)
 	if err != nil {
 		svc.log.Error("the password provided is incorrect", "password", dto.Password)
-		return userModel, ErrInvalidCredential
+		return user, ErrInvalidCredential
 	}
 
 	return user, nil

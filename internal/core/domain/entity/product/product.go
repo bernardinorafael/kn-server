@@ -57,7 +57,7 @@ func New(p Params) (*Product, error) {
 
 	product := Product{
 		publicID:  uuid.NewString(),
-		slug:      s.GetSlug(),
+		slug:      s.Slug(),
 		name:      p.Name,
 		image:     p.Image,
 		price:     m.Cents(),
@@ -140,7 +140,7 @@ func (p *Product) ChangeName(name string) error {
 	}
 
 	p.name = name
-	p.slug = s.GetSlug()
+	p.slug = s.Slug()
 
 	return nil
 }

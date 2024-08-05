@@ -77,7 +77,7 @@ func (p *password) validate() error {
 	return nil
 }
 
-func (p *password) ToEncrypted() (Password, error) {
+func (p *password) Encrypt() (Password, error) {
 	encrypted, err := bcrypt.GenerateFromPassword([]byte(p.password), 10)
 	if err != nil {
 		return "", err

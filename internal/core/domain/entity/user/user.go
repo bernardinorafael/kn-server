@@ -119,7 +119,7 @@ func (u *User) EncryptPassword() error {
 		return err
 	}
 
-	hashed, err := p.ToEncrypted()
+	hashed, err := p.Encrypt()
 	if err != nil {
 		return err
 	}

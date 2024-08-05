@@ -104,4 +104,6 @@ func (a *Address) GetDomainPart() Email {
 	return Email(a.domain)
 }
 
-func (a *Address) Email() Email { return Email(a.local + "@" + a.domain) }
+func (a *Address) Email() Email {
+	return Email(a.local + "@" + a.domain)
+}

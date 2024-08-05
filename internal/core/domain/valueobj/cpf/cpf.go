@@ -25,10 +25,6 @@ func New(document string) (*cpf, error) {
 	return &doc, nil
 }
 
-func (c *cpf) ToCPF() CPF {
-	return CPF(c.value)
-}
-
 func (c *cpf) validate() error {
 	if len(c.value) != 11 {
 		return fmt.Errorf("cpf must have 11 characters")
@@ -67,4 +63,8 @@ func sum(cpf string, table []int) int {
 
 func applyValidationRule(sum int) int {
 	return 11 - (sum % 11)
+}
+
+func (c *cpf) CPF() CPF {
+	return CPF(c.value)
 }

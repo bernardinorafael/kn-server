@@ -35,4 +35,6 @@ func (m *money) validate() error {
 	return nil
 }
 
-func (m *money) Cents() Money { return Money(m.value) }
+func (m *money) Cents() Money {
+	return Money(m.value)
+}

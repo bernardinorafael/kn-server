@@ -24,15 +24,13 @@ func NewTeamService(log logger.Logger, teamRepo contract.GormTeamRepository) con
 }
 
 func (svc teamService) GetByID(publicID string) (gormodel.Team, error) {
-	var team gormodel.Team
-
-	t, err := svc.teamRepo.GetByPublicID(publicID)
+	team, err := svc.teamRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("team not found", "public_id", publicID)
 		return team, ErrTeamNotFound
 	}
 
-	return t, nil
+	return team, nil
 }
 
 func (svc teamService) Create(dto dto.CreateTeam) error {

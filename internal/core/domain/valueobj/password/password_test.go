@@ -58,7 +58,7 @@ func TestPasswordValueObject(t *testing.T) {
 
 	t.Run("Should password be encrypted correctly", func(t *testing.T) {
 		pass, _ := password.New("@MyPassword123")
-		encrypted, err := pass.ToEncrypted()
+		encrypted, err := pass.Encrypt()
 
 		assert.Nil(t, err)
 		assert.NotEqual(t, encrypted, "@MyPassword123")
