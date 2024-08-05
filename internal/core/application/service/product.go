@@ -24,14 +24,14 @@ var (
 type WithProductParams struct {
 	Log         logger.Logger
 	Env         *env.Env
-	ProductRepo contract.ProductRepository
+	ProductRepo contract.GormProductRepository
 	FileService contract.FileManagerService
 }
 
 type productService struct {
 	log         logger.Logger
 	env         *env.Env
-	productRepo contract.ProductRepository
+	productRepo contract.GormProductRepository
 	fileService contract.FileManagerService
 }
 

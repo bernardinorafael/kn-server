@@ -4,7 +4,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 )
 
-type UserRepository interface {
+type GormUserRepository interface {
 	Create(u gormodel.User) error
 	GetByPublicID(publicID string) (gormodel.User, error)
 	GetByEmail(email string) (gormodel.User, error)
@@ -12,7 +12,7 @@ type UserRepository interface {
 	Update(u gormodel.User) (gormodel.User, error)
 }
 
-type ProductRepository interface {
+type GormProductRepository interface {
 	Create(p gormodel.Product) error
 	GetByID(id int) (gormodel.Product, error)
 	GetByPublicID(publicID string) (gormodel.Product, error)
@@ -22,7 +22,7 @@ type ProductRepository interface {
 	Update(p gormodel.Product) (gormodel.Product, error)
 }
 
-type TeamRepository interface {
+type GormTeamRepository interface {
 	Create(t gormodel.Team) error
 	Update(t gormodel.Team) (gormodel.Team, error)
 	Delete(publicID string) error

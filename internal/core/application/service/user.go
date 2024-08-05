@@ -13,10 +13,10 @@ import (
 
 type userService struct {
 	log      logger.Logger
-	userRepo contract.UserRepository
+	userRepo contract.GormUserRepository
 }
 
-func NewUserService(log logger.Logger, userRepo contract.UserRepository) contract.UserService {
+func NewUserService(log logger.Logger, userRepo contract.GormUserRepository) contract.UserService {
 	return &userService{log, userRepo}
 }
 

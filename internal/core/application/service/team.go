@@ -16,10 +16,10 @@ var (
 
 type teamService struct {
 	log      logger.Logger
-	teamRepo contract.TeamRepository
+	teamRepo contract.GormTeamRepository
 }
 
-func NewTeamService(log logger.Logger, teamRepo contract.TeamRepository) contract.TeamService {
+func NewTeamService(log logger.Logger, teamRepo contract.GormTeamRepository) contract.TeamService {
 	return &teamService{log, teamRepo}
 }
 

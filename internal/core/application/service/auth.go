@@ -26,13 +26,13 @@ var (
 type authService struct {
 	log             logger.Logger
 	notifierService contract.SMSNotifier
-	userRepo        contract.UserRepository
+	userRepo        contract.GormUserRepository
 }
 
 func NewAuthService(
 	log logger.Logger,
 	notifierService contract.SMSNotifier,
-	userRepo contract.UserRepository,
+	userRepo contract.GormUserRepository,
 ) contract.AuthService {
 	return &authService{log, notifierService, userRepo}
 }
