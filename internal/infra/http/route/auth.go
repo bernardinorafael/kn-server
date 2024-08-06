@@ -18,14 +18,14 @@ type authHandler struct {
 	log             logger.Logger
 	env             *config.Env
 	authService     contract.AuthService
-	notifierService contract.SMSNotifier
+	notifierService contract.SMSVerifier
 	jwtAuth         auth.TokenAuthInterface
 }
 
 func NewAuthHandler(
 	log logger.Logger,
 	authService contract.AuthService,
-	notifierService contract.SMSNotifier,
+	notifierService contract.SMSVerifier,
 	jwtAuth auth.TokenAuthInterface,
 	env *config.Env,
 ) *authHandler {

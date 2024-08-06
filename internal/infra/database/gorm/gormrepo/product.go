@@ -13,11 +13,9 @@ import (
 * TODO: remove entity/model mapping logic from repositories and do it into service layer
  */
 
-type productRepo struct {
-	db *gorm.DB
-}
+type productRepo struct{ db *gorm.DB }
 
-func NewProductRepo(db *gorm.DB) contract.ProductRepository {
+func NewProductRepo(db *gorm.DB) contract.GormProductRepository {
 	return &productRepo{db}
 }
 

@@ -40,11 +40,11 @@ type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (location string, err error)
 }
 
-type SMSNotifier interface {
+type SMSVerifier interface {
 	Notify(to string) error
 	Confirm(code string, phone string) error
 }
 
-type EmailNotifier interface {
+type EmailVerifier interface {
 	Notify(to []string, subject string, body string) error
 }

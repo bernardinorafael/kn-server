@@ -14,7 +14,7 @@ import (
 
 type userRepo struct{ db *gorm.DB }
 
-func NewUserRepo(DB *gorm.DB) contract.UserRepository {
+func NewUserRepo(DB *gorm.DB) contract.GormUserRepository {
 	return &userRepo{db: DB}
 }
 

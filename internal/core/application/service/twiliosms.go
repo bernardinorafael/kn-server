@@ -21,7 +21,7 @@ type twilioSMSService struct {
 	client    *twilio.RestClient
 }
 
-func NewTwilioSMSService(log logger.Logger, serviceID string, client *twilio.RestClient) contract.SMSNotifier {
+func NewTwilioSMSService(log logger.Logger, serviceID string, client *twilio.RestClient) contract.SMSVerifier {
 	return &twilioSMSService{log, serviceID, client}
 }
 
@@ -65,15 +65,16 @@ func (svc twilioSMSService) Confirm(code string, to string) error {
 		svc.log.Error("cannot verify code", "error", err.Error())
 		return fmt.Errorf("error verifying code to %s", p.Phone())
 	}
+	status := *res.Status
 
 	switch {
-	case *res.Status == "pending":
+	case status == "pending":
 		return errors.New("invalid otp code")
-	case *res.Status == "canceled":
+	case status == "canceled":
 		return errors.New("verify otp operation canceled")
-	case *res.Status == "max_attempts_reached":
+	case status == "max_attempts_reached":
 		return errors.New("max attempts reached")
-	case *res.Status == "expired":
+	case status == "expired":
 		return errors.New("verification code expired")
 	}
 
