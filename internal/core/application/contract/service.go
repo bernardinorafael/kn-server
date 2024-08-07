@@ -12,6 +12,8 @@ type AuthService interface {
 	Register(dto dto.Register) error
 	LoginOTP(dto dto.LoginOTP) (gormodel.User, error)
 	NotifyLoginOTP(dto dto.NotifySMS) error
+	ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error
+	NotifyValidationByEmail(publicID string) error
 }
 
 type ProductService interface {
@@ -41,10 +43,11 @@ type FileManagerService interface {
 }
 
 type SMSVerifier interface {
-	Notify(to string) error
-	Confirm(code string, phone string) error
+	NotifySMS(to string) error
+	ConfirmSMS(code string, phone string) error
 }
 
 type EmailVerifier interface {
-	Notify(to []string, subject string, body string) error
+	NotifyEmail(to string) error
+	ConfirmEmail(code string, sent string) error
 }

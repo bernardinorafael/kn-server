@@ -77,7 +77,8 @@ func main() {
 	*/
 	s3Service := service.NewS3Service(l, s3Client)
 	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
-	authService := service.NewAuthService(l, twilioSMSService, userRepo)
+	twilioEmailService := service.NewTwilioEmailService(l, env.TwilioServiceID, twilioClient)
+	authService := service.NewAuthService(l, twilioSMSService, twilioEmailService, userRepo)
 	userService := service.NewUserService(l, userRepo)
 	teamService := service.NewTeamService(l, teamRepo)
 	productService := service.NewProductService(service.WithProductParams{
@@ -89,7 +90,7 @@ func main() {
 	/*
 	 Controllers
 	*/
-	authHandler := route.NewAuthHandler(l, authService, twilioSMSService, jwtAuth, env)
+	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
 	teamHandler := route.NewTeamHandler(l, teamService, jwtAuth)

@@ -24,17 +24,126 @@ var (
 )
 
 type authService struct {
-	log             logger.Logger
-	notifierService contract.SMSVerifier
-	userRepo        contract.GormUserRepository
+	log           logger.Logger
+	smsVerifier   contract.SMSVerifier
+	emailVerifier contract.EmailVerifier
+	userRepo      contract.GormUserRepository
 }
 
 func NewAuthService(
 	log logger.Logger,
-	notifierService contract.SMSVerifier,
+	smsVerifier contract.SMSVerifier,
+	emailVerifier contract.EmailVerifier,
 	userRepo contract.GormUserRepository,
 ) contract.AuthService {
-	return &authService{log, notifierService, userRepo}
+	return &authService{
+		log:           log,
+		smsVerifier:   smsVerifier,
+		emailVerifier: emailVerifier,
+		userRepo:      userRepo,
+	}
+}
+
+func (svc authService) NotifyValidationByEmail(publicID string) error {
+	found, err := svc.userRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error("user not found", "public_id", publicID)
+		return ErrUserNotFound
+	}
+
+	err = svc.emailVerifier.NotifyEmail(found.Email)
+	if err != nil {
+		svc.log.Error("error validating verify code", "error", err.Error())
+		return err
+	}
+
+	u, err := user.New(user.Params{
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
+		Password: found.Password,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
+	})
+	if err != nil {
+		svc.log.Error("entity user error", "error", err.Error())
+		return err
+	}
+
+	if err = u.ChangeStatus(user.StatusActivationSent); err != nil {
+		svc.log.Error("error changing user status", "error", err.Error())
+		return err
+	}
+
+	userModel := gormodel.User{
+		ID:           0,
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
+	if err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (svc authService) ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error {
+	found, err := svc.userRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error("user not found", "public_id", publicID)
+		return ErrUserNotFound
+	}
+
+	err = svc.emailVerifier.ConfirmEmail(dto.Code, dto.Email)
+	if err != nil {
+		svc.log.Error("error validating verify code", "error", err.Error())
+		return err
+	}
+
+	u, err := user.New(user.Params{
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
+		Password: found.Password,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
+	})
+	if err != nil {
+		svc.log.Error("entity user error", "error", err.Error())
+		return err
+	}
+
+	if err = u.ChangeStatus(user.StatusEnabled); err != nil {
+		svc.log.Error("error changing user status", "error", err.Error())
+		return err
+	}
+
+	userModel := gormodel.User{
+		ID:           0,
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
+	if err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
@@ -50,7 +159,7 @@ func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
 		return ErrUserNotFound
 	}
 
-	err = svc.notifierService.Notify(user.Phone)
+	err = svc.smsVerifier.NotifySMS(user.Phone)
 	if err != nil {
 		svc.log.Error("code verification failed", "error", err.Error())
 		return err
@@ -74,7 +183,7 @@ func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
 		return user, ErrUserNotFound
 	}
 
-	err = svc.notifierService.Confirm(dto.Code, dto.Phone)
+	err = svc.smsVerifier.ConfirmSMS(dto.Code, dto.Phone)
 	if err != nil {
 		svc.log.Error("code verification failed", "error", err.Error())
 		return user, err

@@ -5,66 +5,63 @@ import (
 	"fmt"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
-	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/phone"
+	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/email"
 	"github.com/bernardinorafael/kn-server/pkg/logger"
 	"github.com/twilio/twilio-go"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-const (
-	smsCodeLength = 6
-)
-
-type twilioSMSService struct {
+type twilioEmailService struct {
 	log       logger.Logger
 	serviceID string
 	client    *twilio.RestClient
 }
 
-func NewTwilioSMSService(log logger.Logger, serviceID string, client *twilio.RestClient) contract.SMSVerifier {
-	return &twilioSMSService{log, serviceID, client}
+func NewTwilioEmailService(log logger.Logger, serviceID string, client *twilio.RestClient) contract.EmailVerifier {
+	return &twilioEmailService{log, serviceID, client}
 }
 
-func (svc twilioSMSService) NotifySMS(to string) error {
-	p, err := phone.New(to)
+func (svc twilioEmailService) NotifyEmail(to string) error {
+	addr, err := email.New(to)
 	if err != nil {
-		svc.log.Error("phone validation error", "error", err.Error())
+		svc.log.Error("email validation error", "error", err.Error())
 		return err
 	}
 
 	params := verify.CreateVerificationParams{}
 
-	params.SetTo(fmt.Sprintf("+55%s", p.Phone()))
-	params.SetChannel("sms")
+	params.SetTo(string(addr.Email()))
+	params.SetChannel("email")
 
 	_, err = svc.client.VerifyV2.CreateVerification(svc.serviceID, &params)
 	if err != nil {
-		svc.log.Error("cannot send sms", "error", err.Error())
-		return fmt.Errorf("error sending sms to %s", to)
+		svc.log.Error("cannot send email verify", "error", err.Error())
+		return fmt.Errorf("error sending email to %s", to)
 	}
 
 	return nil
 }
 
-func (svc twilioSMSService) ConfirmSMS(code string, to string) error {
+func (svc twilioEmailService) ConfirmEmail(code string, sent string) error {
 	if len(code) != smsCodeLength {
 		return errors.New("invalid code format")
 	}
 
-	p, err := phone.New(to)
+	addr, err := email.New(sent)
 	if err != nil {
+		svc.log.Error("email validation error", "error", err.Error())
 		return err
 	}
 
 	params := verify.CreateVerificationCheckParams{}
 
-	params.SetTo(fmt.Sprintf("+55%s", p.Phone()))
+	params.SetTo(string(addr.Email()))
 	params.SetCode(code)
 
 	res, err := svc.client.VerifyV2.CreateVerificationCheck(svc.serviceID, &params)
 	if err != nil {
 		svc.log.Error("cannot verify code", "error", err.Error())
-		return fmt.Errorf("error verifying code to %s", p.Phone())
+		return fmt.Errorf("error verifying code to %s", sent)
 	}
 	status := *res.Status
 

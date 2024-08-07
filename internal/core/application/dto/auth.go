@@ -25,3 +25,8 @@ type UpdatePassword struct {
 type NotifySMS struct {
 	Phone string `json:"phone"`
 }
+
+type ValidateUserByEmail struct {
+	Code  string `json:"code"`
+	Email string `json:"email"`
+}

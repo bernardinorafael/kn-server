@@ -15,26 +15,23 @@ import (
 )
 
 type authHandler struct {
-	log             logger.Logger
-	env             *config.Env
-	authService     contract.AuthService
-	notifierService contract.SMSVerifier
-	jwtAuth         auth.TokenAuthInterface
+	log         logger.Logger
+	env         *config.Env
+	authService contract.AuthService
+	jwtAuth     auth.TokenAuthInterface
 }
 
 func NewAuthHandler(
 	log logger.Logger,
 	authService contract.AuthService,
-	notifierService contract.SMSVerifier,
 	jwtAuth auth.TokenAuthInterface,
 	env *config.Env,
 ) *authHandler {
 	return &authHandler{
-		log:             log,
-		env:             env,
-		authService:     authService,
-		notifierService: notifierService,
-		jwtAuth:         jwtAuth,
+		log:         log,
+		env:         env,
+		authService: authService,
+		jwtAuth:     jwtAuth,
 	}
 }
 
@@ -42,9 +39,19 @@ func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
+		r.Post("/{id}/notify-validation", h.notifyValidation)
 		r.Post("/login-otp", h.notifyLoginOTP)
 		r.Post("/verify-otp", h.verifyLoginOTP)
 	})
+}
+
+func (h authHandler) notifyValidation(w http.ResponseWriter, r *http.Request) {
+	err := h.authService.NotifyValidationByEmail(r.PathValue("id"))
+	if err != nil {
+		NewBadRequestError(w, "error notifying user")
+		return
+	}
+	WriteSuccessResponse(w, http.StatusOK)
 }
 
 func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
