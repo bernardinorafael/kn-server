@@ -54,7 +54,7 @@ func (h productHandler) RegisterRoute(r *chi.Mux) {
 func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 	var body dto.ChangeStatus
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -71,7 +71,7 @@ func (h productHandler) changeStatus(w http.ResponseWriter, r *http.Request) {
 func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request) {
 	var body dto.UpdateQuantity
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -88,7 +88,7 @@ func (h productHandler) increaseQuantity(w http.ResponseWriter, r *http.Request)
 func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 	var body dto.UpdatePrice
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}

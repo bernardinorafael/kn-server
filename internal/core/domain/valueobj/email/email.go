@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	maxAddressLength   = 254
-	minAddressLength   = 3
-	minDomainPartLengh = 3
+	maxAddressLength    = 254
+	minAddressLength    = 3
+	minDomainPartLength = 3
 )
 
 var (
@@ -85,7 +85,7 @@ func (a *Address) validate() error {
 	}
 
 	splittedDomainPart := strings.Split(a.domain, ".")
-	if len(splittedDomainPart[0]) < minDomainPartLengh {
+	if len(splittedDomainPart[0]) < minDomainPartLength {
 		return ErrDomainPartTooShort
 	}
 

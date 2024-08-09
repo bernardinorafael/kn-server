@@ -17,7 +17,7 @@ func NewWithAuth(jwtAuth auth.TokenAuthInterface, log logger.Logger) *middleware
 	return &middleware{log, jwtAuth}
 }
 
-func (m *middleware) WithAuth(next http.Handler) http.Handler {
+func (m *middleware) WithAuth(done http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken := r.Header.Get("Authorization")
 		if len(accessToken) == 0 {
@@ -32,7 +32,6 @@ func (m *middleware) WithAuth(next http.Handler) http.Handler {
 			routeutils.NewUnauthorizedError(w, "unauthorized user")
 			return
 		}
-
-		next.ServeHTTP(w, r)
+		done.ServeHTTP(w, r)
 	})
 }

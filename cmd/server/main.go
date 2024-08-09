@@ -10,6 +10,7 @@ import (
 	"github.com/bernardinorafael/kn-server/internal/infra/auth"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormrepo"
 	database "github.com/bernardinorafael/kn-server/internal/infra/database/pg"
+	"github.com/bernardinorafael/kn-server/internal/infra/http/middleware"
 	"github.com/bernardinorafael/kn-server/internal/infra/http/route"
 	"github.com/bernardinorafael/kn-server/internal/infra/s3client"
 	"github.com/bernardinorafael/kn-server/internal/infra/twilioclient"
@@ -26,6 +27,7 @@ import (
 
 func main() {
 	router := chi.NewRouter()
+	router.Use(middleware.WithRecoverPanic)
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},

@@ -57,7 +57,7 @@ func (h authHandler) notifyValidation(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 	var body dto.LoginOTP
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -87,7 +87,7 @@ func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) notifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 	var body dto.NotifySMS
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -107,7 +107,7 @@ func (h authHandler) notifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 	var body dto.Login
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -137,7 +137,7 @@ func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 func (h authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var body dto.Register
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}

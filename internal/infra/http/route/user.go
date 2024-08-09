@@ -40,7 +40,7 @@ func (h userHandler) RegisterRoute(r *chi.Mux) {
 func (h userHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 	var body dto.UpdatePassword
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
@@ -61,7 +61,7 @@ func (h userHandler) recoverPassword(w http.ResponseWriter, r *http.Request) {
 func (h userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	var body dto.UpdateUser
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}

@@ -69,7 +69,7 @@ func (h teamHandler) getByID(w http.ResponseWriter, r *http.Request) {
 func (h teamHandler) create(w http.ResponseWriter, r *http.Request) {
 	var body dto.CreateTeam
 
-	if err := ParseBodyRequest(r, &body); err != nil {
+	if err := ReadRequestBody(w, r, &body); err != nil {
 		NewBadRequestError(w, err.Error())
 		return
 	}
