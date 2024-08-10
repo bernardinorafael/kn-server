@@ -46,8 +46,7 @@ func (svc teamService) Create(dto dto.CreateTeam) error {
 		Name:     t.Name(),
 	}
 
-	err = svc.teamRepo.Create(teamModel)
-	if err != nil {
+	if err = svc.teamRepo.Create(teamModel); err != nil {
 		svc.log.Error("error creating team", "error", err.Error())
 		return errors.New("cannot create team resource")
 	}

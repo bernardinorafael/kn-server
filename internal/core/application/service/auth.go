@@ -42,8 +42,7 @@ func NewAuthService(
 }
 
 func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
-	_, err := phone.New(dto.Phone)
-	if err != nil {
+	if _, err := phone.New(dto.Phone); err != nil {
 		svc.log.Error("failed to validate phone", "error", err.Error())
 		return err
 	}
@@ -54,8 +53,7 @@ func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
 		return ErrUserNotFound
 	}
 
-	err = svc.smsVerifier.NotifySMS(user.Phone)
-	if err != nil {
+	if err = svc.smsVerifier.NotifySMS(user.Phone); err != nil {
 		svc.log.Error("code verification failed", "error", err.Error())
 		return err
 	}
@@ -66,20 +64,18 @@ func (svc authService) NotifyLoginOTP(dto dto.NotifySMS) error {
 func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
 	var user gormodel.User
 
-	_, err := phone.New(dto.Phone)
-	if err != nil {
+	if _, err := phone.New(dto.Phone); err != nil {
 		svc.log.Error("failed to validate phone", "error", err.Error())
 		return user, err
 	}
 
-	user, err = svc.userRepo.GetByPhone(dto.Phone)
+	user, err := svc.userRepo.GetByPhone(dto.Phone)
 	if err != nil {
 		svc.log.Error("not found user by phone", "phone", dto.Phone)
 		return user, ErrUserNotFound
 	}
 
-	err = svc.smsVerifier.ConfirmSMS(dto.Code, dto.Phone)
-	if err != nil {
+	if err = svc.smsVerifier.ConfirmSMS(dto.Code, dto.Phone); err != nil {
 		svc.log.Error("code verification failed", "error", err.Error())
 		return user, err
 	}
@@ -90,13 +86,12 @@ func (svc authService) LoginOTP(dto dto.LoginOTP) (gormodel.User, error) {
 func (svc authService) Login(dto dto.Login) (gormodel.User, error) {
 	var user gormodel.User
 
-	_, err := email.New(dto.Email)
-	if err != nil {
+	if _, err := email.New(dto.Email); err != nil {
 		svc.log.Error("error creating email value object", "error", err.Error())
 		return user, err
 	}
 
-	user, err = svc.userRepo.GetByEmail(dto.Email)
+	user, err := svc.userRepo.GetByEmail(dto.Email)
 	if err != nil {
 		svc.log.Error("failed to find user by email", "email", dto.Email)
 		return user, ErrInvalidCredential
@@ -146,8 +141,7 @@ func (svc authService) Register(dto dto.Register) error {
 		PublicTeamID: u.TeamID(),
 	}
 
-	err = svc.userRepo.Create(userModel)
-	if err != nil {
+	if err = svc.userRepo.Create(userModel); err != nil {
 		if strings.Contains(err.Error(), "uni_users_email") {
 			svc.log.Error("email already taken", "email", dto.Email)
 			return ErrEmailAlreadyTaken

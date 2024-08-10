@@ -75,8 +75,7 @@ func (svc productService) ChangeStatus(publicID string, status bool) error {
 		Enabled:  p.Enabled(),
 	}
 
-	_, err = svc.productRepo.Update(productModel)
-	if err != nil {
+	if _, err = svc.productRepo.Update(productModel); err != nil {
 		svc.log.Error("cannot change product status", "error", err.Error())
 		return errors.New("cannot change product status")
 	}
@@ -119,9 +118,8 @@ func (svc productService) IncreaseQuantity(publicID string, quantity int) error 
 		Enabled:  p.Enabled(),
 	}
 
-	_, err = svc.productRepo.Update(productModel)
-	if err != nil {
-		svc.log.Error(err.Error())
+	if _, err = svc.productRepo.Update(productModel); err != nil {
+		svc.log.Error("error updating product", "error", err.Error())
 		return errors.New("cannot increment product price")
 	}
 
@@ -163,11 +161,11 @@ func (svc productService) UpdatePrice(publicID string, price int) error {
 		Enabled:  p.Enabled(),
 	}
 
-	_, err = svc.productRepo.Update(productModel)
-	if err != nil {
+	if _, err = svc.productRepo.Update(productModel); err != nil {
 		svc.log.Error("error updating product", "error", err.Error())
 		return errors.New("cannot increment product price")
 	}
+
 	return nil
 }
 
@@ -210,8 +208,7 @@ func (svc productService) Create(dto dto.CreateProduct) error {
 		Enabled:  p.Enabled(),
 	}
 
-	err = svc.productRepo.Create(productModel)
-	if err != nil {
+	if err = svc.productRepo.Create(productModel); err != nil {
 		if strings.Contains(err.Error(), "uni_products_slug") {
 			svc.log.Error("product name already taken", "name", dto.Name)
 			return ErrProductNameAlreadyTaken
@@ -224,13 +221,12 @@ func (svc productService) Create(dto dto.CreateProduct) error {
 }
 
 func (svc productService) Delete(publicID string) error {
-	_, err := svc.productRepo.GetByPublicID(publicID)
-	if err != nil {
+	if _, err := svc.productRepo.GetByPublicID(publicID); err != nil {
 		svc.log.Error("product not found", "public_id", publicID)
 		return ErrProductNotFound
 	}
 
-	if err = svc.productRepo.Delete(publicID); err != nil {
+	if err := svc.productRepo.Delete(publicID); err != nil {
 		svc.log.Error("error deleting product", "error", err.Error())
 		return errors.New("error deleting product")
 	}

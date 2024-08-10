@@ -71,8 +71,7 @@ func (svc userService) NotifyValidationByEmail(publicID string) error {
 		PublicTeamID: u.TeamID(),
 	}
 
-	_, err = svc.userRepo.Update(userModel)
-	if err != nil {
+	if _, err = svc.userRepo.Update(userModel); err != nil {
 		svc.log.Error("error updating user", "error", err.Error())
 		return err
 	}
@@ -112,7 +111,6 @@ func (svc userService) ValidateUserByEmail(publicID string, dto dto.ValidateUser
 	}
 
 	userModel := gormodel.User{
-		ID:           0,
 		PublicID:     u.PublicID(),
 		Name:         u.Name(),
 		Email:        string(u.Email()),
@@ -122,8 +120,7 @@ func (svc userService) ValidateUserByEmail(publicID string, dto dto.ValidateUser
 		PublicTeamID: u.TeamID(),
 	}
 
-	_, err = svc.userRepo.Update(userModel)
-	if err != nil {
+	if _, err = svc.userRepo.Update(userModel); err != nil {
 		svc.log.Error("error updating user", "error", err.Error())
 		return err
 	}
@@ -179,29 +176,28 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 		PublicTeamID: u.TeamID(),
 	}
 
-	_, err = svc.userRepo.Update(userModel)
-	if err != nil {
-		svc.log.Error("error updating password", "error", err.Error())
-		return ErrUpdatingPassword
+	if _, err = svc.userRepo.Update(userModel); err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
+		return err
 	}
 
 	return nil
 }
 
 func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
-	record, err := svc.userRepo.GetByPublicID(publicID)
+	found, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
 		return errors.New("user not found")
 	}
 
 	u, err := user.New(user.Params{
-		PublicID: record.PublicID,
-		Name:     record.Name,
-		Email:    record.Email,
-		Password: record.Password,
-		Phone:    record.Phone,
-		TeamID:   record.PublicTeamID,
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
+		Password: found.Password,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
@@ -209,22 +205,19 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 	}
 
 	if dto.Name != "" {
-		err = u.ChangeName(dto.Name)
-		if err != nil {
+		if err = u.ChangeName(dto.Name); err != nil {
 			svc.log.Error("error while changing name", "error", err.Error())
 			return err
 		}
 	}
 	if dto.Email != "" {
-		err = u.ChangeEmail(dto.Email)
-		if err != nil {
+		if err = u.ChangeEmail(dto.Email); err != nil {
 			svc.log.Error("error while changing email", "error", err.Error())
 			return err
 		}
 	}
 	if dto.Phone != "" {
-		err = u.ChangePhone(dto.Phone)
-		if err != nil {
+		if err = u.ChangePhone(dto.Phone); err != nil {
 			svc.log.Error("error while changing phone", "error", err.Error())
 			return err
 		}
@@ -240,9 +233,8 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 		PublicTeamID: u.TeamID(),
 	}
 
-	_, err = svc.userRepo.Update(userModel)
-	if err != nil {
-		svc.log.Error("cannot update user", "error", err.Error())
+	if _, err = svc.userRepo.Update(userModel); err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
 		return err
 	}
 

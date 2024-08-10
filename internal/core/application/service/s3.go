@@ -34,7 +34,6 @@ func (svc *s3Service) UploadFile(file io.Reader, key, bucket string) (location s
 		Body:        file,
 		ACL:         "public-read",
 	})
-
 	if err != nil {
 		svc.log.Error("error uploading file to s3", "error", err)
 		return "", errors.New("cannot upload image to bucket")
