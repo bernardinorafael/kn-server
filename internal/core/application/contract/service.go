@@ -12,8 +12,6 @@ type AuthService interface {
 	Register(dto dto.Register) error
 	LoginOTP(dto dto.LoginOTP) (gormodel.User, error)
 	NotifyLoginOTP(dto dto.NotifySMS) error
-	ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error
-	NotifyValidationByEmail(publicID string) error
 }
 
 type ProductService interface {
@@ -31,6 +29,8 @@ type UserService interface {
 	GetUser(publicID string) (gormodel.User, error)
 	Update(publicID string, dto dto.UpdateUser) error
 	RecoverPassword(publicID string, dto dto.UpdatePassword) error
+	NotifyValidationByEmail(publicID string) error
+	ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error
 }
 
 type TeamService interface {

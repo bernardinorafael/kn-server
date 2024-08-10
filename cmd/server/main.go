@@ -80,8 +80,8 @@ func main() {
 	s3Service := service.NewS3Service(l, s3Client)
 	twilioSMSService := service.NewTwilioSMSService(l, env.TwilioServiceID, twilioClient)
 	twilioEmailService := service.NewTwilioEmailService(l, env.TwilioServiceID, twilioClient)
-	authService := service.NewAuthService(l, twilioSMSService, twilioEmailService, userRepo)
-	userService := service.NewUserService(l, userRepo)
+	authService := service.NewAuthService(l, twilioSMSService, userRepo)
+	userService := service.NewUserService(l, userRepo, twilioEmailService)
 	teamService := service.NewTeamService(l, teamRepo)
 	productService := service.NewProductService(service.WithProductParams{
 		Log:         l,

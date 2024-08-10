@@ -12,12 +12,123 @@ import (
 )
 
 type userService struct {
-	log      logger.Logger
-	userRepo contract.GormUserRepository
+	log           logger.Logger
+	userRepo      contract.GormUserRepository
+	emailVerifier contract.EmailVerifier
 }
 
-func NewUserService(log logger.Logger, userRepo contract.GormUserRepository) contract.UserService {
-	return &userService{log, userRepo}
+func NewUserService(
+	log logger.Logger,
+	userRepo contract.GormUserRepository,
+	emailVerifier contract.EmailVerifier,
+) contract.UserService {
+	return &userService{
+		log:           log,
+		userRepo:      userRepo,
+		emailVerifier: emailVerifier,
+	}
+}
+
+func (svc userService) NotifyValidationByEmail(publicID string) error {
+	found, err := svc.userRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error("user not found", "public_id", publicID)
+		return ErrUserNotFound
+	}
+
+	err = svc.emailVerifier.NotifyEmail(found.Email)
+	if err != nil {
+		svc.log.Error("error validating verify code", "error", err.Error())
+		return err
+	}
+
+	u, err := user.New(user.Params{
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
+		Password: found.Password,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
+	})
+	if err != nil {
+		svc.log.Error("entity user error", "error", err.Error())
+		return err
+	}
+
+	if err = u.ChangeStatus(user.StatusActivationSent); err != nil {
+		svc.log.Error("error changing user status", "error", err.Error())
+		return err
+	}
+
+	userModel := gormodel.User{
+		ID:           0,
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
+	if err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (svc userService) ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error {
+	found, err := svc.userRepo.GetByPublicID(publicID)
+	if err != nil {
+		svc.log.Error("user not found", "public_id", publicID)
+		return ErrUserNotFound
+	}
+
+	err = svc.emailVerifier.ConfirmEmail(dto.Code, dto.Email)
+	if err != nil {
+		svc.log.Error("error validating verify code", "error", err.Error())
+		return err
+	}
+
+	u, err := user.New(user.Params{
+		PublicID: found.PublicID,
+		Name:     found.Name,
+		Email:    found.Email,
+		Password: found.Password,
+		Phone:    found.Phone,
+		TeamID:   found.PublicTeamID,
+	})
+	if err != nil {
+		svc.log.Error("entity user error", "error", err.Error())
+		return err
+	}
+
+	if err = u.ChangeStatus(user.StatusEnabled); err != nil {
+		svc.log.Error("error changing user status", "error", err.Error())
+		return err
+	}
+
+	userModel := gormodel.User{
+		ID:           0,
+		PublicID:     u.PublicID(),
+		Name:         u.Name(),
+		Email:        string(u.Email()),
+		Phone:        string(u.Phone()),
+		Status:       u.StatusString(),
+		Password:     string(u.Password()),
+		PublicTeamID: u.TeamID(),
+	}
+
+	_, err = svc.userRepo.Update(userModel)
+	if err != nil {
+		svc.log.Error("error updating user", "error", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) error {

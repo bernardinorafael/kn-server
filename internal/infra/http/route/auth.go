@@ -39,19 +39,9 @@ func (h authHandler) RegisterRoute(r *chi.Mux) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", h.login)
 		r.Post("/register", h.register)
-		r.Post("/{id}/notify-validation", h.notifyValidation)
 		r.Post("/login-otp", h.notifyLoginOTP)
 		r.Post("/verify-otp", h.verifyLoginOTP)
 	})
-}
-
-func (h authHandler) notifyValidation(w http.ResponseWriter, r *http.Request) {
-	err := h.authService.NotifyValidationByEmail(r.PathValue("id"))
-	if err != nil {
-		NewBadRequestError(w, "error notifying user")
-		return
-	}
-	WriteSuccessResponse(w, http.StatusOK)
 }
 
 func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
