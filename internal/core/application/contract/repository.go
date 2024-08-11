@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 )
 
@@ -17,7 +18,7 @@ type GormProductRepository interface {
 	GetByID(id int) (gormodel.Product, error)
 	GetByPublicID(publicID string) (gormodel.Product, error)
 	GetBySlug(name string) (gormodel.Product, error)
-	GetAll(disabled bool, orderBy string) ([]gormodel.Product, error)
+	GetAll(dto dto.ProductsFilter) ([]gormodel.Product, error)
 	Delete(publicID string) error
 	Update(p gormodel.Product) (gormodel.Product, error)
 }

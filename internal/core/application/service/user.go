@@ -30,28 +30,28 @@ func NewUserService(
 }
 
 func (svc userService) NotifyValidationByEmail(publicID string) error {
-	found, err := svc.userRepo.GetByPublicID(publicID)
+	r, err := svc.userRepo.GetByPublicID(publicID)
 	if err != nil {
 		svc.log.Error("user not found", "public_id", publicID)
 		return ErrUserNotFound
 	}
 
-	err = svc.emailVerifier.NotifyEmail(found.Email)
-	if err != nil {
-		svc.log.Error("error validating verify code", "error", err.Error())
-		return err
-	}
-
 	u, err := user.New(user.Params{
-		PublicID: found.PublicID,
-		Name:     found.Name,
-		Email:    found.Email,
-		Password: found.Password,
-		Phone:    found.Phone,
-		TeamID:   found.PublicTeamID,
+		PublicID: r.PublicID,
+		Name:     r.Name,
+		Email:    r.Email,
+		Password: r.Password,
+		Phone:    r.Phone,
+		TeamID:   r.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("entity user error", "error", err.Error())
+		return err
+	}
+
+	err = svc.emailVerifier.NotifyEmail(r.Email)
+	if err != nil {
+		svc.log.Error("error validating verify code", "error", err.Error())
 		return err
 	}
 

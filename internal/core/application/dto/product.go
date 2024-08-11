@@ -21,3 +21,9 @@ type UpdateQuantity struct {
 type ChangeStatus struct {
 	Status bool `json:"status"`
 }
+
+type ProductsFilter struct {
+	Query    string `json:"query"`
+	OrderBy  string `json:"order_by"`
+	Disabled bool   `json:"disabled"`
+}

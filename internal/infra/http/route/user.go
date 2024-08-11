@@ -134,7 +134,7 @@ func (h userHandler) getSigned(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: u.CreatedAt,
 	}
 
-	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]any{
 		"user": user,
 	})
 }

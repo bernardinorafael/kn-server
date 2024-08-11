@@ -68,7 +68,7 @@ func (h authHandler) verifyLoginOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusCreated, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusCreated, map[string]any{
 		"token":   token,
 		"payload": payload,
 	})
@@ -118,7 +118,7 @@ func (h authHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSONResponse(w, http.StatusCreated, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusCreated, map[string]any{
 		"token":   token,
 		"payload": payload,
 	})

@@ -234,8 +234,8 @@ func (svc productService) Delete(publicID string) error {
 	return nil
 }
 
-func (svc productService) GetAll(disabled bool, orderBy string) ([]gormodel.Product, error) {
-	products, err := svc.productRepo.GetAll(disabled, orderBy)
+func (svc productService) GetAll(dto dto.ProductsFilter) ([]gormodel.Product, error) {
+	products, err := svc.productRepo.GetAll(dto)
 	if err != nil {
 		svc.log.Error("error retrieving products", "errors", err.Error())
 		return nil, errors.New("products not found")

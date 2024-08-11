@@ -61,7 +61,7 @@ func (h teamHandler) getByID(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: t.CreatedAt,
 	}
 
-	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]any{
 		"team": team,
 	})
 }

@@ -186,32 +186,20 @@ func (h productHandler) getBySlug(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: p.CreatedAt,
 	}
 
-	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]any{
 		"product": product,
 	})
 }
 
 func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
+	var qs = r.URL.Query()
+	var body dto.ProductsFilter
 
-	// TODO: make a parser method to query params
-	disabled, err := strconv.ParseBool(query.Get("disabled"))
-	if !query.Has("disabled") {
-		NewBadRequestError(w, "missing [disabled] query parameter")
-		return
-	}
-	if err != nil {
-		NewBadRequestError(w, "cannot parse [disabled] query params")
-		return
-	}
+	body.OrderBy = ReadQueryString(qs, "order_by", "id")
+	body.Disabled = ReadQueryBool(qs, "disabled", false)
+	body.Query = ReadQueryString(qs, "query", "")
 
-	orderBy := query.Get("order_by")
-	if !query.Has("order_by") {
-		NewBadRequestError(w, "missing [order_by] query parameter")
-		return
-	}
-
-	allProducts, err := h.productService.GetAll(disabled, orderBy)
+	allProducts, err := h.productService.GetAll(body)
 	if err != nil {
 		NewBadRequestError(w, err.Error())
 		return
@@ -231,7 +219,7 @@ func (h productHandler) getAll(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]any{
 		"products": products,
 	})
 }
@@ -254,7 +242,7 @@ func (h productHandler) getByID(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: p.CreatedAt,
 	}
 
-	WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
+	WriteJSONResponse(w, http.StatusOK, map[string]any{
 		"product": product,
 	})
 }

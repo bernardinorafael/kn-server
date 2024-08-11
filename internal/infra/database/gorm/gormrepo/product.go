@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bernardinorafael/kn-server/internal/core/application/contract"
+	"github.com/bernardinorafael/kn-server/internal/core/application/dto"
 	"github.com/bernardinorafael/kn-server/internal/infra/database/gorm/gormodel"
 	"gorm.io/gorm"
 )
@@ -90,13 +91,14 @@ func (r productRepo) Delete(publicID string) error {
 	return nil
 }
 
-func (r productRepo) GetAll(disabled bool, orderBy string) ([]gormodel.Product, error) {
+func (r productRepo) GetAll(dto dto.ProductsFilter) ([]gormodel.Product, error) {
 	var products []gormodel.Product
-	var enabled bool = !disabled
+	var enabled = !dto.Disabled
 
 	err := r.db.
 		Where("enabled = ?", enabled).
-		Order(fmt.Sprintf("%v desc", orderBy)).
+		Where("name LIKE ?", "%"+dto.Query+"%").
+		Order(fmt.Sprintf("%v desc", dto.OrderBy)).
 		Find(&products).Error
 	if err != nil {
 		return products, err
