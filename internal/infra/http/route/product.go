@@ -105,16 +105,11 @@ func (h productHandler) updatePrice(w http.ResponseWriter, r *http.Request) {
 func (h productHandler) create(w http.ResponseWriter, r *http.Request) {
 	f, fh, err := r.FormFile("image")
 	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
-			NewUnprocessableEntityError(w, "product image cannot be empty")
-			return
-		}
 		NewBadRequestError(w, "cannot parse multipart form")
 		return
 	}
 	defer f.Close()
 
-	// verify if image size is larger than 5mb
 	if fh.Size > maxImageSize {
 		NewBadRequestError(w, "image size too long")
 		return

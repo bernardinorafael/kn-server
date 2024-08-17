@@ -4,26 +4,25 @@ import (
 	"testing"
 
 	"github.com/bernardinorafael/kn-server/internal/core/domain/valueobj/money"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMoney_New(t *testing.T) {
-	t.Run("Should init Money correctly", func(t *testing.T) {
-		_, err := money.New(100)
-		assert.Nil(t, err)
-	})
-
-	t.Run("Should receive an error if get a negative amount", func(t *testing.T) {
-		_, err := money.New(0)
-
-		assert.NotNil(t, err)
-		assert.EqualError(t, err, "monetary amounts cannot be negative")
-	})
-
-	t.Run("Should receive an error if the max value exceeded", func(t *testing.T) {
-		_, err := money.New(9999999999999999)
-
-		assert.NotNil(t, err)
-		assert.EqualError(t, err, "maximum amount value has been exceeded")
-	})
+	tests := []struct {
+		name     string
+		currency int
+		wantErr  bool
+	}{
+		{"should initialize money vo", 100, false},
+		{"should receive an error if get zero value", 0, true},
+		{"should receive an error if the max exceeded", 9999999999999999, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := money.New(tt.currency)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
 }

@@ -42,7 +42,6 @@ func (svc userService) NotifyValidationByEmail(publicID string) error {
 		Email:    r.Email,
 		Password: r.Password,
 		Phone:    r.Phone,
-		TeamID:   r.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("entity user error", "error", err.Error())
@@ -61,14 +60,13 @@ func (svc userService) NotifyValidationByEmail(publicID string) error {
 	}
 
 	userModel := gormodel.User{
-		ID:           0,
-		PublicID:     u.PublicID(),
-		Name:         u.Name(),
-		Email:        string(u.Email()),
-		Phone:        string(u.Phone()),
-		Status:       u.StatusString(),
-		Password:     string(u.Password()),
-		PublicTeamID: u.TeamID(),
+		ID:       0,
+		PublicID: u.PublicID(),
+		Name:     u.Name(),
+		Email:    string(u.Email()),
+		Phone:    string(u.Phone()),
+		Status:   u.StatusString(),
+		Password: string(u.Password()),
 	}
 
 	if _, err = svc.userRepo.Update(userModel); err != nil {
@@ -98,7 +96,6 @@ func (svc userService) ValidateUserByEmail(publicID string, dto dto.ValidateUser
 		Email:    found.Email,
 		Password: found.Password,
 		Phone:    found.Phone,
-		TeamID:   found.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("entity user error", "error", err.Error())
@@ -111,13 +108,12 @@ func (svc userService) ValidateUserByEmail(publicID string, dto dto.ValidateUser
 	}
 
 	userModel := gormodel.User{
-		PublicID:     u.PublicID(),
-		Name:         u.Name(),
-		Email:        string(u.Email()),
-		Phone:        string(u.Phone()),
-		Status:       u.StatusString(),
-		Password:     string(u.Password()),
-		PublicTeamID: u.TeamID(),
+		PublicID: u.PublicID(),
+		Name:     u.Name(),
+		Email:    string(u.Email()),
+		Phone:    string(u.Phone()),
+		Status:   u.StatusString(),
+		Password: string(u.Password()),
 	}
 
 	if _, err = svc.userRepo.Update(userModel); err != nil {
@@ -159,7 +155,6 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 		Email:    found.Email,
 		Password: string(hashed),
 		Phone:    found.Phone,
-		TeamID:   found.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
@@ -167,13 +162,12 @@ func (svc userService) RecoverPassword(publicID string, dto dto.UpdatePassword) 
 	}
 
 	userModel := gormodel.User{
-		PublicID:     u.PublicID(),
-		Name:         u.Name(),
-		Email:        string(u.Email()),
-		Phone:        string(u.Phone()),
-		Status:       u.StatusString(),
-		Password:     string(u.Password()),
-		PublicTeamID: u.TeamID(),
+		PublicID: u.PublicID(),
+		Name:     u.Name(),
+		Email:    string(u.Email()),
+		Phone:    string(u.Phone()),
+		Status:   u.StatusString(),
+		Password: string(u.Password()),
 	}
 
 	if _, err = svc.userRepo.Update(userModel); err != nil {
@@ -197,7 +191,6 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 		Email:    found.Email,
 		Password: found.Password,
 		Phone:    found.Phone,
-		TeamID:   found.PublicTeamID,
 	})
 	if err != nil {
 		svc.log.Error("failed to initialize new user entity", "error", err.Error())
@@ -224,13 +217,12 @@ func (svc userService) Update(publicID string, dto dto.UpdateUser) error {
 	}
 
 	userModel := gormodel.User{
-		PublicID:     u.PublicID(),
-		Name:         u.Name(),
-		Email:        string(u.Email()),
-		Phone:        string(u.Phone()),
-		Status:       u.StatusString(),
-		Password:     string(u.Password()),
-		PublicTeamID: u.TeamID(),
+		PublicID: u.PublicID(),
+		Name:     u.Name(),
+		Email:    string(u.Email()),
+		Phone:    string(u.Phone()),
+		Status:   u.StatusString(),
+		Password: string(u.Password()),
 	}
 
 	if _, err = svc.userRepo.Update(userModel); err != nil {

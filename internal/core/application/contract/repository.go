@@ -22,10 +22,3 @@ type GormProductRepository interface {
 	Delete(publicID string) error
 	Update(p gormodel.Product) (gormodel.Product, error)
 }
-
-type GormTeamRepository interface {
-	Create(t gormodel.Team) error
-	Update(t gormodel.Team) (gormodel.Team, error)
-	Delete(publicID string) error
-	GetByPublicID(publicID string) (gormodel.Team, error)
-}

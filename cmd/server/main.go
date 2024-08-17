@@ -72,7 +72,6 @@ func main() {
 	*/
 	userRepo := gormrepo.NewUserRepo(db)
 	productRepo := gormrepo.NewProductRepo(db)
-	teamRepo := gormrepo.NewTeamRepo(db)
 	/*
 	 Services
 	 TODO: make Option Pattern for services
@@ -82,7 +81,6 @@ func main() {
 	twilioEmailService := service.NewTwilioEmailService(l, env.TwilioServiceID, twilioClient)
 	authService := service.NewAuthService(l, twilioSMSService, userRepo)
 	userService := service.NewUserService(l, userRepo, twilioEmailService)
-	teamService := service.NewTeamService(l, teamRepo)
 	productService := service.NewProductService(service.WithProductParams{
 		Log:         l,
 		Env:         env,
@@ -95,14 +93,12 @@ func main() {
 	authHandler := route.NewAuthHandler(l, authService, jwtAuth, env)
 	productHandler := route.NewProductHandler(l, productService, jwtAuth)
 	userHandler := route.NewUserHandler(l, userService, jwtAuth)
-	teamHandler := route.NewTeamHandler(l, teamService, jwtAuth)
 	/*
 	 Registering controllers
 	*/
 	authHandler.RegisterRoute(router)
 	productHandler.RegisterRoute(router)
 	userHandler.RegisterRoute(router)
-	teamHandler.RegisterRoute(router)
 
 	l.Info("server listening", "port", env.Port)
 

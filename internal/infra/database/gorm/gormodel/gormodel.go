@@ -6,30 +6,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type Team struct {
+type User struct {
 	ID        int            `json:"id" gorm:"primaryKey"`
 	PublicID  string         `json:"public_id" gorm:"unique"`
-	OwnerID   string         `json:"owner_id"`
 	Name      string         `json:"name"`
+	Email     string         `json:"email" gorm:"unique"`
+	Phone     string         `json:"phone" gorm:"unique"`
+	Status    string         `json:"status"`
+	Password  string         `json:"password"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
-
-	Members []User `json:"members" gorm:"foreignKey:PublicTeamID"`
-}
-
-type User struct {
-	ID           int            `json:"id" gorm:"primaryKey"`
-	PublicID     string         `json:"public_id" gorm:"unique"`
-	Name         string         `json:"name"`
-	Email        string         `json:"email" gorm:"unique"`
-	Phone        string         `json:"phone" gorm:"unique"`
-	Status       string         `json:"status"`
-	Password     string         `json:"password"`
-	PublicTeamID *string        `json:"public_team_id" gorm:"default:null"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
-	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
 type Product struct {

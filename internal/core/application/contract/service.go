@@ -33,11 +33,6 @@ type UserService interface {
 	ValidateUserByEmail(publicID string, dto dto.ValidateUserByEmail) error
 }
 
-type TeamService interface {
-	Create(dto dto.CreateTeam) error
-	GetByID(publicID string) (gormodel.Team, error)
-}
-
 type FileManagerService interface {
 	UploadFile(file io.Reader, key, bucket string) (location string, err error)
 }

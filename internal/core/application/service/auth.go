@@ -132,13 +132,12 @@ func (svc authService) Register(dto dto.Register) error {
 	}
 
 	userModel := gormodel.User{
-		PublicID:     u.PublicID(),
-		Name:         u.Name(),
-		Email:        string(u.Email()),
-		Phone:        string(u.Phone()),
-		Status:       u.StatusString(),
-		Password:     string(u.Password()),
-		PublicTeamID: u.TeamID(),
+		PublicID: u.PublicID(),
+		Name:     u.Name(),
+		Email:    string(u.Email()),
+		Phone:    string(u.Phone()),
+		Status:   u.StatusString(),
+		Password: string(u.Password()),
 	}
 
 	if err = svc.userRepo.Create(userModel); err != nil {

@@ -16,7 +16,6 @@ func Connect(log logger.Logger, DSN string) (*gorm.DB, error) {
 	}
 
 	tables := []interface{}{
-		&gormodel.Team{},
 		&gormodel.User{},
 		&gormodel.Product{},
 	}
